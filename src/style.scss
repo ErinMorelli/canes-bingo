@@ -1,0 +1,95 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
+
+$canes-red: #C81025;
+$square-size: 100px;
+$gap: 6px;
+
+* {
+  margin: 0;
+
+  &, &::before, &::after {
+    box-sizing: border-box;
+  }
+}
+
+.app {
+  font-family: 'Inter', Arial, sans-serif;
+  text-align: center;
+
+  header {
+    background-color: #C81025;
+    color: white;
+  }
+
+  main {
+    padding-bottom: 50px;
+    padding-top: 5px;
+  }
+
+  footer {
+    $footer-text-color: #888;
+
+    background-color: black;
+    color: $footer-text-color;
+
+    .divider {
+      padding: 0 10px;
+    }
+
+    a {
+      color: $footer-text-color;
+
+      &:not(.license) {
+        border-bottom: 1px dotted $footer-text-color;
+      }
+
+      &:hover {
+        border-bottom: 0;
+      }
+    }
+  }
+
+  .options {
+    height: $square-size * .75;
+
+    label {
+      font-weight: bold;
+    }
+
+    .ant-select {
+      text-align: left;
+    }
+  }
+}
+
+.bingo {
+  position: relative;
+  margin: 0 auto;
+  width: calc(($square-size * 5) + ($gap * 4));
+
+  .row {
+    display: flex;
+    gap: $gap;
+    margin: $gap 0;
+
+    .square {
+      background-color: white;
+      border: 1px black solid;
+      width: $square-size;
+      height: $square-size;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 5px;
+
+      &.selected {
+        background-color: $canes-red;
+      }
+
+      &:hover {
+        cursor: pointer;
+      }
+    }
+  }
+}
