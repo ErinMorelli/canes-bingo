@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Layout, Space } from 'antd';
 import { GithubFilled, HeartFilled } from '@ant-design/icons';
 
@@ -9,11 +9,30 @@ import { useGameBoard } from '../hooks';
 
 const { Header, Content, Footer } = Layout
 
+const VERSION_URL = 'https://api.github.com/repos/ErinMorelli/canes-bingo/commits';
+
+async function getAppVersion() {
+  try {
+    const resp = await fetch(VERSION_URL);
+    const commits: Array<{ sha: string }> = await resp.json();
+    return commits[0].sha.slice(0, 7);
+  } catch {
+    return '';
+  }
+}
+
 export default function App() {
+  const [version, setVersion] = useState('');
   const { boardId, loadBoard } = useGameBoard();
 
   useEffect(() => {
     if (boardId) loadBoard(boardId);
+  }, []);
+
+  useEffect(() => {
+    getAppVersion().then((v) => {
+      setVersion(v);
+    });
   }, []);
 
   return (
@@ -29,7 +48,7 @@ export default function App() {
         <Footer>
           <small>
             <a
-              href="http://creativecommons.org/licenses/by-nc-sa/4.0/"
+              href="https://creativecommons.org/licenses/by-nc-sa/4.0/"
               target="_blank"
               rel="noreferrer nofollow"
               className="license"
@@ -50,6 +69,14 @@ export default function App() {
             >
               <GithubFilled /> View on GitHub
             </a>
+            {version && (
+              <>
+                <span className="divider">&bull;</span>v. <a
+                  href={`https://github.com/ErinMorelli/canes-bingo/commit/${version}`}
+                  target="_blank"
+                >{version}</a>
+              </>
+            )}
           </small>
         </Footer>
       </Layout>
