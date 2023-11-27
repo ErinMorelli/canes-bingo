@@ -13,6 +13,10 @@ const theme: ThemeConfig = {
   components: {
     Button: {
       colorPrimary: '#000000'
+    },
+    Skeleton: {
+      colorFill: '#333',
+      colorFillContent: '#222'
     }
   }
 };

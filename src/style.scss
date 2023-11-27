@@ -32,6 +32,23 @@ $gap: 6px;
     background-color: black;
     color: $footer-text-color;
 
+    .version {
+      &::before {
+        content: 'v. ';
+      }
+
+      .ant-skeleton-input {
+        $skeleton-height: 10px;
+        $skeleton-width: 50px;
+
+        height: $skeleton-height;
+        line-height: $skeleton-height;
+        vertical-align: middle;
+        width: $skeleton-width;
+        min-width: $skeleton-width;
+      }
+    }
+
     .divider {
       padding: 0 10px;
     }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Layout, Space } from 'antd';
+import { Layout, Skeleton, Space } from 'antd';
 import { GithubFilled, HeartFilled } from '@ant-design/icons';
 
 import BingoCard from './BingoCard';
@@ -69,14 +69,17 @@ export default function App() {
             >
               <GithubFilled /> View on GitHub
             </a>
-            {version && (
-              <>
-                <span className="divider">&bull;</span>v. <a
+            <span className="divider">&bull;</span>
+            <span className="version">
+              {!version ? (
+                <Skeleton.Input size="small" active />
+              ) : (
+                <a
                   href={`https://github.com/ErinMorelli/canes-bingo/commit/${version}`}
                   target="_blank"
                 >{version}</a>
-              </>
-            )}
+              )}
+            </span>
           </small>
         </Footer>
       </Layout>
