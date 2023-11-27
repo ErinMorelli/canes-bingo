@@ -2,8 +2,10 @@
 
 $canes-red: #C81025;
 $canes-grey: #888888;
-$square-size: 100px;
+
+$square-size: 115px;
 $gap: 6px;
+$card-size: calc(($square-size * 5) + ($gap * 4));
 
 * {
   margin: 0;
@@ -17,7 +19,7 @@ body {
   font-family: 'Inter', Arial, sans-serif;
 
   .card-image {
-    width: 550px;
+    width: $card-size + 20px;
     background-color: black;
     text-align: center;
 
@@ -109,12 +111,17 @@ body {
 .bingo {
   position: relative;
   margin: 0 auto;
-  width: calc(($square-size * 5) + ($gap * 4));
+  width: $card-size;
 
   .row {
     display: flex;
     gap: $gap;
     margin: $gap 0;
+
+    #square-2-2 {
+      font-weight: bold;
+      font-size: 16px;
+    }
 
     .square {
       background-color: white;

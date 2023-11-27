@@ -17,8 +17,8 @@ const BingoCard = forwardRef<HTMLDivElement>(
         const squareId = `${rowId}:${colId}`;
         return (
           <div className={`square${selected ? ' selected' : ''}`}
-               id={`square-${squareId}`}
-               key={`square-${squareId}`}
+               id={`square-${rowId}-${colId}`}
+               key={`square-${rowId}-${colId}`}
                onClick={() => handleClick(rowId, colId)}
           >{squareId === '2:2' ? 'Free Space' : value.value}</div>
         )
