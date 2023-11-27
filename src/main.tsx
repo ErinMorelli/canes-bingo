@@ -4,6 +4,7 @@ import { ConfigProvider, ThemeConfig } from 'antd';
 
 import App from './components/App';
 import store from './store';
+
 import './style.scss';
 
 const theme: ThemeConfig = {

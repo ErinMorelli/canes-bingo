@@ -12,12 +12,12 @@ import {
   selectBoard,
   setBoard,
   updateSquare
-} from '../slices/board.ts';
+} from '../slices/board';
 
 import { Board } from '../types';
-import { getBoardId, parseBoardId } from '../utils.ts';
+import { getBoardId, parseBoardId } from '../utils';
 
-import { useHash } from './useHash.ts';
+import { useHash } from './useHash';
 
 type UseGameBoardResult = {
   boardId: string;

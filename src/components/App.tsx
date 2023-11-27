@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Layout, Skeleton, Space } from 'antd';
 import { GithubFilled, HeartFilled } from '@ant-design/icons';
 
@@ -23,7 +23,10 @@ async function getAppVersion() {
 
 export default function App() {
   const [version, setVersion] = useState('');
+
   const { boardId, loadBoard } = useGameBoard();
+
+  const cardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (boardId) loadBoard(boardId);
@@ -42,8 +45,8 @@ export default function App() {
           <h1>Carolina Hurricanes Bingo</h1>
         </Header>
         <Content>
-          <GameOptions />
-          <BingoCard />
+          <GameOptions cardRef={cardRef}/>
+          <BingoCard ref={cardRef} />
         </Content>
         <Footer>
           <small>
