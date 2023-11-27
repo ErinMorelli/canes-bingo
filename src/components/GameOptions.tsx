@@ -46,7 +46,7 @@ export default function GameOptions() {
           id="gameSelect"
           value={game}
           style={{ width: 120 }}
-          onChange={(value) => handleGameChange(value)}
+          onChange={handleGameChange}
           options={[
             { value: Game.HOME, label: 'Home' },
             { value: Game.AWAY, label: 'Away' }
@@ -59,7 +59,7 @@ export default function GameOptions() {
           id="broadcastSelect"
           value={broadcast}
           style={{ width: 120 }}
-          onChange={(value) => handleBroadcastChange(value)}
+          onChange={handleBroadcastChange}
           options={[
             { value: Broadcast.LOCAL, label: 'Local' },
             { value: Broadcast.NATIONAL, label: 'National' }
