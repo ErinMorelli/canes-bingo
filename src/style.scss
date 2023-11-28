@@ -7,7 +7,7 @@ $square-size: 115px;
 $gap: 6px;
 $card-size: calc(($square-size * 5) + ($gap * 4));
 
-$mobile-scale: .7;
+$mobile-scale: .68;
 $mobile-square-size: $square-size * $mobile-scale;
 $mobile-gap: 4px;
 $mobile-card-size: calc(($mobile-square-size * 5) + ($mobile-gap * 4));
@@ -170,8 +170,8 @@ body {
     margin: $gap 0;
 
     @media only screen and (max-width: $breakpoint) {
-      gap: $mobile-gap;
-      margin: $mobile-gap 0;
+      gap: 0;
+      margin: 0;
     }
 
     #square-2-2 {
@@ -189,11 +189,13 @@ body {
       align-items: center;
       text-align: center;
       padding: 5px;
+      overflow: hidden;
+      overflow-wrap: anywhere;
 
       @media only screen and (max-width: $breakpoint) {
         width: $mobile-square-size;
         height: $mobile-square-size;
-        padding: 3px;
+        padding: 2px;
       }
 
       &.selected {
