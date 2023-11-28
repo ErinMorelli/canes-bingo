@@ -7,6 +7,13 @@ $square-size: 115px;
 $gap: 6px;
 $card-size: calc(($square-size * 5) + ($gap * 4));
 
+$mobile-scale: .7;
+$mobile-square-size: $square-size * $mobile-scale;
+$mobile-gap: 4px;
+$mobile-card-size: calc(($mobile-square-size * 5) + ($mobile-gap * 4));
+
+$breakpoint: 720px;
+
 * {
   margin: 0;
 
@@ -17,27 +24,6 @@ $card-size: calc(($square-size * 5) + ($gap * 4));
 
 body {
   font-family: 'Inter', Arial, sans-serif;
-
-  .card-image {
-    width: $card-size + 20px;
-    background-color: black;
-    text-align: center;
-
-    h3 {
-      color: white;
-      padding: 10px 0 5px;
-    }
-
-    .bingo {
-      font-size: 14px;
-    }
-
-    small {
-      display: block;
-      color: #888;
-      padding: 5px 0 10px;
-    }
-  }
 }
 
 .app {
@@ -46,16 +32,58 @@ body {
   header {
     background-color: #C81025;
     color: white;
+
+    @media only screen and (max-width: $breakpoint) {
+      padding: 0 10px;
+      font-size: 12px;
+    }
   }
 
   main {
     padding-bottom: 50px;
     padding-top: 5px;
+
+    @media only screen and (max-width: $breakpoint) {
+      padding-top: 0;
+    }
   }
 
   footer {
     background-color: black;
     color: $canes-grey;
+
+    section {
+      display: inline-block;
+
+      > div {
+        display: inline-block;
+        font-size: 12px;
+
+        &::after {
+          content: '\2022';
+          padding: 0 10px;
+        }
+      }
+
+      &:last-of-type > div:last-of-type::after {
+        content: '';
+        padding: 0
+      }
+
+      @media only screen and (max-width: $breakpoint) {
+        display: block;
+        padding-bottom: 10px;
+
+        > div::after {
+          padding: 5px;
+        }
+
+        &:first-of-type > div:last-of-type::after {
+          content: '';
+          padding: 0;
+        }
+      }
+    }
 
     .version {
       &::before {
@@ -72,10 +100,6 @@ body {
         width: $skeleton-width;
         min-width: $skeleton-width;
       }
-    }
-
-    .divider {
-      padding: 0 10px;
     }
 
     a {
@@ -105,6 +129,29 @@ body {
     .ant-select {
       text-align: left;
     }
+
+    @media only screen and (max-width: $breakpoint) {
+      display: block;
+      height: auto;
+      padding: 10px;
+
+      > div:first-of-type {
+        display: block;
+        padding-bottom: 15px;
+      }
+
+      > div:not(:first-of-type) {
+        display: inline-block;
+
+        &:not(:last-of-type) {
+          padding-right: 15px;
+        }
+
+        > div {
+          display: block;
+        }
+      }
+    }
   }
 }
 
@@ -113,10 +160,19 @@ body {
   margin: 0 auto;
   width: $card-size;
 
+  @media only screen and (max-width: $breakpoint) {
+    width: $mobile-card-size;
+  }
+
   .row {
     display: flex;
     gap: $gap;
     margin: $gap 0;
+
+    @media only screen and (max-width: $breakpoint) {
+      gap: $mobile-gap;
+      margin: $mobile-gap 0;
+    }
 
     #square-2-2 {
       font-weight: bold;
@@ -134,6 +190,12 @@ body {
       text-align: center;
       padding: 5px;
 
+      @media only screen and (max-width: $breakpoint) {
+        width: $mobile-square-size;
+        height: $mobile-square-size;
+        padding: 3px;
+      }
+
       &.selected {
         background-color: $canes-red;
       }
@@ -142,5 +204,34 @@ body {
         cursor: pointer;
       }
     }
+  }
+}
+
+.card-image {
+  width: $card-size + 20px;
+  background-color: black;
+  text-align: center;
+
+  .bingo {
+    @extend .bingo;
+  }
+
+  @media only screen and (max-width: $breakpoint) {
+    width: $mobile-card-size + 10px;
+  }
+
+  h3 {
+    color: white;
+    padding: 10px 0 5px;
+  }
+
+  .bingo {
+    font-size: 14px;
+  }
+
+  small {
+    display: block;
+    color: #888;
+    padding: 5px 0 10px;
   }
 }
