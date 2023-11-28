@@ -15,12 +15,21 @@ const BingoCard = forwardRef<HTMLDivElement>(
       return row.map((square, colId) => {
         const { selected, value } = square;
         const squareId = `${rowId}:${colId}`;
+        const squareValue = squareId === '2:2' ? 'Free Space' : value.value;
         return (
           <div className={`square${selected ? ' selected' : ''}`}
                id={`square-${rowId}-${colId}`}
                key={`square-${rowId}-${colId}`}
                onClick={() => handleClick(rowId, colId)}
-          >{squareId === '2:2' ? 'Free Space' : value.value}</div>
+               onKeyUp={(event) => {
+                 if (event.code.toLowerCase() === 'enter') {
+                   event.preventDefault();
+                   handleClick(rowId, colId);
+                 }
+               }}
+               aria-label={`${selected ? 'SELECTED ' : ''} ${squareValue}`}
+               tabIndex={0}
+          >{squareValue}</div>
         )
       });
     };

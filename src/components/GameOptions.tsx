@@ -108,6 +108,7 @@ export default function GameOptions({ cardRef }: GameOptionsProps) {
         <Button
           onClick={handleScreenshot}
           shape="round"
+          aria-label="Download card image"
           icon={<DownloadOutlined />}
         />
       </Tooltip>

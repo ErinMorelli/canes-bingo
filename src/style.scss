@@ -109,6 +109,7 @@ body {
         border-bottom: 1px dotted $canes-grey;
       }
 
+      &:focus,
       &:hover {
         border-bottom: 0;
       }

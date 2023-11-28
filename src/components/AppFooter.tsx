@@ -32,6 +32,7 @@ export default function AppFooter() {
             target="_blank"
             rel="noreferrer nofollow"
             className="license"
+            aria-label="Attribution-NonCommercial-ShareAlike 4.0 International"
             title="Attribution-NonCommercial-ShareAlike 4.0 International"
           >
             <i className="icon-cc"></i>
@@ -61,6 +62,7 @@ export default function AppFooter() {
             <a
               href={`https://github.com/ErinMorelli/canes-bingo/commit/${version}`}
               target="_blank"
+              aria-label={`version ${version}`}
             >{version}</a>
           )}
         </div>
