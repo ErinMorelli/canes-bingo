@@ -26,7 +26,10 @@
     {"id": 25, "value": "Goaltender interference"},
     {"id": 26, "value": "Player mouthing \"fuck yeah\""},
     {"id": 27, "value": "E X P E R I E N C E"},
-    {"id": 28, "value": "Aho 5-hole"}
+    {"id": 28, "value": "Aho 5-hole"},
+    {"id": 56, "value": "Penalty killed"},
+    {"id": 57, "value": "Goalie loses stick"},
+    {"id": 58, "value": "Kochetkov poke check"}
   ],
   "home": [
     {"id": 29, "value": "Adam. Lee. Decker."},
