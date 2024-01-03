@@ -55,7 +55,9 @@
     {"id": 45, "value": "\"Pure Michigander\" "},
     {"id": 46, "value": "Inside a Hurricane"},
     {"id": 47, "value": "Tripp wrong about review"},
-    {"id": 60, "value": "Grade A"}
+    {"id": 60, "value": "Grade A"},
+    {"id": 61, "value": "Oil, gas, and gravy"},
+    {"id": 62, "value": "You legend"}
   ],
   "national": [
     {"id": 48, "value": "Canes confused with Panthers"},
