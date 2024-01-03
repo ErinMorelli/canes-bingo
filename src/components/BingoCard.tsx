@@ -15,8 +15,7 @@ const BingoCard = forwardRef<HTMLDivElement>(
       return row.map((square, colId) => {
         const { selected, value } = square;
         const squareId = `${rowId}:${colId}`;
-        // const squareValue = squareId === '2:2' ? 'Free Space' : value.value;
-        const squareValue = squareId === '2:2' ? 'Fuck the Rags' : value.value;
+        const squareValue = squareId === '2:2' ? 'Free Space' : value.value;
         return (
           <div className={`square${selected ? ' selected' : ''}`}
                id={`square-${rowId}-${colId}`}
