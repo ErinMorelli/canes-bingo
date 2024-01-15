@@ -1,6 +1,6 @@
 {
   "general": [
-    {"id": 1, "value": "Necas wraparound attempt"},
+    {"id": 1, "value": "Wraparound attempt"},
     {"id": 2, "value": "Defenseman scores"},
     {"id": 3, "value": "Aho shorty attempt"},
     {"id": 4, "value": "CHATMANDU"},
@@ -58,7 +58,8 @@
     {"id": 60, "value": "Grade A"},
     {"id": 61, "value": "\"Cooking with oil, gas, & gravy\""},
     {"id": 62, "value": "\"You legend\""},
-    {"id": 63, "value": "\"Lucky fan from Cary\""}
+    {"id": 63, "value": "\"Lucky fan from ...\""},
+    {"id": 65, "value": "\"Big rig\""}
   ],
   "national": [
     {"id": 48, "value": "Canes confused with Panthers"},
