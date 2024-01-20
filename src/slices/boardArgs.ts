@@ -2,6 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 import { RootState } from '../store';
 import { BoardArgs, Broadcast, Game } from '../types';
+import { updateBoardArgs } from './index.ts';
 
 const initialState: BoardArgs = {
   game: Game.HOME,
@@ -19,11 +20,12 @@ export const boardArgsSlice = createSlice({
       state.broadcast = action.payload;
     },
   },
-})
+  extraReducers: (builder) => {
+    builder.addCase(updateBoardArgs, (_, { payload }) => payload);
+  },
+});
 
-export const { updateGame, updateBroadcast } = boardArgsSlice.actions
+export const { updateBroadcast, updateGame  } = boardArgsSlice.actions
 
 export const selectGame = (state: RootState) => state.boardArgs.game;
 export const selectBroadcast = (state: RootState) => state.boardArgs.broadcast;
-
-export default boardArgsSlice.reducer;

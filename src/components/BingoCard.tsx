@@ -2,6 +2,7 @@ import { forwardRef } from 'react';
 
 import { BoardSquare } from '../types';
 import { useGameBoard } from '../hooks';
+import { FREE_SPACE } from '../constants.ts';
 
 const BingoCard = forwardRef<HTMLDivElement>(
   (_, ref) => {
@@ -15,7 +16,7 @@ const BingoCard = forwardRef<HTMLDivElement>(
       return row.map((square, colId) => {
         const { selected, value } = square;
         const squareId = `${rowId}:${colId}`;
-        const squareValue = squareId === '2:2' ? 'Free Space' : value.value;
+        const squareValue = squareId === '2:2' ? FREE_SPACE : value.value;
         return (
           <div className={`square${selected ? ' selected' : ''}`}
                id={`square-${rowId}-${colId}`}

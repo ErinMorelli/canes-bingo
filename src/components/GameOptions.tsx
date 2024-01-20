@@ -4,15 +4,9 @@ import { Button, Select, Space, Tooltip } from 'antd';
 import { ReloadOutlined, DownloadOutlined } from '@ant-design/icons';
 import html2canvas from 'html2canvas';
 
-import {
-  selectBroadcast,
-  selectGame,
-  updateBroadcast,
-  updateGame
-} from '../slices/boardArgs';
-
 import { useGameBoard } from '../hooks';
-import { Broadcast, Game } from '../types';
+import { BoardArgs, Broadcast, Game } from '../types';
+import { selectBroadcast, selectGame, updateBoardArgs } from '../slices';
 
 type GameOptionsProps = {
   cardRef: RefObject<HTMLDivElement>;
@@ -29,15 +23,17 @@ export default function GameOptions({ cardRef }: GameOptionsProps) {
     resetBoard();
   }
 
-  function handleGameChange(newGame: Game) {
-    dispatch(updateGame(newGame));
-    resetBoard();
+  function handleBoardArgsChange(newBoardArgs: BoardArgs) {
+    dispatch(updateBoardArgs(newBoardArgs));
   }
 
-  function handleBroadcastChange(newBroadcast: Broadcast){
-    dispatch(updateBroadcast(newBroadcast));
-    resetBoard();
-  }
+  const handleGameChange = useCallback((newGame: Game) => {
+    handleBoardArgsChange({ broadcast, game: newGame });
+  }, [broadcast]);
+
+  const handleBroadcastChange = useCallback((newBroadcast: Broadcast) => {
+    handleBoardArgsChange({ game, broadcast: newBroadcast });
+  }, [game]);
 
   const handleScreenshot = useCallback(() => {
     if (!cardRef.current) return;

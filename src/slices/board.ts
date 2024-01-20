@@ -3,6 +3,7 @@ import { createAction, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../store';
 import { Board, BoardArgs, Broadcast, Game, UpdateBoardArgs } from '../types';
 import { createBoard } from '../utils.ts';
+import { updateBoardArgs } from './index.ts';
 
 const initialState: Board = createBoard({
   game: Game.HOME,
@@ -19,16 +20,15 @@ export const boardSlice = createSlice({
     updateSquare: (state, action: PayloadAction<UpdateBoardArgs>) => {
       const { row, col, value } = action.payload;
       state[row][col] = value;
-    }
+    },
   },
   extraReducers: (builder) => {
+    builder.addCase(updateBoardArgs, (_, { payload }) => createBoard(payload));
     builder.addCase(generateBoard, (_, { payload }) => createBoard(payload));
     builder.addCase(setBoard, (_, { payload }) => payload);
   }
-})
+});
 
 export const { updateSquare } = boardSlice.actions;
 
 export const selectBoard = (state: RootState) => state.board;
-
-export default boardSlice.reducer;

@@ -2,18 +2,15 @@ import { useCallback, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import {
-  selectBroadcast,
-  selectGame,
-  updateBroadcast,
-  updateGame
-} from '../slices/boardArgs';
-import {
   generateBoard,
   selectBoard,
+  selectBroadcast,
+  selectGame,
   setBoard,
-  updateSquare
-} from '../slices/board';
-
+  updateBroadcast,
+  updateGame,
+  updateSquare,
+} from '../slices';
 import { Board } from '../types';
 import { getBoardId, parseBoardId } from '../utils';
 
