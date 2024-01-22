@@ -1,0 +1,261 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
+
+$canes-red: #C81025;
+$canes-grey: #888888;
+
+$square-size: 115px;
+$gap: 6px;
+$card-size: calc(($square-size * 5) + ($gap * 4));
+
+$mobile-scale: .63;
+$mobile-square-size: $square-size * $mobile-scale;
+$mobile-gap: 4px;
+$mobile-card-size: $mobile-square-size * 5;
+
+$breakpoint: 720px;
+
+* {
+  margin: 0;
+
+  &, &::before, &::after {
+    box-sizing: border-box;
+  }
+}
+
+html {
+  background-color: black;
+}
+
+body {
+  font-family: 'Inter', Arial, sans-serif;
+}
+
+.app {
+  text-align: center;
+
+  header {
+    background-color: #C81025;
+    color: white;
+
+    @media only screen and (max-width: $breakpoint) {
+      padding: 0 10px;
+      font-size: 12px;
+    }
+  }
+
+  aside {
+    &.ant-layout-sider {
+      background-color: #ccc;
+      border-right: 1px solid $canes-grey;
+    }
+
+    .options {
+      text-align: center;
+      margin-top: 20px;
+    }
+  }
+
+  main {
+    padding-bottom: 40px;
+    padding-top: 5px;
+
+    .toolbar {
+      width: $card-size;
+      margin: 0 auto;
+      padding: 8px 0 10px;
+
+      @media only screen and (max-width: $breakpoint) {
+        width: $mobile-card-size;
+      }
+    }
+
+    .board-wrapper {
+      min-height: $card-size;
+
+      > div {
+        min-height: $card-size;
+      }
+
+      @media only screen and (max-width: $breakpoint) {
+        min-height: $mobile-card-size;
+
+        > div {
+          min-height: $mobile-card-size;
+        }
+      }
+    }
+
+    .bottom-message {
+      padding-top: 15px;
+
+      a {
+        color: $canes-red;
+        font-weight: bold;
+        border-bottom: 1px dotted $canes-grey;
+
+        &:hover {
+          color: black;
+          border-bottom: none;
+        }
+      }
+    }
+  }
+
+  footer {
+    background-color: black;
+    color: $canes-grey;
+    padding: 24px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    align-content: center;
+    flex-direction: column;
+    gap: 10px;
+
+    .license {
+      i {
+        font-size: 12px;
+        display: inline-block;
+        max-width: 15px;
+      }
+    }
+
+    .coffee .anticon {
+      font-size: 16px;
+    }
+
+    a {
+      color: $canes-grey;
+
+      &:not(.license) {
+        border-bottom: 1px dotted $canes-grey;
+      }
+
+      &:focus,
+      &:hover {
+        border-bottom: 0;
+      }
+    }
+  }
+
+  .options {
+    .select-option-icon.anticon {
+      position: relative;
+      font-size: 12px;
+      padding-left: 3px;
+      top: -1px;
+    }
+
+    .ant-select-outlined.ant-select-multiple {
+      .ant-select-selection-item {
+        background: none;
+        padding-inline-start: 3px;
+      }
+
+      .ant-select-selection-overflow-item {
+        &:first-of-type > span {
+          padding-left: 5px;
+        }
+
+        &:not(:last-of-type) > span {
+          padding-right: 3px;
+        }
+      }
+    }
+  }
+}
+
+.bingo {
+  position: relative;
+  margin: 0 auto;
+  width: $card-size;
+
+  @media only screen and (max-width: $breakpoint) {
+    width: $mobile-card-size;
+  }
+
+  .row {
+    display: flex;
+    gap: $gap;
+    margin: $gap 0;
+
+    @media only screen and (max-width: $breakpoint) {
+      gap: 0;
+      margin: 0;
+    }
+
+    #square-2-2 {
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .square {
+      background-color: white;
+      border: 1px solid #{var(--ant-color-border)};
+      border-radius: #{var(--ant-border-radius)};
+      width: $square-size;
+      height: $square-size;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 5px;
+      overflow: hidden;
+      overflow-wrap: anywhere;
+
+      @media only screen and (max-width: $breakpoint) {
+        width: $mobile-square-size;
+        height: $mobile-square-size;
+        border-radius: 0;
+        padding: 2px;
+
+        &#square-0-0 { border-top-left-radius: #{var(--ant-border-radius)}; }
+        &#square-0-4 { border-top-right-radius: #{var(--ant-border-radius)}; }
+        &#square-4-0 { border-bottom-left-radius: #{var(--ant-border-radius)}; }
+        &#square-4-4 { border-bottom-right-radius: #{var(--ant-border-radius)}; }
+      }
+
+      &.selected {
+        background-color: $canes-red;
+      }
+
+      &:hover {
+        cursor: pointer;
+        border-color: #{var(--ant-color-primary-hover)}
+      }
+    }
+  }
+}
+
+.card-image {
+  width: $card-size + 20px;
+  background-color: black;
+  text-align: center;
+
+  .bingo {
+    @extend .bingo;
+
+    .square {
+      border: 1px solid black;
+    }
+  }
+
+  @media only screen and (max-width: $breakpoint) {
+    width: $mobile-card-size + 10px;
+  }
+
+  h3 {
+    color: white;
+    padding: 10px 0 5px;
+  }
+
+  .bingo {
+    font-size: 14px;
+  }
+
+  small {
+    display: block;
+    color: #888;
+    padding: 5px 0 10px;
+  }
+}
