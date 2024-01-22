@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Skeleton } from 'antd';
-import { GithubFilled, HeartFilled } from '@ant-design/icons';
+import { CoffeeOutlined, GithubFilled, HeartFilled } from '@ant-design/icons';
 
 const VERSION_URL = 'https://api.github.com/repos/ErinMorelli/canes-bingo/commits';
 
@@ -26,7 +26,7 @@ export default function AppFooter() {
   return (
     <>
       <section>
-        <div>
+        <span>
           <a
             href="https://creativecommons.org/licenses/by-nc-sa/4.0/"
             target="_blank"
@@ -39,25 +39,31 @@ export default function AppFooter() {
             <i className="icon-cc-by"></i>
             <i className="icon-cc-nc"></i>
             <i className="icon-cc-sa"></i>
-          </a> {new Date().getFullYear()}
-        </div>
-        <div>
-          <span>Made with <HeartFilled /> by <a href="https://erin.dev" target="_blank">Erin Morelli</a></span>
-        </div>
+          </a> With <HeartFilled /> from a <a href="https://erin.dev"
+                             target="_blank"
+                             title="Erin Morelli">huge caniac</a>.
+        </span>
+        <span className="coffee">
+          <CoffeeOutlined /> <a href="https://www.buymeacoffee.com/ErinMorelli"
+                             target="_blank"
+                             rel="noreferrer nofollow">
+            <strong>Buy me a coffee</strong>
+          </a>
+        </span>
       </section>
       <section>
-        <div>
-          <a
+        <span>
+          <GithubFilled/> <a
             href="https://github.com/ErinMorelli/canes-bingo"
             target="_blank"
             rel="noreferrer nofollow"
           >
-            <GithubFilled /> View on GitHub
+            View on GitHub
           </a>
-        </div>
-        <div className="version">
+        </span>
+        <span className="version">
           {!version ? (
-            <Skeleton.Input size="small" active />
+            <Skeleton.Input size="small" active/>
           ) : (
             <a
               href={`https://github.com/ErinMorelli/canes-bingo/commit/${version}`}
@@ -65,7 +71,7 @@ export default function AppFooter() {
               aria-label={`version ${version}`}
             >{version}</a>
           )}
-        </div>
+        </span>
       </section>
     </>
   )

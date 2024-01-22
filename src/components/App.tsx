@@ -27,6 +27,18 @@ export default function App() {
         <Content>
           <GameOptions cardRef={cardRef}/>
           <BingoCard ref={cardRef} />
+          <div className="bottom-message">
+            <p>
+              Have an idea for a new square? <a
+                href="https://forms.gle/LS87Lr95QDixh9At5"
+                target="_blank"
+                rel="noreferrer nofollow"
+                aria-label="Bingo square idea submission form"
+              >
+                Submit it here
+              </a>!
+            </p>
+          </div>
         </Content>
         <Footer>
           <AppFooter />
