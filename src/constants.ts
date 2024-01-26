@@ -1,6 +1,6 @@
 import { ThemeConfig } from 'antd';
 
-export const FREE_SPACE = 'Free Space';
+export const FREE_SPACE = 'MOMS ♥';
 
 export const THEME: ThemeConfig = {
   token: {
