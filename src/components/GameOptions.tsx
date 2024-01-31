@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Button, Select, Space, Tooltip } from 'antd';
 import { ReloadOutlined, DownloadOutlined } from '@ant-design/icons';
 import html2canvas from 'html2canvas';
+import download from 'downloadjs';
 
 import { useGameBoard } from '../hooks';
 import { BoardArgs, Broadcast, Game } from '../types';
@@ -54,12 +55,14 @@ export default function GameOptions({ cardRef }: GameOptionsProps) {
 
     document.body.appendChild(card);
 
-    html2canvas(card).then((canvas) => {
+    html2canvas(card, { logging: false }).then((canvas) => {
       document.body.removeChild(card);
-      const link = document.createElement("a");
-      link.download = 'BingoCard.jpg';
-      link.href = canvas.toDataURL('image/jpeg');
-      link.click();
+
+      const mimeType = 'image/jpeg';
+      const fileName = `BingoCard-${Date.now().toString()}`;
+      const dataUrl = canvas.toDataURL(mimeType);
+
+      download(dataUrl, fileName, mimeType);
     })
     .catch((err) => {
       document.body.removeChild(card);
