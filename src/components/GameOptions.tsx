@@ -57,6 +57,8 @@ export default function GameOptions({ cardRef }: GameOptionsProps) {
     html2canvas(card).then((canvas) => {
       document.body.removeChild(card);
       canvas.toBlob((blob) => {
+        if (!blob) return;
+        
         const link = document.createElement("a");
         link.download = `BingoCard-${Date.now().toString()}.png`;
         link.href = URL.createObjectURL(blob);
