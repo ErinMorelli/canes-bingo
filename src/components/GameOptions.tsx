@@ -56,10 +56,14 @@ export default function GameOptions({ cardRef }: GameOptionsProps) {
 
     html2canvas(card).then((canvas) => {
       document.body.removeChild(card);
-      const link = document.createElement("a");
-      link.download = 'BingoCard.jpg';
-      link.href = canvas.toDataURL('image/jpeg');
-      link.click();
+      canvas.toBlob((blob) => {
+        const link = document.createElement("a");
+        link.download = `BingoCard-${Date.now().toString()}.png`;
+        link.href = URL.createObjectURL(blob);
+        link.click();
+
+        URL.revokeObjectURL(link.href);
+      }, 'image/png');
     })
     .catch((err) => {
       document.body.removeChild(card);
