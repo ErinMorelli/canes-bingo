@@ -114,4 +114,5 @@ export default {
   edit: CategoryEdit,
   create: CategoryCreate,
   show: CategoryShow,
+  recordRepresentation: 'label',
 };
