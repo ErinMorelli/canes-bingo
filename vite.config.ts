@@ -1,4 +1,6 @@
 import { defineConfig } from 'vite';
+import { vitePluginVersionMark } from 'vite-plugin-version-mark';
+
 import react from '@vitejs/plugin-react';
 import path from 'path';
 
@@ -13,5 +15,12 @@ export default defineConfig({
       '@admin': path.resolve(__dirname, './src/client/admin'),
     },
   },
-  plugins: [react()],
+  plugins: [
+    react(),
+    vitePluginVersionMark({
+      ifGlobal: false,
+      ifGitSHA: true,
+      ifLog: false,
+    })
+  ],
 });
