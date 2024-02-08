@@ -4,6 +4,8 @@ import { vitePluginVersionMark } from 'vite-plugin-version-mark';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 
+const isProd = process.env.NODE_ENV === 'production';
+
 // https://vitejs.dev/config/
 export default defineConfig({
   resolve: {
@@ -18,8 +20,11 @@ export default defineConfig({
   plugins: [
     react(),
     vitePluginVersionMark({
+      version: isProd
+        ? process.env.HEROKU_RELEASE_COMMIT!.slice(0, 8)
+        : undefined,
+      ifGitSHA: !isProd,
       ifGlobal: false,
-      ifGitSHA: true,
       ifLog: false,
     })
   ],
