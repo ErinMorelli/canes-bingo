@@ -5,19 +5,14 @@ import dotenv from 'dotenv';
 import { createPool } from 'mysql2';
 import { Kysely, MysqlDialect } from 'kysely';
 
-const envFile = process.env.NODE_ENV === 'production'
-  ? '.env.production'
-  : '.env.local';
-
-dotenv.config({
-  path: path.resolve(process.cwd(), envFile),
-});
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config({
+    path: path.resolve(process.cwd(), '.env.local'),
+  });
+}
 
 const dbConfig = {
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  database: process.env.DB_DATABASE
+  uri: process.env.DATABASE_URL
 };
 
 const dialect = new MysqlDialect({
