@@ -35,11 +35,20 @@ body {
 
   header {
     background-color: #C81025;
-    color: white;
+
+    h1 {
+      color: white;
+      font-size: 34px;
+      font-weight: normal;
+      font-family: 'Racing Sans One', 'Inter', Arial, sans-serif;
+    }
 
     @media only screen and (max-width: $breakpoint) {
       padding: 0 10px;
-      font-size: 12px;
+
+      h1 {
+        font-size: 24px;
+      }
     }
   }
 

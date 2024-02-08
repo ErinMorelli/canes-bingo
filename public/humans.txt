@@ -1,0 +1,19 @@
+/* TEAM */
+Name: Erin Morelli
+Email: me@erin.dev
+Location: Boston, MA, USA
+Website: https://erin.dev
+
+/* FONTS */
+"Inter" and "Racing Sans One" from Google Fonts (https://fonts.google.com)
+
+/* DISCLAIMER */
+Carolina Hurricanes and team logo are trademark of the Carolina Hurricanes Hockey Club.
+
+/* SITE */
+Node.js
+Vite
+Express
+React
+Sass
+Typescript
