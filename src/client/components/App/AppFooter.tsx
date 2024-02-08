@@ -4,28 +4,23 @@ export default function AppFooter() {
   return (
     <>
       <span>
-        <a
-          href="https://creativecommons.org/licenses/by-nc-sa/4.0/"
-          target="_blank"
-          rel="noreferrer nofollow"
-          className="license"
-          aria-label="Attribution-NonCommercial-ShareAlike 4.0 International"
-          title="Attribution-NonCommercial-ShareAlike 4.0 International"
-        >
-          <i className="icon-cc"></i>
-          <i className="icon-cc-by"></i>
-          <i className="icon-cc-nc"></i>
-          <i className="icon-cc-sa"></i>
-        </a> With <HeartFilled /> from a <a
+        Made with <HeartFilled /> by a <a
           href="https://erin.dev"
           target="_blank"
           title="Erin Morelli">huge caniac</a>.
       </span>
-      <span className="coffee">
-        <CoffeeOutlined/> <a
+      <span>
+        <CoffeeOutlined /> <a
           href="https://www.buymeacoffee.com/ErinMorelli"
           target="_blank"
-          rel="noreferrer nofollow">Buy me a coffee</a>.
+          rel="noreferrer nofollow">Buy me a coffee</a> to support future development.
+      </span>
+      <span className="disclaimer">
+        bingo.svech.net is an unofficial fan site and not affiliated in any way with the Carolina Hurricanes.<br />
+        Carolina Hurricanes and team logo are trademark of the <a
+          href="https://www.nhl.com/hurricanes"
+          target="_blank"
+          rel="noreferrer nofollow">Carolina Hurricanes Hockey Club</a>.
       </span>
     </>
   );
