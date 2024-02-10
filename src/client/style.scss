@@ -1,7 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
 
-$canes-red: #C81025;
-$canes-grey: #888888;
+//$canes-red-og: #C81025;
+$canes-red: #046A38;
+$canes-grey: #a2aaad;
+// #00205B
+//$canes-grey-og: #888888;
+//$black-og: #000000
+$black: #00205B;
 
 $square-size: 115px;
 $gap: 6px;
@@ -23,18 +28,19 @@ $breakpoint: 720px;
 }
 
 html {
-  background-color: black;
+  background-color: $black;
 }
 
 body {
   font-family: 'Inter', Arial, sans-serif;
+  color: $black;
 }
 
 .app {
   text-align: center;
 
   header {
-    background-color: #C81025;
+    background-color: $canes-red;
 
     h1 {
       color: white;
@@ -103,7 +109,7 @@ body {
         border-bottom: 1px dotted $canes-grey;
 
         &:hover {
-          color: black;
+          color: $black;
           border-bottom: none;
         }
       }
@@ -111,7 +117,7 @@ body {
   }
 
   footer {
-    background-color: black;
+    background-color: $black;
     color: $canes-grey;
     padding: 24px 20px;
     display: flex;
@@ -238,7 +244,7 @@ body {
 
 .card-image {
   width: $card-size + 20px;
-  background-color: black;
+  background-color: $black;
   text-align: center;
 
   .bingo {

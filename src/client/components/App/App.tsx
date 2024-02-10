@@ -64,7 +64,7 @@ export function App() {
       {contextHolder}
       <Layout className="app">
         <Header>
-          <h1>Carolina Hurricanes Bingo</h1>
+          <h1>Hartford Whalers Bingo</h1>
         </Header>
         <Layout>
           <Content>
