@@ -8,11 +8,11 @@ export const MIN_SQUARE_COUNT = 25;
 export const THEME: ThemeConfig = {
   cssVar: true,
   token: {
-    colorPrimary: '#046A38', //'#C81025',
+    colorPrimary: '#C81025',  // '#046A38'
   },
   components: {
     Button: {
-      colorPrimary: '#00205B',  // '#000000'
+      colorPrimary: '#000000',  // '#00205B'
     },
     Skeleton: {
       colorFill: '#333',
