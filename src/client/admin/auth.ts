@@ -20,7 +20,7 @@ const authProvider: AuthProvider = {
     try {
       const { data } = await axios.post(`${P}/login`, params);
       setStorageValue(StorageKey.Token, data.token);
-      return Promise.resolve({ redirectTo: '/_admin' });
+      return Promise.resolve({ redirectTo: '/admin' });
     } catch (err) {
       return Promise.reject(err);
     }
