@@ -1,25 +1,13 @@
-import { ThemeConfig } from 'antd';
-
 export const API_PREFIX = '/api/v1';
 export const LOCAL_STORAGE_PREFIX = 'CanesBingo';
 
 export const MIN_SQUARE_COUNT = 25;
 
-export const THEME: ThemeConfig = {
-  cssVar: true,
-  token: {
-    colorPrimary: '#C81025',  // '#046A38'
-  },
-  components: {
-    Button: {
-      colorPrimary: '#000000',  // '#00205B'
-    },
-    Skeleton: {
-      colorFill: '#333',
-      colorFillContent: '#222'
-    }
-  }
-};
+export enum ConfigKey {
+  FreeSpace = 'freeSpace',
+  HeaderText = 'headerText',
+  Theme = 'theme',
+}
 
 export enum StorageKey {
   ShowOptionsOnLoad = `${LOCAL_STORAGE_PREFIX}:ShowOptionsOnLoad`,

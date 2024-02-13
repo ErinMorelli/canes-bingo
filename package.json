@@ -39,6 +39,7 @@
     "vite-express": "^0.14.0"
   },
   "devDependencies": {
+    "@mui/lab": "^5.0.0-alpha.165",
     "@mui/material": "^5.15.7",
     "@types/bcrypt": "^5.0.2",
     "@types/body-parser": "^1.19.5",

@@ -19,7 +19,7 @@ import {
   WrapperField,
 } from 'react-admin';
 
-const SquaresList = () => (
+export const SquaresList = () => (
   <List perPage={100} pagination={false}>
     <Datagrid bulkActionButtons={false} rowClick="show">
       <TextField source="id" label="ID" sortable={false} />
@@ -37,7 +37,7 @@ const SquaresList = () => (
   </List>
 );
 
-const SquareEdit = () => (
+export const SquareEdit = () => (
   <Edit
     transform={(data: { id: number, value: string, categories: Array<number> }) => ({
       squareId: data.id,
@@ -53,7 +53,7 @@ const SquareEdit = () => (
   </Edit>
 );
 
-const SquareCreate = () => (
+export const SquareCreate = () => (
   <Create
     redirect="list"
     transform={(data: { value: string, categories: Array<number> }) => ({
@@ -68,7 +68,7 @@ const SquareCreate = () => (
   </Create>
 );
 
-const SquareShow = () => (
+export const SquareShow = () => (
   <Show
     actions={
       <TopToolbar>

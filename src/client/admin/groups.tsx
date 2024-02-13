@@ -18,7 +18,7 @@ import {
 } from 'react-admin';
 import camelCase from 'lodash.camelcase';
 
-const GroupsList = () => (
+export const GroupsList = () => (
   <List perPage={100} pagination={false}>
     <Datagrid bulkActionButtons={false} rowClick="show">
       <TextField source="id" label="ID" sortable={false} />
@@ -33,7 +33,7 @@ const GroupsList = () => (
   </List>
 );
 
-const GroupEdit = () => (
+export const GroupEdit = () => (
   <Edit
     transform={(data: { id: number, name: string }) => ({
       ...data,
@@ -50,7 +50,7 @@ const GroupEdit = () => (
   </Edit>
 );
 
-const GroupCreate = () => (
+export const GroupCreate = () => (
   <Create
     redirect="list"
     transform={(data: { name: string }) => ({
@@ -66,7 +66,7 @@ const GroupCreate = () => (
   </Create>
 );
 
-const GroupShow = () => (
+export const GroupShow = () => (
   <Show
     actions={
       <TopToolbar>

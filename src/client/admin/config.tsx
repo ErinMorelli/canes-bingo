@@ -13,7 +13,7 @@ import {
 } from 'react-admin';
 import camelCase from 'lodash.camelcase';
 
-const ConfigList = () => (
+export const ConfigList = () => (
   <List perPage={100} pagination={false}>
     <Datagrid bulkActionButtons={false} rowClick="edit">
       <TextField source="key" />
@@ -26,7 +26,7 @@ const ConfigList = () => (
   </List>
 );
 
-const ConfigEdit = () => (
+export const ConfigEdit = () => (
   <Edit>
     <SimpleForm>
       <TextInput name="key" source="key" disabled fullWidth />
@@ -35,7 +35,7 @@ const ConfigEdit = () => (
   </Edit>
 );
 
-const ConfigCreate = () => (
+export const ConfigCreate = () => (
   <Create
     redirect="list"
     transform={(data: { key: string }) => ({

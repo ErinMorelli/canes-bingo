@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { ReactNode, KeyboardEvent } from 'react';
-import { Skeleton } from 'antd';
+import { Spin } from 'antd';
 
 import { BoardSquare } from '@app/types';
 import { fetchConfigValue } from '@app/utils';
+import { ConfigKey } from '@app/constants.ts';
 
 type SquareProps = {
   square: BoardSquare;
@@ -22,12 +23,12 @@ export function CardSquare({ square, rowId, colId, onClick }: SquareProps) {
   const squareId = getSquareId(rowId, colId);
 
   const [squareValue, setSquareValue] = useState<ReactNode>(
-    <Skeleton.Avatar active={true} size="small" shape="square" />
+    <Spin size="small" />
   );
 
   useEffect(() => {
     if (rowId === 2 && colId === 2) {
-      fetchConfigValue('freeSpace').then(setSquareValue);
+      fetchConfigValue(ConfigKey.FreeSpace).then(setSquareValue);
     } else {
       setSquareValue(value.value);
     }

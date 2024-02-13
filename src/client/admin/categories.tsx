@@ -20,7 +20,7 @@ import {
 } from 'react-admin';
 import camelCase from 'lodash.camelcase';
 
-const CategoriesList = () => (
+export const CategoriesList = () => (
   <List perPage={100} pagination={false}>
     <Datagrid bulkActionButtons={false} rowClick="show">
       <TextField source="id" label="ID" sortable={false} />
@@ -38,7 +38,7 @@ const CategoriesList = () => (
   </List>
 );
 
-const CategoryEdit = () => (
+export const CategoryEdit = () => (
   <Edit
     transform={(data: {
       id: number,
@@ -64,7 +64,7 @@ const CategoryEdit = () => (
   </Edit>
 );
 
-const CategoryCreate = () => (
+export const CategoryCreate = () => (
   <Create
     redirect="list"
     transform={(data: {
@@ -88,7 +88,7 @@ const CategoryCreate = () => (
   </Create>
 );
 
-const CategoryShow = () => (
+export const CategoryShow = () => (
   <Show
     actions={
       <TopToolbar>

@@ -13,7 +13,7 @@ import {
   WrapperField
 } from 'react-admin';
 
-const UsersList = () => (
+export const UsersList = () => (
   <List perPage={100} pagination={false}>
     <Datagrid bulkActionButtons={false} rowClick="show">
       <TextField source="id" label="ID" sortable={false} />
@@ -26,7 +26,7 @@ const UsersList = () => (
   </List>
 );
 
-const UserEdit = () => (
+export const UserEdit = () => (
   <Edit>
     <SimpleForm>
       <TextInput disabled source="id" name="ID" />
@@ -45,7 +45,7 @@ const UserEdit = () => (
   </Edit>
 )
 
-const UserCreate = () => (
+export const UserCreate = () => (
   <Create redirect="list">
     <SimpleForm>
       <TextInput source="username" name="username" validate={required()} />

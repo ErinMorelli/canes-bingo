@@ -12,7 +12,7 @@ import {
   Square,
   Squares
 } from './types.ts';
-import { API_PREFIX, Group, StorageKey } from './constants.ts';
+import { API_PREFIX, ConfigKey, Group, StorageKey } from './constants.ts';
 
 function shuffleArray(arr: Squares): Squares {
   const array = [...arr];
@@ -65,7 +65,7 @@ export async function fetchGroup(groupName: string): Promise<FetchGroupResult> {
     }));
 }
 
-export async function fetchConfigValue(key: string): Promise<string> {
+export async function fetchConfigValue(key: ConfigKey): Promise<string> {
   return await axios
     .get(`${API_PREFIX}/config/${key}`)
     .then((res: { data: { value: string }}) => res.data.value);
