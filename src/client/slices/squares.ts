@@ -22,11 +22,12 @@ export const squaresSlice = createAppSlice({
   initialState,
   reducers: (create) => ({
     fetchSquares: create.asyncThunk(
-      async (boardArgs: BoardArgs, { dispatch }) => {
+      async (boardArgs: BoardArgs, { dispatch, getState }) => {
         const baseUrl = `${API_PREFIX}/squares`;
         const params: { include?: string; exclude?: string; } = {};
+        const groups = (getState() as RootState).groups.groups;
 
-        const [ includes, excludes ] = convertArgsToString(boardArgs);
+        const [ includes, excludes ] = convertArgsToString(boardArgs, groups);
         if (includes) params.include = includes;
         if (excludes) params.exclude = excludes;
 

@@ -7,6 +7,7 @@ import {
   Category,
   FetchGroupResult,
   GroupResult,
+  GroupsStateGroups,
   MultiGroup,
   SingleGroup,
   Square,
@@ -40,18 +41,29 @@ export function createBoard(squares: Squares, size = 25): Board {
   );
 }
 
-export function convertArgsToString(boardArgs: BoardArgs) {
+export function convertArgsToString(
+  boardArgs: BoardArgs,
+  groups: GroupsStateGroups
+) {
   const includes = [
     Group.GENERAL,
     ...Group.SingleGroups.map((g: SingleGroup) => boardArgs[g].name),
   ].join(',');
 
-  const excludes = Group.MultiGroups
-    .filter((g: MultiGroup) => Object.keys(boardArgs).includes(g))
-    .map((g: MultiGroup) => boardArgs[g])
-    .map((c: Array<Category>) => c.map(i => i.name))
+  const excludeSingles = Group.SingleGroups
+    .map((g: SingleGroup) => groups[g]!.categories)
     .flat()
-    .join(',');
+    .map((c: Category) => c.name)
+    .filter((n) => !includes.includes(n));
+
+  const excludes = [
+    ...excludeSingles,
+    ...Group.MultiGroups
+      .filter((g: MultiGroup) => Object.keys(boardArgs).includes(g))
+      .map((g: MultiGroup) => boardArgs[g])
+      .map((c: Array<Category>) => c.map(i => i.name))
+      .flat()
+  ].join(',');
 
   return [includes, excludes];
 }

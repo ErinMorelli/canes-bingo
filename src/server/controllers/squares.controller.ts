@@ -44,24 +44,28 @@ export async function getSquares(
     ])
     .groupBy('s.squareId');
 
-  let query = db
-    .selectFrom(baseQuery.as('result'))
-    .select(['result.id', 'result.value'])
+  const includeQuery = db
+    .selectFrom(baseQuery.as('a'))
+    .selectAll()
     .where((eb) =>
       eb.or(include!.map((i) =>
-        sql<boolean>`FIND_IN_SET(${i}, ${eb.ref('result.categories')})`
+        sql<boolean>`FIND_IN_SET(${i}, ${eb.ref('a.categories')})`
       ))
     );
 
   if (exclude) {
-    query = query.where((eb) =>
-      eb.and(exclude.map((e) =>
-        sql<boolean>`NOT FIND_IN_SET(${e}, ${eb.ref('result.categories')})`
-      ))
-    )
+    const excludeQuery = db
+      .selectFrom(includeQuery.as('b'))
+      .selectAll()
+      .where((eb) =>
+        eb.and(exclude.map((e) =>
+          sql<boolean>`NOT FIND_IN_SET(${e}, ${eb.ref('b.categories')})`
+        ))
+      );
+    return await excludeQuery.execute();
   }
 
-  return await query.execute();
+  return await includeQuery.execute();
 }
 
 export async function getSquare(squareId: number) {
