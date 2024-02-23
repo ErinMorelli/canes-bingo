@@ -1,10 +1,12 @@
 import {
   ChipField,
   Create,
+  CreateButton,
   Datagrid,
   DeleteButton,
   Edit,
   EditButton,
+  ExportButton,
   List,
   ReferenceArrayField,
   ReferenceArrayInput,
@@ -18,9 +20,27 @@ import {
   TopToolbar,
   WrapperField,
 } from 'react-admin';
+import { Button } from '@mui/material';
+import IdeasIcon from '@mui/icons-material/TipsAndUpdatesRounded';
 
 export const SquaresList = () => (
-  <List perPage={100} pagination={false}>
+  <List
+    perPage={100}
+    pagination={false}
+    actions={
+      <TopToolbar>
+        <CreateButton/>
+        <ExportButton/>
+          <Button
+            size="small"
+            variant="text"
+            href="https://emorel.li/bingo-suggestions"
+            target="_blank"
+            startIcon={<IdeasIcon />}
+          >Suggestions</Button>
+      </TopToolbar>
+    }
+  >
     <Datagrid bulkActionButtons={false} rowClick="show">
       <TextField source="id" label="ID" sortable={false} />
       <TextField source="value" sortable={false} />
