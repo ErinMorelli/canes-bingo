@@ -40,11 +40,22 @@ export default function OptionSelect({ groupName }: SelectOptionProps) {
   );
 
   const options = useMemo(
-    () => !group ? [] : group.categories.map(
-      (cat) => ({
-        value: cat.name,
-        label: cat.label
-      })),
+    () => !group
+      ? []
+      : group.categories
+        .sort((a: Category, b: Category) => {
+          if (a.label.toUpperCase() < b.label.toUpperCase()) {
+            return -1;
+          }
+          if (a.label.toUpperCase() > b.label.toUpperCase()) {
+            return 1;
+          }
+          return 0;
+        })
+        .map((cat) => ({
+          value: cat.name,
+          label: cat.label
+        })),
     [group]
   );
 
