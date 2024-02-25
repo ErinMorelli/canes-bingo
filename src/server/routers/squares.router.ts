@@ -16,7 +16,7 @@ const list: RequestHandler = async (
   req: Request<{}, {}, {}, GetSquaresQuery>,
   res
 ) => {
-  const { exclude, include } = req.query;
+  const { exclude, include, category_id: categoryId } = req.query;
   try {
     const excludes = exclude
       ? exclude.split(',').map((x) => x.trim())
@@ -24,7 +24,11 @@ const list: RequestHandler = async (
     const includes  = include
       ? include.split(',').map((x) => x.trim())
       : undefined;
-    const result = await getSquares(includes, excludes);
+    const result = await getSquares(
+      includes,
+      excludes,
+      categoryId ? parseInt(categoryId) : undefined
+    );
     res.status(200).json(result);
   } catch (e: any) {
     res.status(400).json({ message: e.message });

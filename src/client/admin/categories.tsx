@@ -10,6 +10,7 @@ import {
   List,
   ReferenceField,
   ReferenceInput,
+  ReferenceManyField,
   required,
   Show,
   SimpleForm,
@@ -108,6 +109,12 @@ export const CategoryShow = () => (
         <TextField source="name" sx={{ textTransform: 'capitalize' }} />
       </ReferenceField>
       <BooleanField source="isDefault" label="Default" />
+      <ReferenceManyField reference="squares" target="category_id" label="Squares">
+        <Datagrid bulkActionButtons={false} rowClick="show">
+          <TextField source="id" label="ID" sortable={false} />
+          <TextField source="value"  sortable={false}/>
+        </Datagrid>
+      </ReferenceManyField>
     </SimpleShowLayout>
   </Show>
 );

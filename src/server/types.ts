@@ -3,6 +3,7 @@ import { Generated, Insertable, Selectable, Updateable } from 'kysely';
 export type GetSquaresQuery = {
   include?: string
   exclude?: string;
+  category_id?: string;
 };
 
 export interface SquareTable {

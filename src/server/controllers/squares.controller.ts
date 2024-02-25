@@ -5,10 +5,11 @@ import { NewSquare, SquareUpdate } from '../types.ts';
 
 export async function getSquares(
   include?: Array<string>,
-  exclude?: Array<string>
+  exclude?: Array<string>,
+  categoryId?: number,
 ) {
   if (!include && !exclude) {
-    return await db
+    let query = db
       .with('cats', (_db) => _db
         .selectFrom('categories as c')
         .leftJoin('squareCategories as sc', 'sc.categoryId', 'c.categoryId')
@@ -23,8 +24,13 @@ export async function getSquares(
           .agg('group_concat', ['cats.categoryId'])
           .as('categories')
       ])
-      .groupBy('s.squareId')
-      .execute();
+      .groupBy('s.squareId');
+
+    if (categoryId) {
+      query = query.where('cats.categoryId', '=', categoryId);
+    }
+
+    return await query.execute();
   }
 
   const baseQuery = db

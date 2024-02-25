@@ -13,7 +13,7 @@ const router = Router();
 
 const list: RequestHandler = async (req, res) => {
   try {
-    const { groupId } = req.query;
+    const { group_id: groupId } = req.query;
     const parsedId = typeof groupId === 'string' ? parseInt(groupId) : undefined;
     const result = await getCategories(parsedId);
     res.status(200).json(result);
