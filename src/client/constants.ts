@@ -18,23 +18,23 @@ export const StorageKey = {
 export type StorageKey = typeof StorageKey[keyof typeof StorageKey];
 
 export class Group {
-  public static GENERAL = 'general' as const;
-  public static LOCATION = 'location' as const;
-  public static BROADCAST = 'broadcast' as const;
-  public static PLAYERS = 'players' as const;
-  public static BALLY = 'bally' as const;
+  public static readonly GENERAL = 'general' as const;
+  public static readonly LOCATION = 'location' as const;
+  public static readonly BROADCAST = 'broadcast' as const;
+  public static readonly PLAYERS = 'players' as const;
+  public static readonly BALLY = 'bally' as const;
 
-  public static SingleGroups = [
+  public static readonly SingleGroups = [
     this.LOCATION,
     this.BROADCAST
   ] as const;
 
-  public static MultiGroups = [
+  public static readonly MultiGroups = [
     this.PLAYERS,
     this.BALLY
   ] as const;
 
-  public static AllGroups = [
+  public static readonly AllGroups = [
     ...this.SingleGroups,
     ...this.MultiGroups,
   ] as const;

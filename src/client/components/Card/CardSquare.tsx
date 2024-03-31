@@ -17,7 +17,7 @@ function getSquareId(rowId: number, colId: number) {
   return `square-${rowId}-${colId}`;
 }
 
-export function CardSquare({ square, rowId, colId, onClick }: SquareProps) {
+export function CardSquare({ square, rowId, colId, onClick }: Readonly<SquareProps>) {
   const { selected, value } = square;
 
   const squareId = getSquareId(rowId, colId);

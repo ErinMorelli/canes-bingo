@@ -23,7 +23,7 @@ type ToolbarProps = {
   cardRef: RefObject<HTMLDivElement>;
 }
 
-export function Toolbar({ cardRef }: ToolbarProps) {
+export function Toolbar({ cardRef }: Readonly<ToolbarProps>) {
   const { generateBoard, squaresError } = useSquares();
   const { groupsLoaded } = useGroups();
 

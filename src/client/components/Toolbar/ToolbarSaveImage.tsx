@@ -7,7 +7,7 @@ type SaveBoardImageProps = {
   cardRef: RefObject<HTMLDivElement>;
 }
 
-export function ToolbarSaveImage({ cardRef }: SaveBoardImageProps) {
+export function ToolbarSaveImage({ cardRef }: Readonly<SaveBoardImageProps>) {
   const [loading, setLoading] = useState(false);
 
   function createImageLink(blob: Blob | null) {

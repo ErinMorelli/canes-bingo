@@ -40,7 +40,7 @@ const authProvider: AuthProvider = {
     if (status === 401 || status === 403) {
       localStorage.removeItem(StorageKey.Token);
       await axios.post(`${P}/logout`);
-      return Promise.reject();
+      return Promise.reject(new Error());
     }
     return Promise.resolve();
   },

@@ -5,7 +5,7 @@ import { API_PREFIX as P, StorageKey } from '@app/constants.ts';
 import { getStorageValue } from '@app/utils.ts';
 
 export function withAuth() {
-  const token: string = getStorageValue(StorageKey.Token) || '';
+  const token: string = getStorageValue(StorageKey.Token) ?? '';
   return {
     withCredentials: true,
     headers: {
