@@ -15,6 +15,21 @@ const createAppSlice = buildCreateSlice({
   creators: { asyncThunk: asyncThunkCreator },
 });
 
+const getGroups = () => Promise
+  .all(Group.AllGroups.map(fetchGroup))
+  .then((results) => {
+    const groups = {} as GroupsStateGroups;
+    const defaultArgs = {} as BoardArgs;
+    results.forEach(({ group, groupName }) => {
+      const defaultArg = group.categories.find(c => c.isDefault);
+      if (defaultArg) {
+        defaultArgs[groupName as SingleGroup] = defaultArg;
+      }
+      groups[groupName as G] = group;
+    });
+    return { groups, defaultArgs, loaded: true };
+  });
+
 export const groupsSlice = createAppSlice({
   name: 'groups',
   initialState: {
@@ -22,22 +37,7 @@ export const groupsSlice = createAppSlice({
   } as GroupsState,
   reducers: (create) => ({
     fetchGroups: create.asyncThunk(
-      async () => {
-        return await Promise
-          .all(Group.AllGroups.map(fetchGroup))
-          .then((results) => {
-            const groups = {} as GroupsStateGroups;
-            const defaultArgs = {} as BoardArgs;
-            results.forEach(({ group, groupName }) => {
-              const defaultArg = group.categories.find(c => c.isDefault);
-              if (defaultArg) {
-                defaultArgs[groupName as SingleGroup] = defaultArg;
-              }
-              groups[groupName as G] = group;
-            });
-            return { groups, defaultArgs, loaded: true };
-          });
-      },
+      async () => await getGroups(),
       {
         fulfilled: (_, { payload }) =>  payload
       }

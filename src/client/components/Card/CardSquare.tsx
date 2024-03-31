@@ -26,6 +26,18 @@ export function CardSquare({ square, rowId, colId, onClick }: SquareProps) {
     <Spin size="small" />
   );
 
+  function getNextSquare(key: string, rowId: number, colId: number) {
+    let newRowId = rowId, newColId = colId;
+    switch (key) {
+      case 'arrowup':    newRowId = rowId === 0 ? 4 : rowId - 1; break;
+      case 'arrowdown':  newRowId = rowId === 4 ? 0 : rowId + 1; break;
+      case 'arrowleft':  newColId = colId === 0 ? 4 : colId - 1; break;
+      case 'arrowright': newColId = colId === 4 ? 0 : colId + 1; break;
+      default: break;
+    }
+    return getSquareId(newRowId, newColId);
+  }
+
   useEffect(() => {
     if (rowId === 2 && colId === 2) {
       fetchConfigValue(ConfigKey.FreeSpace).then(setSquareValue);
@@ -43,15 +55,7 @@ export function CardSquare({ square, rowId, colId, onClick }: SquareProps) {
     }
     else if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(key)) {
       event.preventDefault();
-      let newRowId = rowId, newColId = colId;
-      switch (key) {
-        case 'arrowup':    newRowId = rowId === 0 ? 4 : rowId - 1; break;
-        case 'arrowdown':  newRowId = rowId === 4 ? 0 : rowId + 1; break;
-        case 'arrowleft':  newColId = colId === 0 ? 4 : colId - 1; break;
-        case 'arrowright': newColId = colId === 4 ? 0 : colId + 1; break;
-        default: break;
-      }
-      const nextSquareId = getSquareId(newRowId, newColId);
+      const nextSquareId = getNextSquare(key, rowId, colId);
       document.getElementById(nextSquareId)?.focus();
     }
   }, [colId, onClick, rowId]);

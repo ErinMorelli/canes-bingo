@@ -10,6 +10,23 @@ type SaveBoardImageProps = {
 export function ToolbarSaveImage({ cardRef }: SaveBoardImageProps) {
   const [loading, setLoading] = useState(false);
 
+  function createImageLink(blob: Blob | null) {
+    if (!blob) return;
+
+    const fileName = `BingoCard-${Date.now().toString()}.png`;
+    const objectUrl = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.href = objectUrl;
+    link.download = fileName;
+    link.click();
+
+    document.body.removeChild(link);
+    setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+  }
+
   const handleScreenshot = useCallback(() => {
     if (!cardRef.current) return;
     setLoading(true);
@@ -33,25 +50,8 @@ export function ToolbarSaveImage({ cardRef }: SaveBoardImageProps) {
     html2canvas(card, { logging: false }).then((canvas) => {
       document.body.removeChild(card);
       setLoading(false);
-
-      canvas.toBlob((blob) => {
-        if (!blob) return;
-
-        const fileName = `BingoCard-${Date.now().toString()}.png`;
-        const objectUrl = URL.createObjectURL(blob);
-
-        const link = document.createElement("a");
-        link.style.display = 'none';
-        document.body.appendChild(link);
-        link.href = objectUrl;
-        link.download = fileName;
-        link.click();
-
-        document.body.removeChild(link);
-        setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
-      }, 'image/png');
-    })
-    .catch((err) => {
+      canvas.toBlob(createImageLink, 'image/png');
+    }).catch((err) => {
       document.body.removeChild(card);
       setLoading(false);
       console.error(err);
