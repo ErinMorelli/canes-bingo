@@ -37,11 +37,11 @@ export function AppLayout() {
     fetchConfigValue(ConfigKey.HeaderText).then(setHeaderText);
   }, []);
 
-  useEffect(() => loadGroups(), []);
+  useEffect(() => loadGroups());
 
   useEffect(() => {
     if (groupsLoaded) loadBoard();
-  }, [groupsLoaded]);
+  }, [groupsLoaded, loadBoard]);
 
   useEffect(() => {
     if (squaresError) {
