@@ -126,8 +126,8 @@ export default function Dashboard() {
           subheader="The color theme used to style the page."
         >
           <Select variant="standard" fullWidth>
-            {Object.keys(themes).map((themeName, idx) => (
-              <MenuItem key={idx.toString()} value={themeName}>
+            {Object.keys(themes).map((themeName) => (
+              <MenuItem key={themeName} value={themeName}>
                 {themeName}
               </MenuItem>
             ))}

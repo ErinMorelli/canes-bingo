@@ -30,7 +30,7 @@ export const Card = forwardRef<HTMLDivElement>(
         {board.map((row, rowId) => (
           <div className="row"
                id={`row-${rowId}`}
-               key={`row-${rowId}`}
+               key={`${row.length}-${rowId}`}
           >{generateRow(row, rowId)}</div>
         ))}
       </div>

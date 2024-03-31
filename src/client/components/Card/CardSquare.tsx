@@ -62,6 +62,7 @@ export function CardSquare({ square, rowId, colId, onClick }: SquareProps) {
 
   return (
     <div className={`square${selected ? ' selected' : ''}`}
+         role="button"
          id={squareId}
          key={squareId}
          onClick={() => onClick(rowId, colId)}

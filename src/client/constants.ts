@@ -9,12 +9,13 @@ export enum ConfigKey {
   Theme = 'theme',
 }
 
-export enum StorageKey {
-  ShowOptionsOnLoad = `${LOCAL_STORAGE_PREFIX}:ShowOptionsOnLoad`,
-  TourSeen = `${LOCAL_STORAGE_PREFIX}:TourSeen`,
-  App = `${LOCAL_STORAGE_PREFIX}:App`,
-  Token = 'session',
-}
+export const StorageKey = {
+  ShowOptionsOnLoad: `${LOCAL_STORAGE_PREFIX}:ShowOptionsOnLoad`,
+  TourSeen: `${LOCAL_STORAGE_PREFIX}:TourSeen`,
+  App: `${LOCAL_STORAGE_PREFIX}:App`,
+  Token: 'session',
+} as const;
+export type StorageKey = typeof StorageKey[keyof typeof StorageKey];
 
 export class Group {
   public static GENERAL = 'general' as const;

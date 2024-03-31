@@ -224,6 +224,7 @@ body {
 
   .bingo {
     @extend .bingo;
+    font-size: 14px;
 
     .square {
       border: 1px solid var(--ant-color-text-base);
@@ -237,10 +238,6 @@ body {
   h3 {
     color: var(--ant-color-bg-base);
     padding: 10px 0 5px;
-  }
-
-  .bingo {
-    font-size: 14px;
   }
 
   small {
