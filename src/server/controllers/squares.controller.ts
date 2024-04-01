@@ -20,6 +20,7 @@ export async function getSquares(
       .select([
         's.squareId as id',
         's.content as value',
+        's.description as description',
         ({ fn }) => fn
           .agg('group_concat', ['cats.categoryId'])
           .as('categories')
@@ -44,6 +45,7 @@ export async function getSquares(
     .select([
       's.squareId as id',
       's.content as value',
+      's.description as description',
       ({ fn }) => fn
         .agg('group_concat', ['cats.name'])
         .as('categories')
@@ -86,6 +88,7 @@ export async function getSquare(squareId: number) {
     .select([
       's.squareId as id',
       's.content as value',
+      's.description as description',
       ({ fn }) => fn
         .agg('group_concat', ['cats.categoryId'])
         .as('categories')

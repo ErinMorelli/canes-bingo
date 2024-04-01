@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Layout, notification, Space, Spin, Typography } from 'antd';
 
 import { useGameBoard, useGroups, useSquares } from '@hooks';
@@ -9,6 +10,7 @@ import { Toolbar } from '../Toolbar';
 import AppFooter from './AppFooter.tsx';
 import { fetchConfigValue } from '@app/utils.ts';
 import { ConfigKey } from '@app/constants.ts';
+
 
 const { Header, Content, Footer } = Layout
 
@@ -97,6 +99,13 @@ export function AppLayout() {
                 >
                   Submit it here
                 </a>!
+              </p>
+              <p>
+                Not sure what a square means? <Link
+                  to="/squares"
+                >
+                  Look up the meaning here
+                </Link>!
               </p>
             </div>
           </Content>
