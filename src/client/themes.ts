@@ -50,8 +50,8 @@ const getTheme = ({
 });
 
 const defaultTheme = getTheme({
-  primary: '#C81025',
-  secondary: '#888888'
+  primary: '#CE1126',
+  secondary: '#A4A9AD'
 });
 
 const whalersTheme = getTheme({

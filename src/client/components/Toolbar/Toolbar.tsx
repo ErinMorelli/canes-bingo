@@ -21,9 +21,13 @@ import { ToolbarSaveImage } from './ToolbarSaveImage.tsx';
 
 type ToolbarProps = {
   cardRef: RefObject<HTMLDivElement>;
+  customClass?: string;
 }
 
-export function Toolbar({ cardRef }: Readonly<ToolbarProps>) {
+export function Toolbar({
+  cardRef,
+  customClass = '',
+}: Readonly<ToolbarProps>) {
   const { generateBoard, squaresError } = useSquares();
   const { groupsLoaded } = useGroups();
 
@@ -84,6 +88,7 @@ export function Toolbar({ cardRef }: Readonly<ToolbarProps>) {
       {
       <Drawer
         title="Game Options"
+        className={customClass}
         width={300}
         open={drawerOpen || squaresError}
         onClose={() => !squaresError && setDrawerOpen(false)}

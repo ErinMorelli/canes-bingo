@@ -27,6 +27,10 @@ body {
       color: var(--ant-color-text-base);
     }
   }
+
+  .no-caps * {
+    text-transform: lowercase !important;
+  }
 }
 
 .app {

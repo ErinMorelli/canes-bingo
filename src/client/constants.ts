@@ -7,6 +7,7 @@ export enum ConfigKey {
   FreeSpace = 'freeSpace',
   HeaderText = 'headerText',
   Theme = 'theme',
+  CustomClass = 'customClass',
 }
 
 export const StorageKey = {

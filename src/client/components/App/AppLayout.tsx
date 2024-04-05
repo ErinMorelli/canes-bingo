@@ -31,10 +31,15 @@ export function AppLayout() {
     [boardReady, squaresError]
   );
 
-  const [headerText, setHeaderText] = useState<string>()
+  const [headerText, setHeaderText] = useState<string>();
+  const [customClass, setCustomClass] = useState<string>();
 
   useEffect(() => {
     fetchConfigValue(ConfigKey.HeaderText).then(setHeaderText);
+  }, []);
+
+  useEffect(() => {
+    fetchConfigValue(ConfigKey.CustomClass).then(setCustomClass);
   }, []);
 
   useEffect(() => loadGroups());
@@ -68,7 +73,7 @@ export function AppLayout() {
   }, [api, squaresError]);
 
   return (
-    <Space direction="vertical" style={{ width: '100%' }}>
+    <Space direction="vertical" style={{ width: '100%' }} className={customClass}>
       {contextHolder}
       <Layout className="app">
         <Header>
@@ -76,7 +81,7 @@ export function AppLayout() {
         </Header>
         <Layout>
           <Content>
-            <Toolbar cardRef={cardRef} />
+            <Toolbar cardRef={cardRef} customClass={customClass} />
             <div className="board-wrapper">
               <Spin size="large" spinning={!isBoardReady}>
                 {boardReady && <Card ref={cardRef} />}
