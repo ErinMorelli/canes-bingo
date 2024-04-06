@@ -9,10 +9,7 @@ import App from './App';
 export default function RootApp() {
   return (
     <Provider store={config.store}>
-      <PersistGate
-        persistor={config.persistor}
-        loading={<Spin fullscreen/>}
-      >
+      <PersistGate persistor={config.persistor} loading={<Spin fullscreen/>}>
         <AntApp>
           <App/>
         </AntApp>

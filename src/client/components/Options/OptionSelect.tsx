@@ -42,7 +42,7 @@ export default function OptionSelect({ groupName }: SelectOptionProps) {
   const options = useMemo(
     () => !group
       ? []
-      : group.categories
+      : [...group.categories]
         .sort((a: Category, b: Category) => {
           if (a.label.toUpperCase() < b.label.toUpperCase()) {
             return -1;

@@ -46,7 +46,7 @@ export function AppLayout() {
 
   useEffect(() => {
     if (groupsLoaded) loadBoard();
-  }, [groupsLoaded, loadBoard]);
+  }, [groupsLoaded]);
 
   useEffect(() => {
     if (squaresError) {

@@ -97,7 +97,7 @@ export function Toolbar({
             open={!tourSeen}
             trigger="click"
             placement="leftBottom"
-            title={<h3 style={{ color: "#C81025" }}>NEW!</h3>}
+            title={<h3 style={{ color: "#CE1126" }}>NEW!</h3>}
             content={
               <div style={{ maxWidth: '250px' }}>
                 <p style={{ marginBottom: '10px' }}>

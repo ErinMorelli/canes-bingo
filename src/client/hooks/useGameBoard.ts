@@ -1,6 +1,5 @@
 import { useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import isEqual from 'lodash.isequal';
 
 import {
   selectBoard,
@@ -28,12 +27,8 @@ export function useGameBoard(): UseGameBoardResult {
   const defaultArgs = useSelector(selectDefaultArgs);
 
   const shouldLoadBoard = useMemo(
-    () => (
-      !board.length ||
-      !Object.keys(boardArgs).length ||
-      !isEqual(boardArgs, defaultArgs)
-    ),
-    [board, boardArgs, defaultArgs]
+    () => !board.length || !Object.keys(boardArgs).length,
+    [board, boardArgs]
   );
 
   const loadBoard = useCallback(() => {
