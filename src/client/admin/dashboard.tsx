@@ -14,9 +14,9 @@ import {
   CardActions,
   CardContent,
   CardHeader,
+  Grid,
   MenuItem,
   Select,
-  Stack,
   TextField
 } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -30,6 +30,7 @@ const Id: Record<ConfigKey, number> = {
   [ConfigKey.FreeSpace]: 1,
   [ConfigKey.HeaderText]: 2,
   [ConfigKey.Theme]: 3,
+  [ConfigKey.CustomClass]: 4,
 };
 
 type ConfigResult = {
@@ -63,7 +64,7 @@ export function ConfigCard({
         setPreviousData(data);
         setValue(data.value);
       });
-  });
+  }, []);
 
   function handleChange(e: ChangeEvent<{ value: string }>) {
     setValue(e.target.value);
@@ -83,7 +84,7 @@ export function ConfigCard({
 
   const element = Children.only(children);
 
-  return isValidElement(element) && value !== '' ? (
+  return isValidElement(element) ? (
     <Card variant="outlined" sx={{ flexGrow: 1 }}>
       <CardHeader title={title} subheader={subheader} />
       <CardContent>
@@ -100,40 +101,53 @@ export function ConfigCard({
 
 export default function Dashboard() {
   return (
-    <Box sx={{ width: '100%' }}>
-      <Title title="Quick Settings" />
+    <Box sx={{width: '100%'}}>
+      <Title title="Quick Settings"/>
       <div>&nbsp;</div>
-      <Stack direction="row" spacing={2} useFlexGap>
-        <ConfigCard
-          configKey={ConfigKey.FreeSpace}
-          title="Free Space"
-          subheader="Value to display in the center square."
-        >
-          <TextField variant="standard" fullWidth />
-        </ConfigCard>
-
-        <ConfigCard
-          configKey={ConfigKey.HeaderText}
-          title="Header Text"
-          subheader="Value to display at the top of the page."
-        >
-          <TextField variant="standard" fullWidth />
-        </ConfigCard>
-
-        <ConfigCard
-          configKey={ConfigKey.Theme}
-          title="Theme"
-          subheader="The color theme used to style the page."
-        >
-          <Select variant="standard" fullWidth>
-            {Object.keys(themes).map((themeName) => (
-              <MenuItem key={themeName} value={themeName}>
-                {themeName}
-              </MenuItem>
-            ))}
-          </Select>
-        </ConfigCard>
-      </Stack>
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={6}>
+          <ConfigCard
+            configKey={ConfigKey.FreeSpace}
+            title="Free Space"
+            subheader="Value to display in the center square."
+          >
+            <TextField variant="standard" fullWidth/>
+          </ConfigCard>
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <ConfigCard
+            configKey={ConfigKey.HeaderText}
+            title="Header Text"
+            subheader="Value to display at the top of the page."
+          >
+            <TextField variant="standard" fullWidth/>
+          </ConfigCard>
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <ConfigCard
+            configKey={ConfigKey.Theme}
+            title="Theme"
+            subheader="The color theme used to style the page."
+          >
+            <Select variant="standard" fullWidth>
+              {Object.keys(themes).map((themeName) => (
+                <MenuItem key={themeName} value={themeName}>
+                  {themeName}
+                </MenuItem>
+              ))}
+            </Select>
+          </ConfigCard>
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <ConfigCard
+            configKey={ConfigKey.CustomClass}
+            title="Custom Class"
+            subheader="Custom CSS class to apply to the app."
+          >
+            <TextField variant="standard" fullWidth/>
+          </ConfigCard>
+        </Grid>
+      </Grid>
     </Box>
   );
 }
