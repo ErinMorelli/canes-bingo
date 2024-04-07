@@ -44,6 +44,7 @@ export const SquaresList = () => (
     <Datagrid bulkActionButtons={false} rowClick="show">
       <TextField source="id" label="ID" sortable={false} />
       <TextField source="value" sortable={false} />
+      <TextField source="description" sortable={false} />
       <ReferenceArrayField source="categories" reference="categories" sortable={false}>
         <SingleFieldList linkType="show">
           <ChipField source="label" />
@@ -59,15 +60,22 @@ export const SquaresList = () => (
 
 export const SquareEdit = () => (
   <Edit
-    transform={(data: { id: number, value: string, categories: Array<number> }) => ({
+    transform={(data: {
+      id: number,
+      value: string,
+      description: string,
+      categories: Array<number>
+    }) => ({
       squareId: data.id,
       content: data.value,
+      description: data.description,
       categories: data.categories
     })}
   >
     <SimpleForm>
       <TextInput disabled source="id" name="ID" />
       <TextInput source="value" name="value" validate={required()} fullWidth />
+      <TextInput source="description" name="description" fullWidth />
       <ReferenceArrayInput name="categories" source="categories" reference="categories" />
     </SimpleForm>
   </Edit>
@@ -83,6 +91,7 @@ export const SquareCreate = () => (
   >
     <SimpleForm>
       <TextInput source="value" name="value" validate={required()} />
+      <TextInput source="description" name="description" />
       <ReferenceArrayInput name="categories" source="categories" reference="categories" />
     </SimpleForm>
   </Create>
@@ -100,6 +109,7 @@ export const SquareShow = () => (
     <SimpleShowLayout spacing={3}>
       <TextField source="id" label="ID" />
       <TextField source="value" />
+      <TextField source="description" />
       <ReferenceArrayField source="categories" reference="categories">
         <SingleFieldList linkType="show">
           <ChipField source="label" />

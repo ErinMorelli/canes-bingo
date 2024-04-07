@@ -20,6 +20,7 @@ export type UpdateBoardArg =
 export type Square = {
   id: number;
   value: string;
+  description?: string;
 };
 export type Squares = Array<Square>;
 

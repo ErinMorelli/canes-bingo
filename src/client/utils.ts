@@ -83,6 +83,11 @@ export async function fetchConfigValue(key: ConfigKey): Promise<string> {
     .then((res: { data: { value: string }}) => res.data.value);
 }
 
+export async function fetchAllSquares(): Promise<Array<Square>> {
+  return await axios.get(`${API_PREFIX}/squares`)
+    .then((res) => res.data);
+}
+
 export function getStorageValue<T>(key: StorageKey): T | null {
   try {
     const value = localStorage.getItem(key);

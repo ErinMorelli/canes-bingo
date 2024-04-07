@@ -36,6 +36,7 @@
     "react-router-dom": "^6.21.3",
     "redux-persist": "^6.0.0",
     "tsx": "^4.7.0",
+    "use-debounce": "^10.0.0",
     "vite-express": "^0.14.0"
   },
   "devDependencies": {

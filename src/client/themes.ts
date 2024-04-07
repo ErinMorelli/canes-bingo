@@ -32,6 +32,7 @@ const getTheme = ({
       headerBg: primary,
       headerColor: light,
       footerBg: dark,
+      colorText: dark,
     },
     Form: {
       labelColor: dark,
@@ -45,6 +46,10 @@ const getTheme = ({
     },
     Radio: {
       colorText: secondary,
+    },
+    Table: {
+      headerColor: '#333',
+      colorText: dark,
     }
   }
 });
