@@ -14,7 +14,7 @@ import { useSquares } from './useSquares.ts';
 type UseGameBoardResult = {
   board: Board;
   boardReady: boolean;
-  loadBoard: () => void;
+  loadBoard: (force?: boolean) => void;
   selectSquare: (row: number, col: number) => void;
 }
 
@@ -31,8 +31,8 @@ export function useGameBoard(): UseGameBoardResult {
     [board, boardArgs]
   );
 
-  const loadBoard = useCallback(() => {
-    if (shouldLoadBoard) {
+  const loadBoard = useCallback((force = false) => {
+    if (shouldLoadBoard || force) {
       dispatch(updateBoardArgs(defaultArgs));
       generateBoard(defaultArgs);
     }

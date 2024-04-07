@@ -45,7 +45,7 @@ const getTheme = ({
       colorText: dark,
     },
     Radio: {
-      colorText: secondary,
+      colorText: dark,
     },
     Table: {
       headerColor: '#333',

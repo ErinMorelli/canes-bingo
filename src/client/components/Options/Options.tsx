@@ -18,7 +18,7 @@ export function Options() {
     <OptionSelect groupName={groupName} key={groupName} />
   ));
 
-  const handleReset = useCallback(() => loadBoard(), [loadBoard]);
+  const handleReset = useCallback(() => loadBoard(true), [loadBoard]);
 
   return (
     <Form className="options" layout="vertical">
@@ -28,7 +28,6 @@ export function Options() {
       <Form.Item>
         <Flex justify="flex-end">
           <Button
-            size="small"
             htmlType="button"
             onClick={() => handleReset()}
           >Reset</Button>
