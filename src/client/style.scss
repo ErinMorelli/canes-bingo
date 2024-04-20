@@ -31,6 +31,24 @@ body {
   .no-caps * {
     text-transform: lowercase !important;
   }
+
+  .playoffs {
+    .bingo .row #square-2-2 {
+      position: relative;
+
+      &::after {
+        content: '';
+        background-image: url('img/stanley_cup.png');
+        background-repeat: no-repeat;
+        background-size: contain;
+        background-position: center center;
+        width: 100px;
+        height: 100px;
+        position: absolute;
+        opacity: 0.25;
+      }
+    }
+  }
 }
 
 .app {

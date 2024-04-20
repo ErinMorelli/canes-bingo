@@ -9,6 +9,7 @@ Website: https://erin.dev
 
 /* DISCLAIMER */
 Carolina Hurricanes and team logo are trademark of the Carolina Hurricanes Hockey Club.
+Stanley Cup word mark and image are registered trademarks of the National Hockey League.
 
 /* SITE */
 Node.js

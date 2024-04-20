@@ -16,12 +16,16 @@ export default function AppFooter() {
           rel="noreferrer nofollow">Buy me a coffee</a> to support future development.
       </span>
       <span className="disclaimer">
-        bingo.svech.net is an unofficial fan site and not affiliated in any way with the Carolina Hurricanes.<br />
+        bingo.svech.net is an unofficial fan site and not affiliated in any way with the Carolina Hurricanes.<br/>
         Carolina Hurricanes and team logo are trademark of the <a
-          href="https://www.nhl.com/hurricanes"
-          target="_blank"
-          rel="noreferrer nofollow">Carolina Hurricanes Hockey Club</a>.
+        href="https://www.nhl.com/hurricanes"
+        target="_blank"
+        rel="noreferrer nofollow">Carolina Hurricanes Hockey Club</a>.<br/>&nbsp;<br />
+        The word mark and image of the Stanley Cup are registered trademarks of the <a
+        href="https://www.nhl.com"
+        target="_blank"
+        rel="noreferrer nofollow">National Hockey League</a>.
       </span>
     </>
-  );
+);
 }
