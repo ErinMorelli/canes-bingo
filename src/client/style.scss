@@ -48,6 +48,51 @@ body {
         opacity: 0.25;
       }
     }
+
+    main {
+      padding-top: 0;
+
+      .playoff-wins {
+        $flag-size: 24px;
+
+        display: flex;
+        flex-direction: row;
+        gap: 10px;
+        width: 100%;
+        justify-content: center;
+        background-color: black;
+        padding: 15px 0;
+        margin-bottom: 10px;
+
+        .win,
+        .tbd {
+          position: relative;
+          color: transparent;
+          width: $flag-size;
+          height: $flag-size;
+          border: 1px solid rgba(255, 255, 255, .15);
+        }
+
+        .win {
+          background-color: var(--ant-color-primary);
+
+          &::after {
+            content: '';
+            display: block;
+            width: 12px;
+            height: 12px;
+            background-color: black;
+            position: absolute;
+            top: 5px;
+            left: 5px;
+          }
+        }
+
+        .tbd {
+          background-color: rgba(255, 255, 255, .15);
+        }
+      }
+    }
   }
 }
 

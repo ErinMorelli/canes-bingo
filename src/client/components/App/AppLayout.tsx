@@ -35,13 +35,20 @@ export function AppLayout() {
 
   const [headerText, setHeaderText] = useState<string>();
   const [customClass, setCustomClass] = useState<string>();
+  const [playoffWins, setPlayoffWins] = useState<number>();
 
   useEffect(() => {
     fetchConfigValue(ConfigKey.HeaderText).then(setHeaderText);
   }, []);
 
   useEffect(() => {
-    fetchConfigValue(ConfigKey.CustomClass).then(setCustomClass);
+    fetchConfigValue(ConfigKey.CustomClass).then((customClass) => {
+      setCustomClass(customClass);
+      const parsed = customClass.match(/playoffs(\s(\d+)-wins?)?/);
+      if (parsed) {
+        setPlayoffWins(parseInt(parsed[1] || '0'));
+      }
+    });
   }, []);
 
   useEffect(() => loadGroups());
@@ -83,6 +90,16 @@ export function AppLayout() {
         </Header>
         <Layout>
           <Content>
+            {playoffWins && (
+              <div className="playoff-wins">
+                {Array.from({ length: playoffWins }).map((_, idx) =>
+                  <div className="win" title={`WIN #${idx+1}`}></div>
+                )}
+                {Array.from({ length: 16 - playoffWins }).map(_ =>
+                  <div className="tbd" title="TBD"></div>
+                )}
+              </div>
+            )}
             <Toolbar cardRef={cardRef} customClass={customClass} />
             <div className="board-wrapper">
               <Spin size="large" spinning={!isBoardReady}>
