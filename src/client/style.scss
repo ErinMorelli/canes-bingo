@@ -35,6 +35,7 @@ body {
   .playoffs {
     .bingo .row #square-2-2 {
       position: relative;
+      font-size: 14px;
 
       &::after {
         content: '';
@@ -79,12 +80,12 @@ body {
           &::after {
             content: '';
             display: block;
-            width: 12px;
-            height: 12px;
+            width: 10px;
+            height: 10px;
             background-color: black;
             position: absolute;
-            top: 5px;
-            left: 5px;
+            top: 6px;
+            left: 6px;
           }
         }
 
