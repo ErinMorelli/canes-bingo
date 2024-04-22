@@ -44,7 +44,7 @@ export function AppLayout() {
   useEffect(() => {
     fetchConfigValue(ConfigKey.CustomClass).then((customClass) => {
       setCustomClass(customClass);
-      const parsed = customClass.match(/playoffs(\s(\d+)-wins?)?/);
+      const parsed = /playoffs(\s(\d+)-wins?)?/.exec(customClass);
       if (parsed) {
         setPlayoffWins(parseInt(parsed[1] || '0'));
       }
@@ -93,10 +93,18 @@ export function AppLayout() {
             {playoffWins && (
               <div className="playoff-wins">
                 {Array.from({ length: playoffWins }).map((_, idx) =>
-                  <div className="win" title={`WIN #${idx+1}`}></div>
+                  <div
+                    className="win"
+                    title={`WIN #${idx+1}`}
+                    key={`WIN #${idx+1}`}
+                  ></div>
                 )}
-                {Array.from({ length: 16 - playoffWins }).map(_ =>
-                  <div className="tbd" title="TBD"></div>
+                {Array.from({ length: 16 - playoffWins }).map((_, idx) =>
+                  <div
+                    className="tbd"
+                    title="TBD"
+                    key={`TBD #${idx+1}`}
+                  ></div>
                 )}
               </div>
             )}
