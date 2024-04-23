@@ -10,6 +10,7 @@ export interface SquareTable {
   squareId: Generated<number>;
   content: string;
   description: string;
+  active: boolean;
 }
 export type NewSquare = Insertable<SquareTable>;
 export type SquareUpdate = Updateable<SquareTable>;

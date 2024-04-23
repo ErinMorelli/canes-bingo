@@ -37,6 +37,15 @@ body {
       position: relative;
       font-size: 14px;
 
+      @media only screen and (max-width: $breakpoint) {
+        font-size: 12px;
+
+        &::after {
+          width: 75px;
+          height: 75px;
+        }
+      }
+
       &::after {
         content: '';
         background-image: url('/img/stanley_cup.png');
@@ -50,11 +59,23 @@ body {
       }
     }
 
+    @media only screen and (max-width: $breakpoint) {
+      .bingo .row #square-2-2 {
+        font-size: 12px;
+
+        &::after {
+          width: 60px;
+          height: 60px;
+        }
+      }
+    }
+
     main {
       padding-top: 0;
 
       .playoff-wins {
         $flag-size: 24px;
+        $mobile-flag-size: 16px;
 
         display: flex;
         flex-direction: row;
@@ -65,8 +86,7 @@ body {
         padding: 15px 0;
         margin-bottom: 10px;
 
-        .win,
-        .tbd {
+        .win, .tbd {
           position: relative;
           color: transparent;
           width: $flag-size;
@@ -91,6 +111,22 @@ body {
 
         .tbd {
           background-color: rgba(255, 255, 255, .15);
+        }
+
+        @media only screen and (max-width: $breakpoint) {
+          gap: 6px;
+
+          .win, .tbd {
+            width: $mobile-flag-size;
+            height: $mobile-flag-size;
+          }
+
+          .win::after {
+            width: 8px;
+            height: 8px;
+            top: 3px;
+            left: 3px;
+          }
         }
       }
     }
@@ -288,6 +324,8 @@ body {
         height: $mobile-square-size;
         border-radius: 0;
         padding: 2px;
+        line-height: 17px;
+        font-size: 13px;
 
         &#square-0-0 { border-top-left-radius: var(--ant-border-radius); }
         &#square-0-4 { border-top-right-radius: var(--ant-border-radius); }

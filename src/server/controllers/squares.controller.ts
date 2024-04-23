@@ -21,6 +21,9 @@ export async function getSquares(
         's.squareId as id',
         's.content as value',
         's.description as description',
+        sql<string>`
+         if(s.active = true, cast(true as json), cast(false as json))
+        `.as('active'),
         ({ fn }) => fn
           .agg('group_concat', ['cats.categoryId'])
           .as('categories')
@@ -46,6 +49,9 @@ export async function getSquares(
       's.squareId as id',
       's.content as value',
       's.description as description',
+      sql<string>`
+         if(s.active = true, cast(true as json), cast(false as json))
+      `.as('active'),
       ({ fn }) => fn
         .agg('group_concat', ['cats.name'])
         .as('categories')
@@ -89,6 +95,9 @@ export async function getSquare(squareId: number) {
       's.squareId as id',
       's.content as value',
       's.description as description',
+      sql<string>`
+         if(s.active = true, cast(true as json), cast(false as json))
+      `.as('active'),
       ({ fn }) => fn
         .agg('group_concat', ['cats.categoryId'])
         .as('categories')
@@ -129,7 +138,11 @@ export async function updateSquare(
 ) {
   return await db
     .updateTable('squares')
-    .set({ content: square.content })
+    .set({
+      content: square.content,
+      description: square.description,
+      active: square.active,
+    })
     .where('squareId', '=', squareId)
     .executeTakeFirstOrThrow()
     .then(async () => {

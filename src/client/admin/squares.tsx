@@ -1,4 +1,6 @@
 import {
+  BooleanField,
+  BooleanInput,
   ChipField,
   Create,
   CreateButton,
@@ -50,6 +52,7 @@ export const SquaresList = () => (
           <ChipField source="label" />
         </SingleFieldList>
       </ReferenceArrayField>
+      <BooleanField source="active" sortable={false} />
       <WrapperField>
         <EditButton />
         <DeleteButton mutationMode="pessimistic" />
@@ -64,11 +67,13 @@ export const SquareEdit = () => (
       id: number,
       value: string,
       description: string,
+      active: boolean,
       categories: Array<number>
     }) => ({
       squareId: data.id,
       content: data.value,
       description: data.description,
+      active: data.active,
       categories: data.categories
     })}
   >
@@ -77,6 +82,7 @@ export const SquareEdit = () => (
       <TextInput source="value" name="value" validate={required()} fullWidth />
       <TextInput source="description" name="description" fullWidth />
       <ReferenceArrayInput name="categories" source="categories" reference="categories" />
+      <BooleanInput source="active" name="active" />
     </SimpleForm>
   </Edit>
 );
@@ -84,7 +90,10 @@ export const SquareEdit = () => (
 export const SquareCreate = () => (
   <Create
     redirect="list"
-    transform={(data: { value: string, categories: Array<number> }) => ({
+    transform={(data: {
+      value: string,
+      categories: Array<number>
+    }) => ({
       content: data.value,
       categories: data.categories
     })}
@@ -93,6 +102,7 @@ export const SquareCreate = () => (
       <TextInput source="value" name="value" validate={required()} />
       <TextInput source="description" name="description" />
       <ReferenceArrayInput name="categories" source="categories" reference="categories" />
+      <BooleanInput source="active" name="active" />
     </SimpleForm>
   </Create>
 );
@@ -115,6 +125,7 @@ export const SquareShow = () => (
           <ChipField source="label" />
         </SingleFieldList>
       </ReferenceArrayField>
+       <BooleanField source="active" />
     </SimpleShowLayout>
   </Show>
 );

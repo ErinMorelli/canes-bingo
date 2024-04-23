@@ -21,6 +21,7 @@ export type Square = {
   id: number;
   value: string;
   description?: string;
+  active: boolean;
 };
 export type Squares = Array<Square>;
 

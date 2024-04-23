@@ -60,7 +60,9 @@ export const CategoryEdit = () => (
       <TextInput disabled source="id" name="ID" />
       <TextInput source="name" name="name" validate={required()} fullWidth />
       <TextInput source="label" name="label" validate={required()} fullWidth />
-      <ReferenceInput name="group" source="groupId" reference="groups" />
+      <ReferenceInput name="group" source="groupId" reference="groups">
+        <AutocompleteInput name="group" optionText="label" fullWidth />
+      </ReferenceInput>
       <BooleanInput source="isDefault" name="isDefault" label="Make default category for group" />
     </SimpleForm>
   </Edit>

@@ -31,7 +31,8 @@ function chunkArray<T>(list: Array<T>, chunkSize = 5): Array<Array<T>> {
 }
 
 export function createBoard(squares: Squares, size = 25): Board {
-  const shuffled = shuffleArray(squares).slice(0, size);
+  const filtered = squares.filter(s => s.active);
+  const shuffled = shuffleArray(filtered).slice(0, size);
   const chunks = chunkArray<Square>(shuffled);
   return chunks.map((row): BoardSquare[] =>
     row.map((col): BoardSquare => ({
