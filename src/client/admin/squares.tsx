@@ -92,10 +92,14 @@ export const SquareCreate = () => (
     redirect="list"
     transform={(data: {
       value: string,
-      categories: Array<number>
+      description: string,
+      categories: Array<number>,
+      active: boolean,
     }) => ({
       content: data.value,
-      categories: data.categories
+      description: data.description,
+      categories: data.categories,
+      active: data.active,
     })}
   >
     <SimpleForm>
