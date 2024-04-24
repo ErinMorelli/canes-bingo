@@ -103,10 +103,10 @@ export const SquareCreate = () => (
     })}
   >
     <SimpleForm>
-      <TextInput source="value" name="value" validate={required()} />
-      <TextInput source="description" name="description" />
+      <TextInput source="value" name="value" validate={required()} fullWidth />
+      <TextInput source="description" name="description" fullWidth />
       <ReferenceArrayInput name="categories" source="categories" reference="categories" />
-      <BooleanInput source="active" name="active" />
+      <BooleanInput source="active" name="active" defaultValue={true} />
     </SimpleForm>
   </Create>
 );
