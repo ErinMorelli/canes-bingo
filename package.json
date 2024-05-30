@@ -28,7 +28,7 @@
     "html2canvas": "^1.4.1",
     "jsonwebtoken": "^9.0.2",
     "kysely": "^0.27.2",
-    "mysql2": "^3.9.4",
+    "mysql2": "^3.9.8",
     "react": "^18.2.0",
     "react-admin": "^4.16.8",
     "react-dom": "^18.2.0",
