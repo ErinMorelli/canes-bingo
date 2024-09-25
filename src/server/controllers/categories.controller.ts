@@ -10,6 +10,7 @@ export async function getCategories(groupId?: number) {
       'c.categoryId as id',
       'c.name as name',
       'c.label as label',
+      'c.description as description',
       sql<string>`
         if(c.is_default = true, cast(true as json), cast(false as json))
       `.as('isDefault'),
@@ -30,6 +31,7 @@ export async function getCategory(categoryId: number) {
       'c.categoryId as id',
       'c.name as name',
       'c.label as label',
+      'c.description as description',
       sql<string>`
         if(c.is_default = true, cast(true as json), cast(false as json))
       `.as('isDefault'),

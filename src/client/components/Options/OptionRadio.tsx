@@ -1,6 +1,13 @@
 import { useCallback, useMemo } from 'react';
 import { useSelector } from 'react-redux';
-import { Divider, Form, Radio, RadioChangeEvent, Typography } from 'antd';
+import {
+  Divider,
+  Form,
+  Radio,
+  RadioChangeEvent,
+  Tooltip,
+  Typography
+} from 'antd';
 
 import { selectBoardArgs, updateBoardArg } from '@slices';
 import { useAppDispatch } from '@app/store.ts';
@@ -45,19 +52,22 @@ export default function OptionRadio({ groupName, showDivider }: RadioOptionProps
           </Typography.Text>
         }
       >
-        <Radio.Group
-          value={selected}
-          onChange={handleChange}
-          optionType="button"
-          buttonStyle="solid"
-          size="large"
-          options={
-            group.categories.map((cat) => ({
-              value: cat.name,
-              label: cat.label
-            }))
-          }
-        />
+        <Radio.Group onChange={handleChange}
+                     value={selected}
+                     buttonStyle="solid"
+                     optionType="button"
+                     size="large"
+        >
+          {group.categories.map((cat) => !cat.description ? (
+            <Radio.Button value={cat.name}>{cat.label}</Radio.Button>
+          ) : (
+            <Tooltip title={cat.description}>
+              <Radio.Button value={cat.name}
+                            title={cat.description}
+              >{cat.label}</Radio.Button>
+            </Tooltip>
+          ))}
+        </Radio.Group>
       </Form.Item>
     </>
   )

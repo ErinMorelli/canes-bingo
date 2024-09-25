@@ -18,6 +18,7 @@ export async function getGroups() {
             'id', c.category_id,
             'name', c.name,
             'label', c.label,
+            'description', c.description,
             'isDefault', if(c.is_default = true, cast(true as json), cast(false as json))
           )
         )`.as('categories')
@@ -52,6 +53,7 @@ export async function getGroupByName(groupName: string) {
             'id', c.category_id,
             'name', c.name,
             'label', c.label,
+            'description', c.description,
             'isDefault', if(c.is_default = true, cast(true as json), cast(false as json))
           )
         )`.as('categories')

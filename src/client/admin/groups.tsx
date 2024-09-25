@@ -85,6 +85,7 @@ export const GroupShow = () => (
           <TextField source="id" label="ID" sortable={false} />
           <TextField source="name"  sortable={false}/>
           <TextField source="label" sortable={false} />
+          <TextField source="description" sortable={false} />
           <BooleanField source="isDefault" label="Default" sortable={false} />
         </Datagrid>
       </ReferenceManyField>

@@ -46,6 +46,7 @@ export type Category = {
   id: number;
   name: string;
   label: string;
+  description?: string;
   isDefault: boolean;
 };
 

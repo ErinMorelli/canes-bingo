@@ -1,7 +1,6 @@
 import { useCallback, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { Divider, Form, Select, Typography } from 'antd';
-import { LabeledValue } from 'antd/lib/select';
 
 import { selectBoardArgs, updateBoardArg } from '@slices';
 import { Category, MultiGroup } from '@app/types.ts';
@@ -28,7 +27,7 @@ export default function OptionSelect({ groupName }: SelectOptionProps) {
     [groupName, groups]
   );
 
-  const values: Array<LabeledValue> = useMemo(
+  const values = useMemo(
     () => {
       return selected.map((c: Category) => ({
         key: c.id.toString(),
@@ -80,8 +79,6 @@ export default function OptionSelect({ groupName }: SelectOptionProps) {
         }
       >
         <Select
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
           value={values}
           style={{ width: 200 }}
           allowClear={true}

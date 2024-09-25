@@ -20,6 +20,7 @@ export interface CategoryTable {
   groupId: number;
   name: string;
   label: string;
+  description: string;
   isDefault: boolean;
 }
 export type NewCategory = Insertable<CategoryTable>;
