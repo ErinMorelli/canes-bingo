@@ -32,6 +32,12 @@ body {
     text-transform: lowercase !important;
   }
 
+  .dark {
+    .app main .bottom-message {
+      color: #A4A9AD;
+    }
+  }
+
   .playoffs {
     .bingo .row #square-2-2 {
       position: relative;

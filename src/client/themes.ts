@@ -65,7 +65,30 @@ const whalersTheme = getTheme({
   dark: '#00205B',
 });
 
+const darkTheme = {
+  ...defaultTheme,
+  token: {
+    ...defaultTheme.token,
+    colorBorder: '#333F48',
+  },
+  components: {
+    ...defaultTheme.components,
+    Button: {
+      colorPrimary: '#333F48',
+      defaultColor: '#333F48',
+    },
+    Layout: {
+      headerBg: '#333F48',
+      headerColor: '#FFFFFF',
+      footerBg: '#333F48',
+      colorText: '#333F48',
+      bodyBg: '#000000'
+    },
+  },
+};
+
 export const themes: Record<string, ThemeConfig> = {
   default: defaultTheme,
   whalers: whalersTheme,
+  dark: darkTheme,
 };
