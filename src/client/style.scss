@@ -284,99 +284,100 @@ body {
       }
     }
   }
-}
-
-.bingo {
-  position: relative;
-  margin: 0 auto;
-  width: $card-size;
-
-  @media only screen and (max-width: $breakpoint) {
-    width: $mobile-card-size;
-  }
-
-  .row {
-    display: flex;
-    gap: $gap;
-    margin: $gap 0;
-
-    @media only screen and (max-width: $breakpoint) {
-      gap: 0;
-      margin: 0;
-    }
-
-    #square-2-2 {
-      font-weight: bold;
-      font-size: 16px;
-    }
-
-    .square {
-      color: var(--ant-color-text-base);
-      background-color: var(--ant-color-bg-base);
-      border: 1px solid var(--ant-color-border);
-      border-radius: var(--ant-border-radius);
-      width: $square-size;
-      height: $square-size;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      padding: 5px;
-      overflow: hidden;
-      overflow-wrap: anywhere;
-
-      @media only screen and (max-width: $breakpoint) {
-        width: $mobile-square-size;
-        height: $mobile-square-size;
-        border-radius: 0;
-        padding: 2px;
-        line-height: 17px;
-        font-size: 13px;
-
-        &#square-0-0 { border-top-left-radius: var(--ant-border-radius); }
-        &#square-0-4 { border-top-right-radius: var(--ant-border-radius); }
-        &#square-4-0 { border-bottom-left-radius: var(--ant-border-radius); }
-        &#square-4-4 { border-bottom-right-radius: var(--ant-border-radius); }
-      }
-
-      &.selected {
-        background-color: var(--ant-color-primary);
-      }
-
-      &:hover {
-        cursor: pointer;
-        border-color: var(--ant-color-primary-hover);
-      }
-    }
-  }
-}
-
-.card-image {
-  width: $card-size + 20px;
-  background-color: var(--ant-color-text-base);
-  text-align: center;
 
   .bingo {
-    @extend .bingo;
-    font-size: 14px;
+    position: relative;
+    margin: 0 auto;
+    width: $card-size;
 
-    .square {
-      border: 1px solid var(--ant-color-text-base);
+    @media only screen and (max-width: $breakpoint) {
+      width: $mobile-card-size;
+    }
+
+    .row {
+      display: flex;
+      gap: $gap;
+      margin: $gap 0;
+
+      @media only screen and (max-width: $breakpoint) {
+        gap: 0;
+        margin: 0;
+      }
+
+      #square-2-2 {
+        font-weight: bold;
+        font-size: 16px;
+      }
+
+      .square {
+        color: var(--ant-color-text-base);
+        background-color: var(--ant-color-bg-base);
+        border: 1px solid var(--ant-color-border);
+        border-radius: var(--ant-border-radius);
+        width: $square-size;
+        height: $square-size;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 5px;
+        overflow: hidden;
+        overflow-wrap: anywhere;
+
+        @media only screen and (max-width: $breakpoint) {
+          width: $mobile-square-size;
+          height: $mobile-square-size;
+          border-radius: 0;
+          padding: 2px;
+          line-height: 17px;
+          font-size: 13px;
+
+          &#square-0-0 { border-top-left-radius: var(--ant-border-radius); }
+          &#square-0-4 { border-top-right-radius: var(--ant-border-radius); }
+          &#square-4-0 { border-bottom-left-radius: var(--ant-border-radius); }
+          &#square-4-4 { border-bottom-right-radius: var(--ant-border-radius); }
+        }
+
+        &.selected {
+          background-color: var(--ant-color-primary);
+        }
+
+        &:hover {
+          cursor: pointer;
+          border-color: var(--ant-color-primary-hover);
+        }
+      }
     }
   }
 
-  @media only screen and (max-width: $breakpoint) {
-    width: $mobile-card-size + 10px;
-  }
+  .card-image {
+    width: $card-size + 20px;
+    background-color: var(--ant-color-text-base);
+    text-align: center;
+    font-family: Arial, Helvetica, sans-serif;
 
-  h3 {
-    color: var(--ant-color-bg-base);
-    padding: 10px 0 5px;
-  }
+    .bingo {
+      @extend .bingo;
+      font-size: 14px;
 
-  small {
-    display: block;
-    color: #888;
-    padding: 5px 0 10px;
+      .square {
+        border: 1px solid var(--ant-color-text-base);
+      }
+    }
+
+    @media only screen and (max-width: $breakpoint) {
+      width: $mobile-card-size + 10px;
+    }
+
+    h3 {
+      color: var(--ant-color-bg-base);
+      padding: 10px 0 5px;
+    }
+
+    small {
+      display: block;
+      color: #888;
+      padding: 5px 0 10px;
+    }
   }
 }

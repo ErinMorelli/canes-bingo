@@ -10,7 +10,7 @@ type SaveBoardImageProps = {
 export function ToolbarSaveImage({ cardRef }: Readonly<SaveBoardImageProps>) {
   const [loading, setLoading] = useState(false);
 
-  function createImageLink(blob: Blob | null) {
+  const createImageLink = (app: Element) => (blob: Blob | null) => {
     if (!blob) return;
 
     const fileName = `BingoCard-${Date.now().toString()}.png`;
@@ -18,14 +18,14 @@ export function ToolbarSaveImage({ cardRef }: Readonly<SaveBoardImageProps>) {
 
     const link = document.createElement("a");
     link.style.display = 'none';
-    document.body.appendChild(link);
+    app.appendChild(link);
     link.href = objectUrl;
     link.download = fileName;
     link.click();
 
-    document.body.removeChild(link);
+    app.removeChild(link);
     setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
-  }
+  };
 
   const handleScreenshot = useCallback(() => {
     if (!cardRef.current) return;
@@ -45,14 +45,20 @@ export function ToolbarSaveImage({ cardRef }: Readonly<SaveBoardImageProps>) {
     cardFooter.innerText = 'bingo.svech.net';
     card.appendChild(cardFooter);
 
-    document.body.appendChild(card);
+    const app = document.querySelector('.ant-layout.app');
+    if (!app) {
+      setLoading(false);
+      return;
+    }
+
+    app.appendChild(card);
 
     html2canvas(card, { logging: false }).then((canvas) => {
-      document.body.removeChild(card);
+      app.removeChild(card);
       setLoading(false);
-      canvas.toBlob(createImageLink, 'image/png');
+      canvas.toBlob(createImageLink(app), 'image/png');
     }).catch((err) => {
-      document.body.removeChild(card);
+      app.removeChild(card);
       setLoading(false);
       console.error(err);
     });
