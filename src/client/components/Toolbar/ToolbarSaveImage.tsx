@@ -1,6 +1,6 @@
 import { RefObject, useCallback, useState } from 'react';
 import { LinkOutlined, SaveFilled } from '@ant-design/icons';
-import { Button, Modal, Tooltip, Typography } from 'antd';
+import { Button, message, Modal, Tooltip, Typography } from 'antd';
 import html2canvas from 'html2canvas';
 
 import { uploadImageToImgur } from '@app/utils.ts';
@@ -12,13 +12,26 @@ type SaveBoardImageProps = {
 }
 
 export function ToolbarSaveImage({ cardRef }: Readonly<SaveBoardImageProps>) {
+  const [messageApi, contextHolder] = message.useMessage();
+
   const [saveLoading, setSaveLoading] = useState(false);
   const [shareLoading, setShareLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [imgurLink, setImgurLink] = useState<string|undefined>(undefined);
 
+  function imageError(message: string) {
+    void messageApi.open({
+      type: 'error',
+      content: <Text>{message}. Please try again later.</Text>
+    });
+  }
+
   function saveImage(blob: Blob | null) {
-    if (!blob) return;
+    if (!blob) {
+      setSaveLoading(false);
+      imageError('Unable to save image');
+      return;
+    }
 
     const fileName = `BingoCard-${Date.now().toString()}`;
     const objectUrl = URL.createObjectURL(blob);
@@ -44,6 +57,8 @@ export function ToolbarSaveImage({ cardRef }: Readonly<SaveBoardImageProps>) {
       if (result !== null) {
         setImgurLink(result.data.link);
         setIsModalOpen(true);
+      } else {
+        imageError('Unable to get image link');
       }
     })
   }
@@ -88,6 +103,7 @@ export function ToolbarSaveImage({ cardRef }: Readonly<SaveBoardImageProps>) {
       if (canvas !== null) {
         canvas.toBlob(saveImage, 'image/png');
       } else {
+        imageError('Unable to save image');
         setSaveLoading(false);
       }
     });
@@ -99,6 +115,7 @@ export function ToolbarSaveImage({ cardRef }: Readonly<SaveBoardImageProps>) {
       if (canvas !== null) {
         canvas.toBlob(shareImage, 'image/png');
       } else {
+        imageError('Unable to get image link');
         setShareLoading(false);
       }
     });
@@ -106,6 +123,7 @@ export function ToolbarSaveImage({ cardRef }: Readonly<SaveBoardImageProps>) {
 
   return (
     <>
+      {contextHolder}
       <Tooltip title="Save card image">
         <Button
           onClick={handleSaveImage}
