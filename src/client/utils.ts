@@ -1,4 +1,5 @@
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
+import FormData from 'form-data';
 
 import {
   Board,
@@ -8,12 +9,19 @@ import {
   FetchGroupResult,
   GroupResult,
   GroupsStateGroups,
+  ImgurUploadResult,
   MultiGroup,
   SingleGroup,
   Square,
   Squares
 } from './types.ts';
-import { API_PREFIX, ConfigKey, Group, StorageKey } from './constants.ts';
+import {
+  API_PREFIX,
+  ConfigKey,
+  Group,
+  IMGUR_CLIENT_ID,
+  StorageKey
+} from './constants.ts';
 
 function shuffleArray(arr: Squares): Squares {
   const array = [...arr];
@@ -113,4 +121,26 @@ export function initStorageValue<T>(key: StorageKey, defaultValue: T): T {
     setStorageValue(key, value);
   }
   return value;
+}
+
+export async function uploadImageToImgur(image: Blob): Promise<ImgurUploadResult | null> {
+  const form = new FormData();
+  form.append('image', image);
+
+  return await axios({
+    method: 'POST',
+    url: 'https://api.imgur.com/3/image',
+    headers: {
+      Authorization: `Client-ID ${IMGUR_CLIENT_ID}`,
+      'Content-Type': 'multipart/form-data;',
+    },
+    data: form
+  })
+    .then((res: AxiosResponse<ImgurUploadResult>) => {
+      return res.data.success ? res.data : null;
+    })
+    .catch((err) => {
+      console.error(err);
+      return null;
+    });
 }

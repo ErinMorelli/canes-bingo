@@ -69,3 +69,18 @@ export type GroupsState = {
   defaultArgs: BoardArgs;
   loaded: boolean;
 };
+
+export type ImgurUploadResult = {
+  status: number;
+  success: boolean;
+  data: {
+    id: string;
+    deletehash: string;
+    type: string;
+    width: number;
+    height: number;
+    size: number;
+    link: string;
+    datetime: number;
+  };
+};

@@ -1,5 +1,6 @@
 export const API_PREFIX = '/api/v1';
 export const LOCAL_STORAGE_PREFIX = 'CanesBingo';
+export const IMGUR_CLIENT_ID = import.meta.env.VITE_IMGUR_CLIENT_ID;
 
 export const MIN_SQUARE_COUNT = 25;
 
@@ -40,4 +41,3 @@ export class Group {
     ...this.MultiGroups,
   ] as const;
 }
-
