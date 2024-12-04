@@ -124,18 +124,18 @@ export function ToolbarSaveImage({ cardRef }: Readonly<SaveBoardImageProps>) {
   return (
     <>
       {contextHolder}
-      <Tooltip title="Save card image">
+      <Tooltip title="Save card image file">
         <Button
           onClick={handleSaveImage}
-          aria-label="Save card image"
+          aria-label="Save card image file"
           loading={saveLoading}
           icon={<SaveFilled />}
         />
       </Tooltip>
-      <Tooltip title="Get image link">
+      <Tooltip title="Get card image link">
         <Button
           onClick={handleShareImage}
-          aria-label="Get image link"
+          aria-label="Get card image link"
           loading={shareLoading}
           icon={<LinkOutlined />}
         />
