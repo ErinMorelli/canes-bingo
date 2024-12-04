@@ -149,7 +149,10 @@ export function ToolbarSaveImage({ cardRef }: Readonly<SaveBoardImageProps>) {
         footer={null}
         centered
       >
-        <Paragraph style={{ textAlign: 'center', fontSize: 16 }} copyable>
+        <Paragraph
+          style={{ textAlign: 'center', fontSize: 16 }}
+          copyable={{ text: imgurLink }}
+        >
           <Link href={imgurLink} target="_blank">
             <Text style={{ fontSize: 16 }}>{imgurLink}</Text>
           </Link>
