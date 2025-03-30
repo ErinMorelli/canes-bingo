@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ReactNode, KeyboardEvent } from 'react';
-import { Spin } from 'antd';
+import { Popover, Spin } from 'antd';
 
 import { BoardSquare } from '@app/types';
 import { fetchConfigValue } from '@app/utils';
 import { ConfigKey } from '@app/constants.ts';
+import { useConfig } from '@hooks';
 
 type SquareProps = {
   square: BoardSquare;
@@ -20,10 +21,17 @@ function getSquareId(rowId: number, colId: number) {
 export function CardSquare({ square, rowId, colId, onClick }: Readonly<SquareProps>) {
   const { selected, value } = square;
 
+  const { showTooltips } = useConfig();
+
   const squareId = getSquareId(rowId, colId);
 
   const [squareValue, setSquareValue] = useState<ReactNode>(
     <Spin size="small" />
+  );
+
+  const squareDescription = useMemo(
+    () => value.description,
+    [value.description]
   );
 
   function getNextSquare(key: string, rowId: number, colId: number) {
@@ -60,15 +68,26 @@ export function CardSquare({ square, rowId, colId, onClick }: Readonly<SquarePro
     }
   }, [colId, onClick, rowId]);
 
-  return (
-    <div className={`square${selected ? ' selected' : ''}`}
-         role="button"
-         id={squareId}
-         key={squareId}
-         onClick={() => onClick(rowId, colId)}
-         onKeyDown={handleKeyDown}
-         aria-label={`${selected ? 'SELECTED ' : ''} ${squareValue}`}
-         tabIndex={0}
-    >{squareValue}</div>
+  const squareEl = (
+    <div
+      className={`square${selected ? ' selected' : ''}`}
+      role="button"
+      id={squareId}
+      key={squareId}
+      onClick={() => onClick(rowId, colId)}
+      onKeyDown={handleKeyDown}
+      aria-label={`${selected ? 'SELECTED ' : ''} ${squareValue}`}
+      tabIndex={0}>
+      {squareValue}
+    </div>
   );
+
+  return showTooltips ? (
+    <Popover
+      mouseEnterDelay={0.5}
+      content={squareDescription}
+      title={squareValue}>
+      {squareEl}
+    </Popover>
+  ) : squareEl;
 }

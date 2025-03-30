@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react';
 import { useSelector } from 'react-redux';
-import { Divider, Form, Select, Typography } from 'antd';
+import { Form, Select, Typography } from 'antd';
 
 import { selectBoardArgs, updateBoardArg } from '@slices';
 import { Category, MultiGroup } from '@app/types.ts';
@@ -68,28 +68,25 @@ export default function OptionSelect({ groupName }: SelectOptionProps) {
   }, [dispatch, group?.categories, groupName]);
 
   return !group ? null : (
-    <>
-      <Divider />
-      <Form.Item
-        tooltip={group.description || undefined}
-        label={
-          <Typography.Text strong>
-            {group.label}
-          </Typography.Text>
-        }
-      >
-        <Select
-          value={values}
-          style={{ width: 200 }}
-          allowClear={true}
-          onChange={handleChange}
-          options={options}
-          mode="multiple"
-          size="large"
-          maxTagCount="responsive"
-          placeholder="Click to select..."
-        />
-     </Form.Item>
-    </>
+    <Form.Item
+      tooltip={group.description || undefined}
+      label={
+        <Typography.Text strong>
+          {group.label}
+        </Typography.Text>
+      }
+    >
+      <Select
+        value={values}
+        style={{ width: 200 }}
+        allowClear={true}
+        onChange={handleChange}
+        options={options}
+        mode="multiple"
+        size="large"
+        maxTagCount="responsive"
+        placeholder="Click to select..."
+      />
+   </Form.Item>
   )
 }

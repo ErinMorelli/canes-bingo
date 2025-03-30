@@ -1,4 +1,5 @@
-import { Group as G } from './constants.ts';
+import { ConfigKey, Group as G } from './constants.ts';
+import { ThemeConfig } from 'antd';
 
 export type SingleGroup = typeof G.SingleGroups[number];
 export type MultiGroup = typeof G.MultiGroups[number];
@@ -83,4 +84,18 @@ export type ImgurUploadResult = {
     link: string;
     datetime: number;
   };
+};
+
+export type ConfigState = Record<ConfigKey, string>;
+
+export type ConfigResult = {
+  id?: number;
+  key: ConfigKey
+  value: string;
+};
+
+export type Theme = {
+  config: ThemeConfig;
+  label: string;
+  customClass?: string;
 };

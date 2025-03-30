@@ -15,4 +15,10 @@ export default defineConfig({
     },
   },
   plugins: [react()],
+  server: {
+    allowedHosts: [
+      'localhost',
+      'test-chamber-003.local'
+    ]
+  }
 });

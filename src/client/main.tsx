@@ -3,9 +3,9 @@ import ReactDOM from 'react-dom/client';
 
 import RootApp from '@components';
 import AdminApp from '@app/admin';
+import { Inventory } from '@app/components/Inventory';
 
 import './style.scss';
-import { Inventory } from '@app/components/Inventory';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <BrowserRouter>

@@ -1,4 +1,5 @@
 import { ThemeConfig } from 'antd';
+import { Theme } from './types.ts';
 
 type GetThemeProps = {
   primary: string;
@@ -50,6 +51,11 @@ const getTheme = ({
     Table: {
       headerColor: '#333',
       colorText: dark,
+    },
+    Popover: {
+      colorBgElevated: light,
+      colorTextHeading: primary,
+      colorText: dark,
     }
   }
 });
@@ -87,8 +93,18 @@ const darkTheme = {
   },
 };
 
-export const themes: Record<string, ThemeConfig> = {
-  default: defaultTheme,
-  whalers: whalersTheme,
-  dark: darkTheme,
+export const themes: Record<string, Theme> = {
+  default: {
+    config: defaultTheme,
+    label: 'Default',
+  },
+  whalers: {
+    config: whalersTheme,
+    label: 'Whalers',
+  },
+  dark: {
+    config: darkTheme,
+    label: 'Dark',
+    customClass: 'dark',
+  },
 };

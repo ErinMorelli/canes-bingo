@@ -16,7 +16,11 @@ const { Header, Content, Footer } = Layout
 
 const notificationKey = 'squaresError';
 
-export function AppLayout() {
+type AppLayoutProps = {
+  themeClass?: string;
+}
+
+export function AppLayout({ themeClass }: AppLayoutProps) {
   const [api, contextHolder] = notification.useNotification({
     placement: 'top',
     maxCount: 1,
@@ -43,13 +47,17 @@ export function AppLayout() {
 
   useEffect(() => {
     fetchConfigValue(ConfigKey.CustomClass).then((customClass) => {
-      setCustomClass(customClass);
+      if (themeClass) {
+        setCustomClass(`${customClass} ${themeClass}`);
+      } else {
+        setCustomClass(customClass);
+      }
       const parsed = /playoffs(\s(\d+)-wins?)?/.exec(customClass);
       if (parsed) {
         setPlayoffWins(parseInt(parsed[1] || '0'));
       }
     });
-  }, []);
+  }, [themeClass]);
 
   useEffect(() => loadGroups());
 
@@ -96,15 +104,13 @@ export function AppLayout() {
                   <div
                     className="win"
                     title={`WIN #${idx+1}`}
-                    key={`WIN #${idx+1}`}
-                  ></div>
+                    key={`WIN #${idx+1}`}></div>
                 )}
                 {Array.from({ length: 16 - playoffWins }).map((_, idx) =>
                   <div
                     className="tbd"
                     title="TBD"
-                    key={`TBD #${idx+1}`}
-                  ></div>
+                    key={`TBD #${idx+1}`}></div>
                 )}
               </div>
             )}
@@ -116,21 +122,18 @@ export function AppLayout() {
             </div>
             <div className="bottom-message">
               <p>
-                Have an idea for a new square? <a
+                Have an idea for a new square?&nbsp;
+                <a
                   href="https://forms.gle/LS87Lr95QDixh9At5"
                   target="_blank"
                   rel="noreferrer nofollow"
-                  aria-label="Bingo square idea submission form"
-                >
+                  aria-label="Bingo square idea submission form">
                   Submit it here
                 </a>!
               </p>
               <p>
-                Not sure what a square means? <Link
-                  to="/squares"
-                >
-                  Look up the meaning here
-                </Link>!
+                Not sure what a square means?&nbsp;
+                <Link to="/squares">Look up the meaning here</Link>!
               </p>
             </div>
           </Content>

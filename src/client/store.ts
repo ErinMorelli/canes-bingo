@@ -13,7 +13,7 @@ const persistedReducer: Reducer = persistReducer<RootState>({
   key: StorageKey.App,
   keyPrefix: '',
   storage,
-  whitelist: ['board', 'boardArgs'],
+  whitelist: ['board', 'boardArgs', 'config'],
   stateReconciler: autoMergeLevel2,
 }, rootReducer);
 

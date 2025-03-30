@@ -18,7 +18,7 @@ export function useGroups(): UseGroupsResult {
   const groupsLoaded = useSelector(selectGroupsLoaded);
 
   const loadGroups = useCallback(() => {
-    if (!groupsLoaded) dispatch(fetchGroups(null));
+    if (!groupsLoaded) dispatch(fetchGroups(undefined));
   }, [dispatch, groupsLoaded]);
 
   return {

@@ -85,7 +85,6 @@ export function Toolbar({
           <ToolbarSaveImage cardRef={cardRef} />
         </Flex>
       </Flex>
-      {
       <Drawer
         title="Game Options"
         className={customClass}
@@ -129,7 +128,6 @@ export function Toolbar({
           {groupsLoaded && <Options />}
         </Spin>
       </Drawer>
-      }
     </div>
   )
 }

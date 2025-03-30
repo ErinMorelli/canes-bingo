@@ -64,7 +64,7 @@ export function ConfigCard({
         setPreviousData(data);
         setValue(data.value);
       });
-  }, []);
+  });
 
   function handleChange(e: ChangeEvent<{ value: string }>) {
     setValue(e.target.value);

@@ -9,6 +9,7 @@ export enum ConfigKey {
   HeaderText = 'headerText',
   Theme = 'theme',
   CustomClass = 'customClass',
+  Tooltips = 'tooltips',
 }
 
 export const StorageKey = {
