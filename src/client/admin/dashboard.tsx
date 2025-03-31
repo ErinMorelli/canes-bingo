@@ -56,12 +56,14 @@ export function ConfigCard({
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    dataProvider
-      .getOne<ConfigResult>(Resource, { id: ConfigId[configKey] })
-      .then(({ data }) => {
-        setPreviousData(data);
-        setValue(data.value);
-      });
+    if (!value && !previousData) {
+      dataProvider
+        .getOne<ConfigResult>(Resource, {id: ConfigId[configKey]})
+        .then(({data}) => {
+          setPreviousData(data);
+          setValue(data.value);
+        });
+    }
   });
 
   function handleChange(e: ChangeEvent<{ value: string }>) {
