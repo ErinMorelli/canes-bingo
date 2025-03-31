@@ -15,22 +15,20 @@ import {
   CardContent,
   CardHeader,
   Grid,
-  MenuItem,
-  Select,
   TextField
 } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
 
-import { themes } from '@app/themes.ts';
 import { ConfigKey } from '@app/constants.ts';
 
 const Resource = 'config';
 
-const Id: Record<ConfigKey, number> = {
+const ConfigId: Record<ConfigKey, number> = {
   [ConfigKey.FreeSpace]: 1,
   [ConfigKey.HeaderText]: 2,
   [ConfigKey.Theme]: 3,
   [ConfigKey.CustomClass]: 4,
+  [ConfigKey.Tooltips]: 5,
 };
 
 type ConfigResult = {
@@ -59,7 +57,7 @@ export function ConfigCard({
 
   useEffect(() => {
     dataProvider
-      .getOne<ConfigResult>(Resource, { id: Id[configKey] })
+      .getOne<ConfigResult>(Resource, { id: ConfigId[configKey] })
       .then(({ data }) => {
         setPreviousData(data);
         setValue(data.value);
@@ -74,7 +72,7 @@ export function ConfigCard({
     setLoading(true);
     dataProvider
       .update(Resource, {
-        id: Id[configKey],
+        id: ConfigId[configKey],
         data: { value },
         previousData,
       })
@@ -121,21 +119,6 @@ export default function Dashboard() {
             subheader="Value to display at the top of the page."
           >
             <TextField variant="standard" fullWidth/>
-          </ConfigCard>
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <ConfigCard
-            configKey={ConfigKey.Theme}
-            title="Theme"
-            subheader="The color theme used to style the page."
-          >
-            <Select variant="standard" fullWidth>
-              {Object.keys(themes).map((themeName) => (
-                <MenuItem key={themeName} value={themeName}>
-                  {themeName}
-                </MenuItem>
-              ))}
-            </Select>
           </ConfigCard>
         </Grid>
         <Grid item xs={12} md={6}>

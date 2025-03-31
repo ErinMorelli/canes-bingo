@@ -29,10 +29,19 @@ export function CardSquare({ square, rowId, colId, onClick }: Readonly<SquarePro
     <Spin size="small" />
   );
 
+  const isFreeSpace = useMemo(
+    () => rowId === 2 && colId === 2,
+    [colId, rowId]
+  );
+
   const squareDescription = useMemo(
     () => value.description,
     [value.description]
   );
+
+  const showSquareTooltip = useMemo(() => {
+    return isFreeSpace ? false : showTooltips;
+  }, [isFreeSpace, showTooltips]);
 
   function getNextSquare(key: string, rowId: number, colId: number) {
     let newRowId = rowId, newColId = colId;
@@ -47,12 +56,12 @@ export function CardSquare({ square, rowId, colId, onClick }: Readonly<SquarePro
   }
 
   useEffect(() => {
-    if (rowId === 2 && colId === 2) {
+    if (isFreeSpace) {
       fetchConfigValue(ConfigKey.FreeSpace).then(setSquareValue);
     } else {
       setSquareValue(value.value);
     }
-  }, [colId, rowId, value.value]);
+  }, [isFreeSpace, value.value]);
 
   const handleKeyDown = useCallback((event: KeyboardEvent<HTMLDivElement>) => {
     const key = event.code.toLowerCase();
@@ -82,7 +91,7 @@ export function CardSquare({ square, rowId, colId, onClick }: Readonly<SquarePro
     </div>
   );
 
-  return showTooltips ? (
+  return showSquareTooltip ? (
     <Popover
       mouseEnterDelay={0.5}
       content={squareDescription}

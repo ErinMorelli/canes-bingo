@@ -9,7 +9,8 @@ export function App() {
   const { theme } = useConfig();
 
   useEffect(() => {
-    document.body.style.backgroundColor = theme?.config?.components?.Layout?.footerBg || 'inherit';
+    document.body.style.backgroundColor =
+      theme?.config?.components?.Layout?.footerBg || 'inherit';
   }, [theme]);
 
   return theme ? (

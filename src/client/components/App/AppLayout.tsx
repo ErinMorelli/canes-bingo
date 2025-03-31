@@ -63,7 +63,7 @@ export function AppLayout({ themeClass }: AppLayoutProps) {
 
   useEffect(() => {
     if (groupsLoaded) loadBoard();
-  }, [groupsLoaded]);
+  }, [groupsLoaded, loadBoard]);
 
   useEffect(() => {
     if (squaresError) {
