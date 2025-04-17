@@ -98,7 +98,7 @@ export function AppLayout({ themeClass }: AppLayoutProps) {
         </Header>
         <Layout>
           <Content>
-            {playoffWins && (
+            {playoffWins !== undefined && playoffWins >= 0 && (
               <div className="playoff-wins">
                 {Array.from({ length: playoffWins }).map((_, idx) =>
                   <div
