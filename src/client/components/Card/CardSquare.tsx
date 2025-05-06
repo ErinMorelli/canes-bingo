@@ -1,6 +1,12 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState
+} from 'react';
 import type { ReactNode, KeyboardEvent } from 'react';
 import { Popover, Spin } from 'antd';
+import { decode } from 'he';
 
 import { BoardSquare } from '@app/types';
 import { fetchConfigValue } from '@app/utils';
@@ -43,6 +49,17 @@ export function CardSquare({ square, rowId, colId, onClick }: Readonly<SquarePro
     return isFreeSpace ? false : showTooltips;
   }, [isFreeSpace, showTooltips]);
 
+  const classNames = useMemo(() => {
+    const classes = ['square'];
+    if (selected) {
+      classes.push('selected');
+    }
+    if (isFreeSpace) {
+      classes.push('free-space');
+    }
+    return classes.join(' ');
+  }, [isFreeSpace, selected]);
+
   function getNextSquare(key: string, rowId: number, colId: number) {
     let newRowId = rowId, newColId = colId;
     switch (key) {
@@ -57,7 +74,11 @@ export function CardSquare({ square, rowId, colId, onClick }: Readonly<SquarePro
 
   useEffect(() => {
     if (isFreeSpace) {
-      fetchConfigValue(ConfigKey.FreeSpace).then(setSquareValue);
+      fetchConfigValue(ConfigKey.FreeSpace)
+        .then((freeSpaceValue) => {
+          const value = decode(freeSpaceValue);
+          setSquareValue(value);
+        });
     } else {
       setSquareValue(value.value);
     }
@@ -79,7 +100,7 @@ export function CardSquare({ square, rowId, colId, onClick }: Readonly<SquarePro
 
   const squareEl = (
     <div
-      className={`square${selected ? ' selected' : ''}`}
+      className={classNames}
       role="button"
       id={squareId}
       key={squareId}
@@ -93,6 +114,7 @@ export function CardSquare({ square, rowId, colId, onClick }: Readonly<SquarePro
 
   return showSquareTooltip ? (
     <Popover
+      rootClassName="square-tooltip"
       mouseEnterDelay={0.5}
       content={squareDescription}
       title={squareValue}>

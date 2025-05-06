@@ -137,6 +137,10 @@ body {
       }
     }
   }
+
+  .square-tooltip {
+    max-width: calc($square-size * 3);
+  }
 }
 
 .app {
@@ -340,6 +344,11 @@ body {
 
         &.selected {
           background-color: var(--ant-color-primary);
+        }
+
+        &.free-space,
+        &.free-space > div {
+          white-space: pre-line;
         }
 
         &:hover {
