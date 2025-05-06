@@ -55,9 +55,9 @@ export default function OptionRadio({ groupName }: RadioOptionProps) {
                    size="large"
       >
         {group.categories.map((cat) => !cat.description ? (
-          <Radio.Button value={cat.name}>{cat.label}</Radio.Button>
+          <Radio.Button value={cat.name} key={cat.id}>{cat.label}</Radio.Button>
         ) : (
-          <Tooltip title={cat.description}>
+          <Tooltip title={cat.description} key={cat.id}>
             <Radio.Button value={cat.name}
                           title={cat.description}
             >{cat.label}</Radio.Button>
