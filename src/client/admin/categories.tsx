@@ -122,7 +122,8 @@ export const CategoryShow = () => (
       <ReferenceManyField reference="squares" target="category_id" label="Squares">
         <Datagrid bulkActionButtons={false} rowClick="show">
           <TextField source="id" label="ID" sortable={false} />
-          <TextField source="value"  sortable={false}/>
+          <TextField source="value" sortable={false} />
+          <BooleanField source="active" sortable={false} />
         </Datagrid>
       </ReferenceManyField>
     </SimpleShowLayout>
