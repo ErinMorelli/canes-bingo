@@ -41,6 +41,7 @@ export function Inventory() {
         return s.value.toLowerCase().includes(debouncedQuery.toLowerCase()) ||
           s.description?.toLowerCase().includes(debouncedQuery.toLowerCase());
       })
+      .filter((s) => s.active)
       .sort((a, b) => {
         const aVal = a.value.replace('"', '').toLowerCase();
         const bVal = b.value.replace('"', '').toLowerCase();
@@ -63,7 +64,7 @@ export function Inventory() {
   ];
 
   return (
-    <ConfigProvider theme={themes.default}>
+    <ConfigProvider theme={themes.default.config}>
       <Layout className="app squares-db">
         <Header>
           <h1>Carolina Hurricanes Bingo</h1>
