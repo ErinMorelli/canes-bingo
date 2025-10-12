@@ -41,13 +41,11 @@ export function CardSquare({ square, rowId, colId, onClick }: Readonly<SquarePro
   );
 
   const squareDescription = useMemo(
-    () => value.description,
-    [value.description]
+    () => isFreeSpace
+      ? 'Free space!'
+      : value.description,
+    [isFreeSpace, value.description]
   );
-
-  const showSquareTooltip = useMemo(() => {
-    return isFreeSpace ? false : showTooltips;
-  }, [isFreeSpace, showTooltips]);
 
   const classNames = useMemo(() => {
     const classes = ['square'];
@@ -112,7 +110,7 @@ export function CardSquare({ square, rowId, colId, onClick }: Readonly<SquarePro
     </div>
   );
 
-  return showSquareTooltip ? (
+  return showTooltips ? (
     <Popover
       rootClassName="square-tooltip"
       mouseEnterDelay={0.5}

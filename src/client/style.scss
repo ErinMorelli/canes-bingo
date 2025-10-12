@@ -311,6 +311,10 @@ body {
       #square-2-2 {
         font-weight: bold;
         font-size: 16px;
+
+        @media only screen and (max-width: $breakpoint) {
+          font-size: 13px;
+        }
       }
 
       .square {
@@ -327,6 +331,7 @@ body {
         padding: 5px;
         overflow: hidden;
         overflow-wrap: anywhere;
+        line-height: 20px;
 
         @media only screen and (max-width: $breakpoint) {
           width: $mobile-square-size;
