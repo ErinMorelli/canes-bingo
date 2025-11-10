@@ -1,1 +1,1 @@
-export { Inventory } from './Inventory.tsx';
+export { Inventory as default } from './Inventory.tsx';

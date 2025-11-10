@@ -5,8 +5,12 @@ import { BoardSquare } from '@app/types';
 
 import { CardSquare } from './CardSquare.tsx';
 
-export const Card = forwardRef<HTMLDivElement>(
-  (_, ref) => {
+type CardProps = {
+  customClass?: string;
+};
+
+export const Card = forwardRef<HTMLDivElement, CardProps>(
+  ({ customClass }: CardProps, ref) => {
     const { board, selectSquare } = useGameBoard();
 
     function handleClick(rowId: number, coldId: number) {
@@ -20,6 +24,7 @@ export const Card = forwardRef<HTMLDivElement>(
           square={square}
           rowId={rowId}
           colId={colId}
+          customClass={customClass}
           onClick={handleClick}
         />
       ))

@@ -117,7 +117,7 @@ export function AppLayout({ themeClass }: AppLayoutProps) {
             <Toolbar cardRef={cardRef} customClass={customClass} />
             <div className="board-wrapper">
               <Spin size="large" spinning={!isBoardReady}>
-                {boardReady && <Card ref={cardRef} />}
+                {boardReady && <Card ref={cardRef} customClass={customClass} />}
               </Spin>
             </div>
             <div className="bottom-message">

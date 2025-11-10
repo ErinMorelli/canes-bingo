@@ -19,6 +19,10 @@ $breakpoint: 720px;
   }
 }
 
+.no-caps * {
+  text-transform: lowercase !important;
+}
+
 body {
   font-family: 'Inter', Arial, sans-serif;
 
@@ -28,13 +32,27 @@ body {
     }
   }
 
-  .no-caps * {
-    text-transform: lowercase !important;
-  }
-
   .dark {
     .app main .bottom-message {
       color: #A4A9AD;
+
+      a:hover {
+        color: #333F48;
+      }
+    }
+
+    .squares-db main {
+      h2 {
+        color: #A2AAAD;
+      }
+
+      .back-link {
+        color: #CE1126;
+
+        &:hover {
+          color: #333F48;
+        }
+      }
     }
   }
 
@@ -276,6 +294,10 @@ body {
   &.squares-db {
     input.ant-input {
       color: black;
+    }
+
+    h2 {
+      color: var(--ant-color-text-base);
     }
 
     table {

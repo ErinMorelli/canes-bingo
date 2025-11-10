@@ -17,6 +17,7 @@ type SquareProps = {
   square: BoardSquare;
   rowId: number;
   colId: number;
+  customClass?: string;
   onClick: (rowId: number, colId: number) => void;
 };
 
@@ -24,7 +25,7 @@ function getSquareId(rowId: number, colId: number) {
   return `square-${rowId}-${colId}`;
 }
 
-export function CardSquare({ square, rowId, colId, onClick }: Readonly<SquareProps>) {
+export function CardSquare({ square, rowId, colId, customClass, onClick }: Readonly<SquareProps>) {
   const { selected, value } = square;
 
   const { showTooltips } = useConfig();
@@ -42,10 +43,18 @@ export function CardSquare({ square, rowId, colId, onClick }: Readonly<SquarePro
 
   const squareDescription = useMemo(
     () => isFreeSpace
-      ? 'Free space!'
-      : value.description,
+        ? 'Free space!'
+        : value.description,
     [isFreeSpace, value.description]
   );
+
+  const popoverClassNames = useMemo(() => {
+    const classes = ['square-tooltip'];
+    if (customClass) {
+      classes.push(customClass);
+    }
+    return classes.join(' ');
+  }, [customClass]);
 
   const classNames = useMemo(() => {
     const classes = ['square'];
@@ -112,7 +121,7 @@ export function CardSquare({ square, rowId, colId, onClick }: Readonly<SquarePro
 
   return showTooltips ? (
     <Popover
-      rootClassName="square-tooltip"
+      rootClassName={popoverClassNames}
       mouseEnterDelay={0.5}
       content={squareDescription}
       title={squareValue}>
