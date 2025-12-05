@@ -10,6 +10,7 @@ export enum ConfigKey {
   Theme = 'theme',
   CustomClass = 'customClass',
   Tooltips = 'tooltips',
+  FestiveLights = 'festiveLights',
 }
 
 export const StorageKey = {

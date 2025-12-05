@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 @import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
 
 $square-size: 115px;
@@ -10,6 +12,17 @@ $mobile-gap: 4px;
 $mobile-card-size: $mobile-square-size * 5;
 
 $breakpoint: 720px;
+
+$globe-width: 12px;
+$globe-height: 18px;
+$globe-spacing: 40px;
+$globe-spread: 2px;
+
+$light-color-1: rgb(50, 239, 12);
+$light-color-2: rgb(255, 221, 0);
+$light-color-3: rgb(213, 87, 255);
+
+$light-off-opacity: 0.4;
 
 * {
   margin: 0;
@@ -416,4 +429,112 @@ body {
       padding: 5px 0 10px;
     }
   }
+
+  .app-lights {
+    background-color: var(--ant-layout-header-bg);
+    height: $globe-height;
+    margin-bottom: calc(-1 * ($globe-height/2));
+
+    ul.lights {
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      position: absolute;
+      z-index: 1;
+      margin: -15px 0 0 0;
+      padding: 0;
+      pointer-events: none;
+      width: 100%;
+
+      li.light {
+        position: relative;
+        animation-fill-mode: both;
+        animation-iteration-count:infinite;
+        list-style: none;
+        padding: 0;
+        width: $globe-width;
+        height: $globe-height;
+        border-radius: 50%;
+        margin: calc($globe-spacing/2);
+        display: inline-block;
+        background: $light-color-1;
+        box-shadow: 0 calc($globe-height/6) calc($globe-width*2) $globe-spread $light-color-1;
+        animation-name: flash-1;
+        animation-duration: 2s;
+
+        &:nth-child(2n+1) {
+          background: $light-color-2;
+          box-shadow: 0 calc($globe-height/6) calc($globe-width*2) $globe-spread color.change($light-color-2, $alpha: 0.5);
+          animation-name: flash-2;
+          animation-duration: 0.4s;
+        }
+
+        &:nth-child(4n+2) {
+          background: $light-color-3;
+          box-shadow: 0 calc($globe-height/6) calc($globe-width*2) $globe-spread $light-color-3;
+          animation-name: flash-3;
+          animation-duration: 1.1s;
+        }
+
+        &:nth-child(odd) {
+          animation-duration: 1.8s;
+        }
+
+        &:nth-child(3n+1) {
+          animation-duration: 1.4s;
+        }
+
+        &:before {
+          content: "";
+          position: absolute;
+          background: #222;
+          width: calc($globe-width - 2px);
+          height: calc($globe-height/3);
+          border-radius: 3px;
+          top: calc(0px - ($globe-height/6));
+          left: 1px;
+        }
+
+        &:after {
+          content: "";
+          top: calc(0px - $globe-height/2);
+          left: calc($globe-width - 3px);
+          position: absolute;
+          width: calc($globe-spacing + 12px);
+          height: calc($globe-height/3 * 2);
+          border-bottom: solid #222 2px;
+          border-radius: 50%;
+        }
+
+        &:last-child:after {
+          content: none;
+        }
+
+        &:first-child {
+          margin-left: -$globe-spacing;
+        }
+      }
+    }
+  }
+}
+
+@keyframes flash-1 {
+    0%, 100% { background: $light-color-1;
+    box-shadow: 0 calc($globe-height/6) calc($globe-width*2) $globe-spread $light-color-1;}
+    50% { background: color.change($light-color-1, $alpha: $light-off-opacity);
+    box-shadow: 0 calc($globe-height/6) calc($globe-width*2) $globe-spread color.change($light-color-1, $alpha: 0.2);}
+}
+
+@keyframes flash-2 {
+    0%, 100% { background: $light-color-2;
+    box-shadow: 0 calc($globe-height/6) calc($globe-width*2) $globe-spread $light-color-2;}
+    50% { background: color.change($light-color-2, $alpha: $light-off-opacity);
+    box-shadow: 0 calc($globe-height/6) calc($globe-width*2) $globe-spread color.change($light-color-2, $alpha: 0.2);}
+}
+
+@keyframes flash-3 {
+    0%, 100% { background: $light-color-3;
+    box-shadow: 0 calc($globe-height/6) calc($globe-width*2) $globe-spread $light-color-3;}
+    50% { background: color.change($light-color-3, $alpha: $light-off-opacity);
+    box-shadow: 0 calc($globe-height/6) calc($globe-width*2) $globe-spread color.change($light-color-3, $alpha: 0.2);}
 }

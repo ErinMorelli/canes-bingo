@@ -10,6 +10,7 @@ import { Toolbar } from '../Toolbar';
 import AppFooter from './AppFooter.tsx';
 import { fetchConfigValue } from '@app/utils.ts';
 import { ConfigKey } from '@app/constants.ts';
+import { AppLights } from '@app/components/App/AppLights.tsx';
 
 
 const { Header, Content, Footer } = Layout
@@ -18,9 +19,10 @@ const notificationKey = 'squaresError';
 
 type AppLayoutProps = {
   themeClass?: string;
+  themeName: string;
 }
 
-export function AppLayout({ themeClass }: AppLayoutProps) {
+export function AppLayout({ themeClass, themeName }: AppLayoutProps) {
   const [api, contextHolder] = notification.useNotification({
     placement: 'top',
     maxCount: 1,
@@ -40,6 +42,7 @@ export function AppLayout({ themeClass }: AppLayoutProps) {
   const [headerText, setHeaderText] = useState<string>();
   const [customClass, setCustomClass] = useState<string>();
   const [playoffWins, setPlayoffWins] = useState<number>();
+  const [lightsEnabled, setLightsEnabled] = useState(false);
 
   useEffect(() => {
     fetchConfigValue(ConfigKey.HeaderText).then(setHeaderText);
@@ -58,6 +61,16 @@ export function AppLayout({ themeClass }: AppLayoutProps) {
       }
     });
   }, [themeClass]);
+
+  useEffect(() => {
+    fetchConfigValue(ConfigKey.FestiveLights).then((val) => {
+      if (val?.toLowerCase().trim() === 'on') {
+        setLightsEnabled(true);
+      } else {
+        setLightsEnabled(false);
+      }
+    })
+  }, []);
 
   useEffect(() => loadGroups());
 
@@ -92,7 +105,8 @@ export function AppLayout({ themeClass }: AppLayoutProps) {
   return (
     <Space direction="vertical" style={{ width: '100%' }} className={customClass}>
       {contextHolder}
-      <Layout className="app">
+      <Layout className={`app app-${themeName}`}>
+        {lightsEnabled && <AppLights />}
         <Header>
           <h1>{headerText}</h1>
         </Header>

@@ -15,7 +15,7 @@ export function App() {
 
   return theme ? (
     <ConfigProvider theme={theme.config}>
-      <AppLayout themeClass={theme.customClass} />
+      <AppLayout themeClass={theme.customClass} themeName={theme.name} />
     </ConfigProvider>
   ) : (
     <Spin fullscreen />
