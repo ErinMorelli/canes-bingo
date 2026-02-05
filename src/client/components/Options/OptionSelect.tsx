@@ -9,9 +9,10 @@ import { useGroups } from '@hooks';
 
 type SelectOptionProps= {
   groupName: MultiGroup;
+  hideMargin?: boolean
 };
 
-export default function OptionSelect({ groupName }: SelectOptionProps) {
+export default function OptionSelect({ groupName, hideMargin }: SelectOptionProps) {
   const dispatch = useAppDispatch();
   const { groups } = useGroups();
 
@@ -70,6 +71,7 @@ export default function OptionSelect({ groupName }: SelectOptionProps) {
   return !group ? null : (
     <Form.Item
       tooltip={group.description || undefined}
+      style={hideMargin ? { marginBottom: 0 } : undefined}
       label={
         <Typography.Text strong>
           {group.label}
@@ -78,12 +80,11 @@ export default function OptionSelect({ groupName }: SelectOptionProps) {
     >
       <Select
         value={values}
-        style={{ width: 200 }}
         allowClear={true}
         onChange={handleChange}
         options={options}
         mode="multiple"
-        size="large"
+        size="middle"
         maxTagCount="responsive"
         placeholder="Click to select..."
       />

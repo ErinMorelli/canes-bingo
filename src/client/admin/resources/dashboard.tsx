@@ -29,6 +29,7 @@ const ConfigId: Record<ConfigKey, number> = {
   [ConfigKey.Theme]: 3,
   [ConfigKey.CustomClass]: 4,
   [ConfigKey.Tooltips]: 5,
+  [ConfigKey.FestiveLights]: 6,
 };
 
 type ConfigResult = {
@@ -105,7 +106,7 @@ export default function Dashboard() {
       <Title title="Quick Settings"/>
       <div>&nbsp;</div>
       <Grid container spacing={3}>
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <ConfigCard
             configKey={ConfigKey.FreeSpace}
             title="Free Space"
@@ -114,7 +115,7 @@ export default function Dashboard() {
             <TextField variant="standard" fullWidth/>
           </ConfigCard>
         </Grid>
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <ConfigCard
             configKey={ConfigKey.HeaderText}
             title="Header Text"
@@ -123,7 +124,7 @@ export default function Dashboard() {
             <TextField variant="standard" fullWidth/>
           </ConfigCard>
         </Grid>
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <ConfigCard
             configKey={ConfigKey.CustomClass}
             title="Custom Class"

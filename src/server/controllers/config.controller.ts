@@ -29,7 +29,7 @@ export async function updateConfig(id: number, config: ConfigUpdate) {
     .updateTable('config')
     .set(config)
     .where('id', '=', id)
-    .executeTakeFirstOrThrow()
+    .execute()
     .then(() => getConfigValue(id));
 }
 
@@ -46,6 +46,6 @@ export async function removeConfig(id: number) {
   return await db
     .deleteFrom('config')
     .where('id', '=', id)
-    .executeTakeFirstOrThrow()
+    .execute()
     .then(() => config);
 }

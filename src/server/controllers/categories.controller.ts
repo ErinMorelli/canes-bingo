@@ -11,7 +11,7 @@ export async function getCategories(groupId?: number) {
       'c.name as name',
       'c.label as label',
       'c.description as description',
-      sql<string>`
+      sql<boolean>`
         if(c.is_default = true, cast(true as json), cast(false as json))
       `.as('isDefault'),
       `c.groupId as groupId`,
@@ -32,7 +32,7 @@ export async function getCategory(categoryId: number) {
       'c.name as name',
       'c.label as label',
       'c.description as description',
-      sql<string>`
+      sql<boolean>`
         if(c.is_default = true, cast(true as json), cast(false as json))
       `.as('isDefault'),
       `c.groupId as groupId`,
@@ -54,19 +54,21 @@ export async function updateCategory(categoryId: number, category: CategoryUpdat
     .updateTable('categories')
     .set(category)
     .where('categoryId', '=', categoryId)
-    .executeTakeFirstOrThrow()
+    .execute()
     .then(() => getCategory(categoryId));
 }
 
 export async function removeCategory(categoryId: number) {
   const category = await getCategory(categoryId);
-  return await db
-    .deleteFrom('squareCategories')
-    .where('categoryId', '=', categoryId)
-    .executeTakeFirstOrThrow()
-    .then(async () => await db
-      .deleteFrom('categories')
+  return await db.transaction().execute(async (trx) => {
+    return trx
+      .deleteFrom('squareCategories')
       .where('categoryId', '=', categoryId)
-      .executeTakeFirstOrThrow()
-    ).then(() => category);
+      .execute()
+      .then(async () => await trx
+        .deleteFrom('categories')
+        .where('categoryId', '=', categoryId)
+        .execute()
+      ).then(() => category);
+  });
 }

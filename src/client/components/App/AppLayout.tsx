@@ -12,7 +12,6 @@ import { fetchConfigValue } from '@app/utils.ts';
 import { ConfigKey } from '@app/constants.ts';
 import { AppLights } from '@app/components/App/AppLights.tsx';
 
-
 const { Header, Content, Footer } = Layout
 
 const notificationKey = 'squaresError';
@@ -57,7 +56,7 @@ export function AppLayout({ themeClass, themeName }: AppLayoutProps) {
       }
       const parsed = /playoffs(\s(\d+)-wins?)?/.exec(customClass);
       if (parsed) {
-        setPlayoffWins(parseInt(parsed[1] || '0'));
+        setPlayoffWins(Number.parseInt(parsed[2] || '0'));
       }
     });
   }, [themeClass]);
@@ -84,7 +83,7 @@ export function AppLayout({ themeClass, themeName }: AppLayoutProps) {
         key: notificationKey,
         role: 'alert',
         duration: 0,
-        message: 'Not Enough Squares!',
+        title: 'Not Enough Squares!',
         description: (
           <Typography>
             <Typography.Paragraph>
@@ -103,7 +102,7 @@ export function AppLayout({ themeClass, themeName }: AppLayoutProps) {
   }, [api, squaresError]);
 
   return (
-    <Space direction="vertical" style={{ width: '100%' }} className={customClass}>
+    <Space orientation="vertical" style={{ width: '100%' }} className={customClass}>
       {contextHolder}
       <Layout className={`app app-${themeName}`}>
         {lightsEnabled && <AppLights />}
@@ -131,7 +130,13 @@ export function AppLayout({ themeClass, themeName }: AppLayoutProps) {
             <Toolbar cardRef={cardRef} customClass={customClass} />
             <div className="board-wrapper">
               <Spin size="large" spinning={!isBoardReady}>
-                {boardReady && <Card ref={cardRef} customClass={customClass} />}
+                {boardReady && (
+                  <Card
+                    ref={cardRef}
+                    notify={api}
+                    customClass={customClass}
+                  />
+                )}
               </Spin>
             </div>
             <div className="bottom-message">

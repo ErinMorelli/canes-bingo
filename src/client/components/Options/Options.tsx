@@ -1,40 +1,42 @@
-import { useCallback } from 'react';
-import { Button, Divider, Flex, Form } from 'antd';
-
-import { useGameBoard } from '@hooks';
+import { Divider, Form, Space } from 'antd';
 
 import { Group } from '@app/constants.ts';
 
+import GameOption from './GameOption.tsx';
 import OptionRadio from './OptionRadio.tsx';
 import OptionSelect from './OptionSelect.tsx';
 import OtherOptions from './OtherOptions.tsx';
 
 export function Options() {
-  const { loadBoard } = useGameBoard();
-
-  const radioOptions = Group.SingleGroups.map((groupName) => (
-    <OptionRadio groupName={groupName} key={groupName} />
+  const radioOptions = Group.SingleGroups.map((groupName, idx) => (
+    <OptionRadio
+      groupName={groupName}
+      key={groupName}
+      hideMargin={Group.SingleGroups.length - 1 === idx}
+    />
   ));
 
-  const selectOptions = Group.MultiGroups.map((groupName) => (
-    <OptionSelect groupName={groupName} key={groupName} />
+  const selectOptions = Group.MultiGroups.map((groupName, idx) => (
+    <OptionSelect
+      groupName={groupName}
+      key={groupName}
+      hideMargin={Group.MultiGroups.length - 1 === idx}
+    />
   ));
-
-  const handleReset = useCallback(() => loadBoard(true), [loadBoard]);
 
   return (
     <Form className="options" layout="vertical">
-      {radioOptions}
-      {selectOptions}
-      <Divider />
-      <OtherOptions />
-      <Form.Item>
-        <Flex justify="flex-end">
-          <Button htmlType="button" onClick={() => handleReset()}>
-            Reset
-          </Button>
-        </Flex>
-      </Form.Item>
+      <Space
+        style={{ width: '100%' }}
+        orientation="vertical"
+        size="small"
+        separator={<Divider size="middle" />}
+      >
+        <div>{radioOptions}</div>
+        <div>{selectOptions}</div>
+        <OtherOptions />
+        <GameOption />
+      </Space>
     </Form>
   );
 }

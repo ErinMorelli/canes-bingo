@@ -4,6 +4,10 @@ export const IMGUR_CLIENT_ID = import.meta.env.VITE_IMGUR_CLIENT_ID;
 
 export const MIN_SQUARE_COUNT = 25;
 
+export const DEFAULT_PATTERN_SIZE = 50;
+export const PATTERN_COLUMNS = [...new Array(5).keys()];
+export const PATTERN_ROWS = [...new Array(5).keys()];
+
 export enum ConfigKey {
   FreeSpace = 'freeSpace',
   HeaderText = 'headerText',

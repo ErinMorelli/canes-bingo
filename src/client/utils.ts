@@ -10,14 +10,14 @@ import {
   GroupResult,
   GroupsStateGroups,
   ImgurUploadResult,
-  MultiGroup,
+  MultiGroup, Pattern, Patterns, PatternSquare,
   SingleGroup,
   Square,
   Squares
 } from './types.ts';
 import {
   API_PREFIX,
-  ConfigKey,
+  ConfigKey, DEFAULT_PATTERN_SIZE,
   Group,
   IMGUR_CLIENT_ID,
   StorageKey
@@ -92,8 +92,13 @@ export async function fetchConfigValue(key: ConfigKey): Promise<string> {
     .then((res: { data: { value: string }}) => res.data.value);
 }
 
-export async function fetchAllSquares(): Promise<Array<Square>> {
+export async function fetchAllSquares(): Promise<Squares> {
   return await axios.get(`${API_PREFIX}/squares`)
+    .then((res) => res.data);
+}
+
+export async function fetchAllPatterns(): Promise<Patterns> {
+  return await axios.get(`${API_PREFIX}/patterns`)
     .then((res) => res.data);
 }
 
@@ -143,4 +148,39 @@ export async function uploadImageToImgur(image: Blob): Promise<ImgurUploadResult
       console.error(err);
       return null;
     });
+}
+
+export function parsePatternValue(value: string | PatternSquare[]): PatternSquare[] {
+  if (!value) return [];
+  if (typeof value === 'string') {
+    try {
+      return JSON.parse(value);
+    } catch (err) {
+      console.error(err);
+      return [];
+    }
+  }
+  return value;
+}
+
+export function getSquareClasses(row: number, col: number, selected: PatternSquare[]): string {
+  const classes = ['square'];
+  classes.push(`square-${row}-${col}`);
+  if (selected) {
+    const isSelected = selected.some((s) => s.col === col && s.row === row);
+    if (isSelected) classes.push('selected');
+  }
+  return classes.join(' ');
+}
+
+export function getSquareStyle(size?: number) {
+  const s = size || DEFAULT_PATTERN_SIZE;
+  return { width: `${s}px`, height: `${s}px` };
+}
+
+export function validateBoardPattern(board: Board, pattern: Pattern): boolean {
+  const squares = pattern.squares || [];
+  return squares.every(({ row, col }) => {
+    return board[row]?.[col]?.selected;
+  });
 }

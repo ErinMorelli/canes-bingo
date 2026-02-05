@@ -45,6 +45,9 @@ export const squaresSlice = createAppSlice({
           state.squares = payload;
           state.squaresLoaded = true;
         },
+        rejected: (state) => {
+          state.squaresLoaded = false;
+        },
       }
     ),
   }),

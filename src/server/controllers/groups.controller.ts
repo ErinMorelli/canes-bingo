@@ -12,8 +12,8 @@ export async function getGroups() {
       'g.name as name',
       'g.label as label',
       'g.description as description',
-      sql<string>`
-        JSON_ARRAYAGG(
+      sql<any>`
+        if(count(c.category_id) = 0, JSON_ARRAY(), JSON_ARRAYAGG(
           JSON_OBJECT(
             'id', c.category_id,
             'name', c.name,
@@ -21,7 +21,7 @@ export async function getGroups() {
             'description', c.description,
             'isDefault', if(c.is_default = true, cast(true as json), cast(false as json))
           )
-        )`.as('categories')
+        ))`.as('categories')
     ])
     .groupBy('g.groupId')
     .execute();
@@ -47,8 +47,8 @@ export async function getGroupByName(groupName: string) {
       'g.groupId as id',
       'g.label as label',
       'g.description as description',
-      sql<string>`
-        JSON_ARRAYAGG(
+      sql<any>`
+        if(count(c.category_id) = 0, JSON_ARRAY(), JSON_ARRAYAGG(
           JSON_OBJECT(
             'id', c.category_id,
             'name', c.name,
@@ -56,7 +56,7 @@ export async function getGroupByName(groupName: string) {
             'description', c.description,
             'isDefault', if(c.is_default = true, cast(true as json), cast(false as json))
           )
-        )`.as('categories')
+        ))`.as('categories')
     ])
     .groupBy('g.groupId')
     .leftJoin('categories as c', 'c.groupId', 'g.groupId')
@@ -69,7 +69,7 @@ export async function updateGroup(groupId: number, group: GroupUpdate) {
     .updateTable('groups')
     .set(group)
     .where('groupId', '=', groupId)
-    .executeTakeFirstOrThrow()
+    .execute()
     .then(() => getGroup(groupId));
 }
 
@@ -86,6 +86,6 @@ export async function removeGroup(groupId: number) {
   return await db
     .deleteFrom('groups')
     .where('groupId', '=', groupId)
-    .executeTakeFirstOrThrow()
+    .execute()
     .then(() => group);
 }

@@ -1,4 +1,5 @@
 import { RequestHandler, Router } from 'express';
+import Joi from 'joi';
 
 import {
   addUser,
@@ -6,6 +7,12 @@ import {
   createUserToken,
   validateUserToken
 } from '../controllers';
+import { handleError } from '../utils.ts';
+
+const userSchema = Joi.object({
+  username: Joi.string().required(),
+  password: Joi.string().required(),
+});
 
 const router = Router();
 
@@ -22,25 +29,30 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
     return next();
   }
   // Fail
-  req.session.save((err) => {
+  return req.session.save((err) => {
     if (err) return next(err);
     req.session.user = undefined;
     req.session.regenerate((err) => {
       if (err) return next(err);
-      res.status(401).send();
+      return res.status(401).send();
     });
   });
 };
 
 const login: RequestHandler = async (req, res, next) => {
   try {
-    const user = await authenticateUser(req.body);
+    Joi.assert(req.body, userSchema);
+    const { username, password } = req.body;
+    const user = await authenticateUser({
+      username,
+      password,
+    });
     if (!user) {
-      res.status(401).send();
+      return res.status(401).send();
     } else {
       const { userId, username } = user;
       const token = createUserToken(user);
-      req.session.regenerate((err) => {
+      return req.session.regenerate((err) => {
         if (err) return next(err);
         req.session.user = { userId, username };
         req.session.save((err) => {
@@ -50,31 +62,36 @@ const login: RequestHandler = async (req, res, next) => {
       });
     }
   } catch (e: any) {
-    res.status(401).send();
+    return res.status(401).send();
   }
 };
 
 const logout: RequestHandler = async (req, res, next) => {
   try {
-    req.session.save((err) => {
+    return req.session.save((err) => {
       if (err) return next(err);
       req.session.user = undefined;
       req.session.regenerate((err) => {
         if (err) return next(err);
-        res.status(204).send();
+        return res.status(204).send();
       });
     });
   } catch (e: any) {
-    res.status(400).json({ message: e.message });
+    return handleError(res, e);
   }
 };
 
 const register: RequestHandler = async (req, res) => {
   try {
-    const result = await addUser(req.body);
-    res.status(200).json(result);
+    Joi.assert(req.body, userSchema);
+    const { username, password } = req.body;
+    const result = await addUser({
+      username,
+      password,
+    });
+    return res.status(201).json(result);
   } catch (e: any) {
-    res.status(400).json({ message: e.message });
+    return handleError(res, e);
   }
 };
 
@@ -82,12 +99,12 @@ const session: RequestHandler = async (req, res) => {
   try {
     const { user } = req.session;
     if (!user) {
-      res.status(401).send();
+      return res.status(401).send();
     } else {
-      res.status(200).json(user);
+      return res.status(200).json(user);
     }
   } catch (e: any) {
-    res.status(401).send();
+    return res.status(401).send();
   }
 };
 

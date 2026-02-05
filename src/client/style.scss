@@ -253,6 +253,7 @@ body {
     align-content: center;
     flex-direction: column;
     gap: 10px;
+    color: var(--ant-color-text);
 
     .coffee .anticon {
       font-size: 16px;
@@ -274,32 +275,6 @@ body {
       &:focus,
       &:hover {
         border-bottom: 0;
-      }
-    }
-  }
-
-  .options {
-    .select-option-icon.anticon {
-      position: relative;
-      font-size: 12px;
-      padding-left: 3px;
-      top: -1px;
-    }
-
-    .ant-select-outlined.ant-select-multiple {
-      .ant-select-selection-item {
-        background: none;
-        padding-inline-start: 3px;
-      }
-
-      .ant-select-selection-overflow-item {
-        &:first-of-type > span {
-          padding-left: 5px;
-        }
-
-        &:not(:last-of-type) > span {
-          padding-right: 3px;
-        }
       }
     }
   }
@@ -513,6 +488,150 @@ body {
         &:first-child {
           margin-left: -$globe-spacing;
         }
+      }
+    }
+  }
+}
+
+.options {
+  .select-option-icon.anticon {
+    position: relative;
+    font-size: 12px;
+    padding-left: 3px;
+    top: -1px;
+  }
+
+  .ant-select-outlined.ant-select-multiple {
+    .ant-select-selection-item {
+      background: none;
+      padding-inline-start: 3px;
+    }
+
+    .ant-select-selection-overflow-item {
+      &:first-of-type > span {
+        padding-left: 5px;
+      }
+
+      &:not(:last-of-type) > span {
+        padding-right: 3px;
+      }
+    }
+  }
+
+  .inline-switch-form {
+    .ant-row {
+      flex-flow: row-reverse;
+      justify-content: start;
+      align-items: center;
+      gap: 10px;
+
+      .ant-form-item-control {
+        flex: unset;
+      }
+    }
+  }
+}
+
+.game-pattern-select {
+  .ant-select-content-value {
+    display: inline-flex;
+    width: 100%;
+  }
+  .ant-select-in-form-item {
+    padding-left: 4px;
+  }
+  .ant-form-item-label {
+    padding-bottom: 15px;
+  }
+  .ant-typography-ellipsis span[aria-hidden] {
+    display: none;
+  }
+  .ant-form-item-extra {
+    margin-top: 4px;
+  }
+}
+
+.game-pattern-select-popup {
+  .game-pattern-select-option {
+    width: 100%;
+  }
+  .ant-select-item-option {
+    .ant-select-item-option-content {
+      display: inline-flex;
+    }
+  }
+}
+
+.pattern-field,
+.pattern-input {
+  .table {
+    display: table;
+    border: 1px solid white;
+
+    .row {
+      display: table-row;
+
+      &:not(:last-of-type) {
+        .square {
+          border-bottom: 1px solid white;
+        }
+      }
+
+      .square {
+        display: table-cell;
+        background-color: #ccc;
+
+        &:not(:last-of-type) {
+          border-right: 1px solid white;
+        }
+
+        &.selected {
+          background-color: var(--ant-color-primary);
+        }
+
+        &.square-2-2 {
+          background-color: black;
+        }
+      }
+    }
+  }
+}
+
+.pattern-input {
+  .table {
+    .square {
+      cursor: pointer;
+      opacity: 1;
+      transition:
+        opacity 180ms ease,
+        background-color 180ms ease;
+
+      &:hover {
+        opacity: .8;
+      }
+
+      &.square-2-2 {
+        pointer-events: none;
+      }
+    }
+  }
+}
+
+.bingo-win-notice {
+  .ant-notification-notice-content {
+    .ant-notification-notice-title {
+      margin-bottom: 0;
+      text-align: center;
+    }
+    .ant-typography {
+      font-size: 40px;
+      font-weight: bolder;
+      color: var(--ant-color-primary);
+
+      &::before,
+      &::after {
+        content: '🎉';
+        padding: 0 20px;
       }
     }
   }

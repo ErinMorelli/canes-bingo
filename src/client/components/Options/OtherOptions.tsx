@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'react';
-import { Form, Select, Switch, Typography } from 'antd';
+import { Flex, Form, Select, Switch, Typography } from 'antd';
 
 import { themes } from '@app/themes.ts';
 
@@ -23,25 +23,30 @@ export default function OtherOptions() {
 
   const handleTooltipChange = useCallback((checked: boolean) => {
     setTooltips(checked);
-  }, [showTooltips]);
+  }, [setTooltips]);
 
   return (
-    <>
-      <Form.Item label={<Typography.Text strong>Theme</Typography.Text>}>
+    <Flex orientation="vertical" gap="20px">
+      <Form.Item
+        label={<Typography.Text strong>Theme</Typography.Text>}
+        style={{ marginBottom: 0 }}
+      >
         <Select
-          style={{ width: 200 }}
-          size="large"
           defaultValue="default"
+          size="middle"
           value={selectedTheme}
           options={themeOptions}
           onChange={handleThemeChange}
         />
       </Form.Item>
       <Form.Item
+        className="inline-switch-form"
+        layout="horizontal"
+        colon={false}
         tooltip="Show or hide the square definition tooltips."
-        label={
-          <Typography.Text strong>Square Tooltips</Typography.Text>
-        }>
+        label={<Typography.Text strong>Square Tooltips</Typography.Text>}
+        style={{ marginBottom: 0 }}
+      >
         <Switch
           defaultChecked
           checkedChildren="On"
@@ -49,6 +54,6 @@ export default function OtherOptions() {
           checked={showTooltips}
           onChange={handleTooltipChange} />
       </Form.Item>
-    </>
+    </Flex>
   )
 }
