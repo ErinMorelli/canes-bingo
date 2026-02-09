@@ -536,6 +536,10 @@ body {
   .ant-select-content-value {
     display: inline-flex;
     width: 100%;
+    
+    .game-pattern-select-option {
+      width: 100%;
+    }
   }
   .ant-select-in-form-item {
     padding-left: 4px;
