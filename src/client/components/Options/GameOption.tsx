@@ -116,11 +116,11 @@ export default function GameOption() {
           onCancel={() => setOpen(false)}
         >
           <Flex gap="20px">
-            <div style={{ paddingTop: '5px' }}>
+            <div style={{ paddingTop: '5px', flex: '1 0 auto' }}>
               <PatternAnimated
                 patterns={selectedGame.patterns}
                 animate={open}
-                speed={500}
+                speed={700}
                 size={20}
               />
             </div>
