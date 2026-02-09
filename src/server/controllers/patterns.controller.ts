@@ -7,7 +7,6 @@ const PATTERN_COLUMNS = [
   'p.squares as squares',
 ] as const;
 
-
 export async function getPatterns() {
   return await db
     .selectFrom('patterns as p')
@@ -41,16 +40,16 @@ export async function updatePattern(patternId: number, updatedPattern: PatternUp
 }
 
 export async function removePattern(patternId: number) {
-  const pattern = await getPattern(patternId);
   return await db.transaction().execute(async (trx) => {
-    return trx
+    const pattern = await getPattern(patternId);
+    await trx
       .deleteFrom('patternGames')
       .where('patternId', '=', patternId)
-      .execute()
-      .then(() => trx
-        .deleteFrom('patterns')
-        .where('patternId', '=', patternId)
-        .execute()
-      ).then(() => pattern);
+      .execute();
+    await trx
+      .deleteFrom('patterns')
+      .where('patternId', '=', patternId)
+      .execute();
+    return pattern;
   });
 }

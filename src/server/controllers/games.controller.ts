@@ -38,26 +38,23 @@ export async function getGame(gameId: number) {
 }
 
 export async function addGame(game: NewGame, patterns: Array<number>) {
-  const gameId = await db.transaction().execute(async (trx) => {
-    return await trx
+  return await db.transaction().execute(async (trx) => {
+    const result = await trx
       .insertInto('games')
       .values(game)
-      .executeTakeFirstOrThrow()
-      .then(async (result) => {
-        const gameId = Number(result.insertId);
-        if (patterns.length > 0) {
-          await trx
-            .insertInto('patternGames')
-            .values(patterns.map((patternId) => ({
-              patternId,
-              gameId,
-            })))
-            .execute();
-        }
-        return gameId;
-      });
+      .executeTakeFirstOrThrow();
+    const gameId = Number(result.insertId);
+    if (patterns.length > 0) {
+      await trx
+        .insertInto('patternGames')
+        .values(patterns.map((patternId) => ({
+          patternId,
+          gameId,
+        })))
+        .execute();
+    }
+    return await getGame(gameId);
   });
-  return await getGame(gameId);
 }
 
 export async function updateGame(
@@ -68,8 +65,8 @@ export async function updateGame(
     removed: Array<number>;
   }
 ) {
-  await db.transaction().execute(async (trx) => {
-    return await trx
+  return await db.transaction().execute(async (trx) => {
+    await trx
       .updateTable('games')
       .set({
         name: game.name,
@@ -77,44 +74,40 @@ export async function updateGame(
         isDefault: game.isDefault,
       })
       .where('gameId', '=', gameId)
-      .execute()
-      .then(async () => {
-        if (patterns.added.length > 0) {
-          await trx
-            .insertInto('patternGames')
-            .values(patterns.added.map((patternId) => ({
-              patternId,
-              gameId,
-            })))
-            .execute();
-        }
-      })
-      .then(async () => {
-        if (patterns.removed.length > 0) {
-          await trx
-            .deleteFrom('patternGames')
-            .where((eb) => eb.and([
-              eb('gameId', '=', gameId),
-              eb('patternId', 'in', patterns.removed)
-            ]))
-            .execute();
-        }
-      });
+      .execute();
+    if (patterns.added.length > 0) {
+      await trx
+        .insertInto('patternGames')
+        .values(patterns.added.map((patternId) => ({
+          patternId,
+          gameId,
+        })))
+        .execute();
+    }
+    if (patterns.removed.length > 0) {
+      await trx
+        .deleteFrom('patternGames')
+        .where((eb) => eb.and([
+          eb('gameId', '=', gameId),
+          eb('patternId', 'in', patterns.removed)
+        ]))
+        .execute();
+    }
+    return await getGame(gameId);
   });
-  return await getGame(gameId);
 }
 
 export async function removeGame(gameId: number) {
-  const game = await getGame(gameId);
   return await db.transaction().execute(async (trx) => {
-    return await trx
+    const game = await getGame(gameId);
+    await trx
       .deleteFrom('patternGames')
       .where('gameId', '=', gameId)
-      .execute()
-      .then(() => trx
+      .execute();
+    await trx
         .deleteFrom('games')
         .where('gameId', '=', gameId)
-        .execute()
-      ).then(() => game);
+        .execute();
+    return game;
   });
 }

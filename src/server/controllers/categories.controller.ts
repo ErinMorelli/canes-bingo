@@ -59,16 +59,16 @@ export async function updateCategory(categoryId: number, category: CategoryUpdat
 }
 
 export async function removeCategory(categoryId: number) {
-  const category = await getCategory(categoryId);
   return await db.transaction().execute(async (trx) => {
-    return trx
+    const category = await getCategory(categoryId);
+    await trx
       .deleteFrom('squareCategories')
       .where('categoryId', '=', categoryId)
-      .execute()
-      .then(() => trx
-        .deleteFrom('categories')
-        .where('categoryId', '=', categoryId)
-        .execute()
-      ).then(() => category);
+      .execute();
+    await trx
+      .deleteFrom('categories')
+      .where('categoryId', '=', categoryId)
+      .execute();
+    return category;
   });
 }
