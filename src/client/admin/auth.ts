@@ -20,7 +20,6 @@ const authProvider: AuthProvider = {
   logout: async () => {
     await axios.post(`${P}/logout`);
     removeStorageValue(StorageKey.Token);
-    return;
   },
   getIdentity: getUserSession,
   checkAuth: getUserSession,
@@ -30,7 +29,6 @@ const authProvider: AuthProvider = {
       await axios.post(`${P}/logout`);
       throw new Error('Unauthorized');
     }
-    return;
   },
   // Unused
   handleCallback: <T>() =>  Promise.resolve({} as T),

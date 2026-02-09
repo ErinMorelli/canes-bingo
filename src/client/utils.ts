@@ -35,7 +35,7 @@ function shuffleArray(arr: Squares): Squares {
 }
 
 function chunkArray<T>(list: Array<T>, chunkSize = 5): Array<Array<T>> {
-  return [...new Array(Math.ceil(list.length / chunkSize))].map(
+  return new Array(Math.ceil(list.length / chunkSize)).map(
     (_,i) => list.slice(i * chunkSize, i * chunkSize + chunkSize)
   );
 }

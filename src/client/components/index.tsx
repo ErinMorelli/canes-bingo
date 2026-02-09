@@ -7,7 +7,7 @@ import { App as AntApp, Spin } from 'antd';
 import config from '@app/store.ts';
 
 type StoreGateProps = {
-  app: React.ReactNode;
+  readonly app: React.ReactNode;
 }
 
 export default function StoreGate({ app }: StoreGateProps) {
