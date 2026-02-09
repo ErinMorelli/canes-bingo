@@ -4,12 +4,12 @@ import { ReloadOutlined, ToolFilled } from '@ant-design/icons';
 import {
   Button,
   Checkbox,
+  CheckboxChangeEvent,
   Drawer,
   Flex,
   Popover,
   Spin,
 } from 'antd';
-import type { CheckboxProps } from 'antd';
 
 import { selectBoardArgs } from '@slices';
 import { StorageKey } from '@app/constants.ts';
@@ -33,30 +33,30 @@ export function Toolbar({
 
   const boardArgs = useSelector(selectBoardArgs);
 
-  const getTourSeen = () => initStorageValue<boolean>(
+  const getTourSeen = initStorageValue<boolean>(
     StorageKey.TourSeen,
     false
   );
 
-  const getDefaultDrawerOpen = () => initStorageValue<boolean>(
+  const getDefaultDrawerOpen = initStorageValue<boolean>(
     StorageKey.ShowOptionsOnLoad,
     true
   );
 
-  const [tourSeen, setTourSeen] = useState(getTourSeen());
+  const [tourSeen, setTourSeen] = useState(getTourSeen);
 
-  const [defaultDrawerOpen, setDefaultDrawerOpen] = useState(getDefaultDrawerOpen());
+  const [defaultDrawerOpen, setDefaultDrawerOpen] = useState(getDefaultDrawerOpen);
   const [drawerOpen, setDrawerOpen] = useState(defaultDrawerOpen);
 
-  const handleDrawerOpenChange: CheckboxProps['onChange'] = ({ target }) => {
-    setDefaultDrawerOpen(target.checked);
-    setStorageValue(StorageKey.ShowOptionsOnLoad, target.checked);
-  }
+  const handleDrawerOpenChange = useCallback(({ target }: CheckboxChangeEvent) => {
+    setDefaultDrawerOpen(!target.checked);
+    setStorageValue(StorageKey.ShowOptionsOnLoad, !target.checked);
+  }, [setDefaultDrawerOpen]);
 
-  const handleTourSeenChange = () => {
+  const handleTourSeenChange = useCallback(() => {
     setTourSeen(true);
     setStorageValue(StorageKey.TourSeen, true);
-  }
+  }, [setTourSeen]);
 
   const handleReload = useCallback(
     () => generateBoard(boardArgs),
@@ -113,7 +113,7 @@ export function Toolbar({
                   <Button
                     type="primary"
                     size="small"
-                    onClick={() => handleTourSeenChange()}
+                    onClick={handleTourSeenChange}
                   >
                     OK
                   </Button>
