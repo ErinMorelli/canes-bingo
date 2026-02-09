@@ -14,7 +14,6 @@ const getTheme = ({
   dark = '#000000',
   light = '#FFFFFF'
 }: GetThemeProps): ThemeConfig => ({
-  cssVar: true,
   token: {
     colorPrimary: primary,
     colorLink: secondary,
@@ -33,7 +32,6 @@ const getTheme = ({
       headerBg: primary,
       headerColor: light,
       footerBg: dark,
-      colorText: dark,
     },
     Form: {
       labelColor: dark,
@@ -71,7 +69,7 @@ const whalersTheme = getTheme({
   dark: '#00205B',
 });
 
-const darkTheme = {
+const darkTheme: ThemeConfig = {
   ...defaultTheme,
   token: {
     ...defaultTheme.token,
@@ -87,7 +85,6 @@ const darkTheme = {
       headerBg: '#333F48',
       headerColor: '#FFFFFF',
       footerBg: '#333F48',
-      colorText: '#333F48',
       bodyBg: '#000000'
     },
   },

@@ -21,7 +21,7 @@ export async function getSquares(
         's.squareId as id',
         's.content as value',
         's.description as description',
-        sql<string>`
+        sql<boolean>`
          if(s.active = true, cast(true as json), cast(false as json))
         `.as('active'),
         ({ fn }) => fn
@@ -49,7 +49,7 @@ export async function getSquares(
       's.squareId as id',
       's.content as value',
       's.description as description',
-      sql<string>`
+      sql<boolean>`
          if(s.active = true, cast(true as json), cast(false as json))
       `.as('active'),
       ({ fn }) => fn
@@ -82,8 +82,8 @@ export async function getSquares(
   return await includeQuery.execute();
 }
 
-export async function getSquare(squareId: number) {
-  return await db
+export async function getSquare(squareId: number, trx = db) {
+  return await trx
     .with('cats', (_db) => _db
       .selectFrom('categories as c')
       .leftJoin('squareCategories as sc', 'sc.categoryId', 'c.categoryId')
@@ -95,7 +95,7 @@ export async function getSquare(squareId: number) {
       's.squareId as id',
       's.content as value',
       's.description as description',
-      sql<string>`
+      sql<boolean>`
          if(s.active = true, cast(true as json), cast(false as json))
       `.as('active'),
       ({ fn }) => fn
@@ -108,24 +108,23 @@ export async function getSquare(squareId: number) {
 }
 
 export async function addSquare(square: NewSquare, categories: Array<number>) {
-  return await db
-    .insertInto('squares')
-    .values(square)
-    .executeTakeFirstOrThrow()
-    .then(async (result) => {
-      const squareId = Number(result.insertId!);
-      if (categories.length > 0) {
-        await db
-          .insertInto('squareCategories')
-          .values(categories.map((categoryId) => ({
-            categoryId,
-            squareId
-          })))
-          .execute();
-      }
-      return squareId;
-    })
-    .then((squareId) => getSquare(squareId));
+  return await db.transaction().execute(async (trx) => {
+    const result = await trx
+      .insertInto('squares')
+      .values(square)
+      .executeTakeFirstOrThrow();
+    const squareId = Number(result.insertId!);
+    if (categories.length > 0) {
+      await trx
+        .insertInto('squareCategories')
+        .values(categories.map((categoryId) => ({
+          categoryId,
+          squareId
+        })))
+        .execute();
+    }
+    return await getSquare(squareId, trx);
+  });
 }
 
 export async function updateSquare(
@@ -136,47 +135,49 @@ export async function updateSquare(
     removed: Array<number>;
   }
 ) {
-  return await db
-    .updateTable('squares')
-    .set({
-      content: square.content,
-      description: square.description,
-      active: square.active,
-    })
-    .where('squareId', '=', squareId)
-    .executeTakeFirstOrThrow()
-    .then(async () => {
-      if (categories.added.length > 0) {
-        await db
-          .insertInto('squareCategories')
-          .values(categories.added.map((categoryId) => ({
-            categoryId,
-            squareId
-          })))
-          .execute();
-      }
-    }).then(async () => {
-      if (categories.removed.length > 0) {
-        await db
-          .deleteFrom('squareCategories')
-          .where((eb) => eb.and([
-            eb('squareId', '=', squareId),
-            eb('categoryId', 'in', categories.removed)
-          ]))
-          .execute();
-      }
-    }).then(() => getSquare(squareId));
+  return await db.transaction().execute(async (trx) => {
+    await trx
+      .updateTable('squares')
+      .set({
+        content: square.content,
+        description: square.description,
+        active: square.active,
+      })
+      .where('squareId', '=', squareId)
+      .execute();
+    if (categories.added.length > 0) {
+      await trx
+        .insertInto('squareCategories')
+        .values(categories.added.map((categoryId) => ({
+          categoryId,
+          squareId
+        })))
+        .execute();
+    }
+    if (categories.removed.length > 0) {
+      await trx
+        .deleteFrom('squareCategories')
+        .where((eb) => eb.and([
+          eb('squareId', '=', squareId),
+          eb('categoryId', 'in', categories.removed)
+        ]))
+        .execute();
+    }
+    return await getSquare(squareId, trx);
+  });
 }
 
 export async function removeSquare(squareId: number) {
-  const square = await getSquare(squareId);
-  return await db
-    .deleteFrom('squareCategories')
-    .where('squareId', '=', squareId)
-    .executeTakeFirstOrThrow()
-    .then(async () => await db
+  return await db.transaction().execute(async (trx) => {
+    const square = await getSquare(squareId, trx);
+    await trx
+      .deleteFrom('squareCategories')
+      .where('squareId', '=', squareId)
+      .execute();
+    await trx
       .deleteFrom('squares')
       .where('squareId', '=', squareId)
-      .executeTakeFirstOrThrow()
-    ).then(() => square);
+      .execute();
+    return square;
+  });
 }

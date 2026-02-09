@@ -35,7 +35,7 @@ export async function validateUserToken(token?: string) {
     const userData = jwt.verify(token, SECRET_KEY);
     if (typeof userData === 'string') return false;
     const {userId, username} = userData;
-    const user = await getUser(parseInt(userId));
+    const user = await getUser(Number.parseInt(userId));
     return user.username === username ? user : false;
   } catch {
     return false;

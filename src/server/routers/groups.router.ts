@@ -1,4 +1,7 @@
 import { RequestHandler, Router } from 'express';
+import Joi from 'joi';
+
+import { isAuthenticated } from './auth.router.ts';
 
 import {
   addGroup,
@@ -8,59 +11,80 @@ import {
   removeGroup,
   updateGroup,
 } from '../controllers';
-import { isAuthenticated } from './auth.router.ts';
+import { handleError, resourceIdSchema } from '../utils.ts';
+
+const groupSchema = Joi.object({
+  name: Joi.string().required(),
+  label: Joi.string().required(),
+  description: Joi.string(),
+});
 
 const router = Router();
 
 const list: RequestHandler = async (_, res) => {
   try {
     const result = await getGroups();
-    res.status(200).json(result);
-  } catch (err: any) {
-    res.status(400).json({
-      message: err.message
-    });
+    return res.status(200).json(result);
+  } catch (e: any) {
+    return handleError(res, e);
   }
 };
 
 const get: RequestHandler = async (req, res) => {
   try {
+    Joi.assert(req.params, Joi.object({ groupId: Joi.string().required() }));
     const { groupId } = req.params;
-    const result = !/\d+/.exec(groupId)
-      ? await getGroupByName(groupId)
-      : await getGroup(parseInt(groupId));
-    res.status(200).json(result);
-  } catch (err: any) {
-    res.status(400).json({
-      message: err.message
-    });
+    const result = /^\d+$/.exec(groupId)
+      ? await getGroup(Number.parseInt(groupId))
+      : await getGroupByName(groupId);
+    return res.status(200).json(result);
+  } catch (e: any) {
+    return handleError(res, e);
   }
 };
 
 const put: RequestHandler = async (req, res) => {
   try {
-    const result = await updateGroup(parseInt(req.params.groupId), req.body);
-    res.status(200).json(result);
+    Joi.assert(req.params, Joi.object({ groupId: resourceIdSchema }));
+    Joi.assert(req.body, groupSchema);
+
+    const { groupId } = req.params;
+    const { name, label, description } = req.body;
+
+    const result = await updateGroup(Number.parseInt(groupId), {
+      name,
+      label,
+      description,
+    });
+    return res.status(200).json(result);
   } catch(e: any) {
-    res.status(400).json({ message: e.message });
+    return handleError(res, e);
   }
 }
 
 const post: RequestHandler = async (req, res) => {
   try {
-    const result = await addGroup(req.body);
-    res.status(201).json(result);
+    Joi.assert(req.body, groupSchema);
+    const { name, label, description } = req.body;
+    const result = await addGroup({
+      name,
+      label,
+      description,
+    });
+    return res.status(201).json(result);
   } catch(e: any) {
-    res.status(400).json({ message: e.message });
+    return handleError(res, e);
   }
 }
 
 const remove: RequestHandler = async (req, res) => {
   try {
-    const result = await removeGroup(parseInt(req.params.groupId));
-    res.status(200).json(result);
+    Joi.assert(req.params, Joi.object({ groupId: resourceIdSchema }));
+    const { groupId } = req.params;
+    const result = await removeGroup(Number.parseInt(groupId));
+    return res.status(200).json(result);
   } catch(e: any) {
-    res.status(400).json({ message: e.message });
+    return handleError(res, e);
   }
 }
 

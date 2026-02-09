@@ -1,7 +1,7 @@
 import path from 'path';
 import dotenv from 'dotenv';
 import { ConnectionOptions, createPool } from 'mysql2';
-import { CamelCasePlugin, Kysely, MysqlDialect } from 'kysely';
+import { CamelCasePlugin, Kysely, MysqlDialect, MysqlPool } from 'kysely';
 
 import { Database as DB } from './types';
 
@@ -16,7 +16,7 @@ export const dbConfig: ConnectionOptions = {
 };
 
 const dialect = new MysqlDialect({
-  pool: createPool(dbConfig),
+  pool: createPool(dbConfig) as MysqlPool,
 });
 
 export const db = new Kysely<DB>({

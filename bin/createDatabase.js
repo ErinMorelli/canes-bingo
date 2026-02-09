@@ -25,6 +25,8 @@ const squares = db.schema
   .createTable('squares')
   .addColumn('square_id', 'integer', (col) => col.primaryKey().autoIncrement())
   .addColumn('content', 'varchar(50)', (col) => col.notNull())
+  .addColumn('description', 'varchar(255)', (col) => col.notNull())
+  .addColumn('active', 'boolean', (col) => col.defaultTo(true))
   .addUniqueConstraint('content', ['content']);
 
 const groups = db.schema
@@ -40,8 +42,9 @@ const categories = db.schema
   .addColumn('category_id', 'integer', (col) => col.primaryKey().autoIncrement())
   .addColumn('name', 'varchar(50)', (col) => col.notNull())
   .addColumn('label', 'varchar(50)', (col) => col.notNull())
+  .addColumn('description', 'varchar(255)')
   .addColumn('group_id', 'integer')
-  .addColumn('is_default', 'boolean', (col) => col.defaultTo('false'))
+  .addColumn('is_default', 'boolean', (col) => col.defaultTo(false))
   .addUniqueConstraint('name', ['name'])
   .addForeignKeyConstraint('group_id', ['group_id'], 'groups', ['group_id']);
 
@@ -51,8 +54,32 @@ const squareCategories = db.schema
   .addColumn('category_id', 'integer', (col) => col.notNull())
   .addColumn('square_id', 'integer', (col) => col.notNull())
   .addUniqueConstraint('square_category', ['square_id', 'category_id'])
-  .addForeignKeyConstraint('category_id', ['category_id'], 'categories', ['category_id'])
-  .addForeignKeyConstraint('square_id', ['square_id'], 'squares', ['square_id']);
+  .addForeignKeyConstraint('category_id', ['category_id'], 'categories', ['category_id'], (cb) => cb.onDelete('cascade'))
+  .addForeignKeyConstraint('square_id', ['square_id'], 'squares', ['square_id'], (cb) => cb.onDelete('cascade'));
+
+const games = db.schema
+  .createTable('games')
+  .addColumn('game_id', 'integer', (col) => col.primaryKey().autoIncrement())
+  .addColumn('name', 'varchar(50)', (col) => col.notNull())
+  .addColumn('description', 'varchar(255)')
+  .addColumn('is_default', 'boolean', (col) => col.defaultTo(false))
+  .addUniqueConstraint('name', ['name']);
+
+const patterns = db.schema
+  .createTable('patterns')
+  .addColumn('pattern_id', 'integer', (col) => col.primaryKey().autoIncrement())
+  .addColumn('name', 'varchar(50)', (col) => col.notNull())
+  .addColumn('squares', 'json', (col) => col.notNull())
+  .addUniqueConstraint('name', ['name']);
+
+const patternGames = db.schema
+  .createTable('pattern_games')
+  .addColumn('id', 'integer', (col) => col.primaryKey().autoIncrement())
+  .addColumn('game_id', 'integer', (col) => col.notNull())
+  .addColumn('pattern_id', 'integer', (col) => col.notNull())
+  .addUniqueConstraint('pattern_game', ['pattern_id', 'game_id'])
+  .addForeignKeyConstraint('game_id', ['game_id'], 'games', ['game_id'], (cb) => cb.onDelete('cascade'))
+  .addForeignKeyConstraint('pattern_id', ['pattern_id'], 'patterns', ['pattern_id'], (cb) => cb.onDelete('cascade'));
 
 const config = db.schema
   .createTable('config')
@@ -73,16 +100,17 @@ const tables = [
   groups,
   categories,
   squareCategories,
+  games,
+  patterns,
+  patternGames,
   config,
   users,
 ];
 
 async function createAll() {
-  return await Promise.all(
-    tables.map((table) => {
-      table.ifNotExists().execute();
-    })
-  );
+  for (const table of tables) {
+    await table.ifNotExists().execute();
+  }
 }
 
 createAll()

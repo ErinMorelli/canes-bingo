@@ -4,7 +4,7 @@ import { ThemeConfig } from 'antd';
 export type SingleGroup = typeof G.SingleGroups[number];
 export type MultiGroup = typeof G.MultiGroups[number];
 
-export type Group = SingleGroup | MultiGroup;
+export type Group = SingleGroup | MultiGroup
 export type GroupValue<T> = T extends SingleGroup ? Category : Array<Category>;
 
 export type BaseBoardArgs<T extends Group> = Record<T, GroupValue<T>>;
@@ -98,4 +98,34 @@ export type Theme = {
   config: ThemeConfig;
   label: string;
   customClass?: string;
+};
+
+export type PatternSquare = {
+  col: number;
+  row: number;
+};
+
+export type Pattern = {
+  id: number;
+  name: string;
+  squares: Array<PatternSquare>;
+};
+
+export type Patterns = Array<Pattern>;
+
+export type Game = {
+  id: number;
+  name: string;
+  description?: string;
+  isDefault: boolean;
+  patterns: Patterns;
+}
+
+export type Games = Array<Game>;
+
+export type GameState = {
+  games: Games;
+  gamesLoaded: boolean;
+  selectedGame?: Game;
+  enabled?: boolean;
 };

@@ -70,9 +70,9 @@ export function Inventory() {
       })
       .filter((s) => s.active)
       .sort((a, b) => {
-        const aVal = a.value.replace('"', '').toLowerCase();
-        const bVal = b.value.replace('"', '').toLowerCase();
-        return aVal > bVal ? 1 : 0;
+        const aVal = a.value.replaceAll('"', '').toLowerCase();
+        const bVal = b.value.replaceAll('"', '').toLowerCase();
+        return aVal.localeCompare(bVal);
       }),
     [debouncedQuery, squares]
   );
@@ -92,7 +92,7 @@ export function Inventory() {
 
   return (
     <ConfigProvider theme={theme.config}>
-      <Space direction="vertical" style={{ width: '100%' }} className={customClass}>
+      <Space orientation="vertical" style={{ width: '100%' }} className={customClass}>
         <Layout className="app squares-db">
           <Header>
             <h1>{headerText}</h1>

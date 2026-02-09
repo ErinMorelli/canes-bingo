@@ -1,4 +1,7 @@
 import { RequestHandler, Router } from 'express';
+import Joi from 'joi';
+
+import { isAuthenticated } from './auth.router.ts';
 
 import {
   addCategory,
@@ -7,56 +10,87 @@ import {
   removeCategory,
   updateCategory
 } from '../controllers';
-import { isAuthenticated } from './auth.router.ts';
+import { handleError, resourceIdSchema } from '../utils.ts';
+
+const categorySchema = Joi.object({
+  name: Joi.string().required(),
+  label: Joi.string().required(),
+  description: Joi.string(),
+  groupId: Joi.number(),
+  isDefault: Joi.boolean(),
+});
 
 const router = Router();
 
 const list: RequestHandler = async (req, res) => {
   try {
+    Joi.assert(req.query, Joi.object({ group_id: Joi.string().pattern(/^\d+$/) }));
     const { group_id: groupId } = req.query;
-    const parsedId = typeof groupId === 'string' ? parseInt(groupId) : undefined;
+    const parsedId = groupId ? Number.parseInt(groupId as string) : undefined;
     const result = await getCategories(parsedId);
-    res.status(200).json(result);
-  } catch (err: any) {
-    res.status(400).json({
-      message: err.message
-    });
+    return res.status(200).json(result);
+  } catch (e: any) {
+    return handleError(res, e);
   }
 };
 
 const get: RequestHandler = async (req, res) => {
   try {
-    const result = await getCategory(parseInt(req.params.categoryId));
-    res.status(200).json(result);
+    Joi.assert(req.params, Joi.object({ categoryId: resourceIdSchema }));
+    const { categoryId } = req.params;
+    const result = await getCategory(Number.parseInt(categoryId));
+    return res.status(200).json(result);
   } catch (e: any) {
-    res.status(400).json({ message: e.message });
+    return handleError(res, e);
   }
 };
 
 const put: RequestHandler = async (req, res) => {
   try {
-    const result = await updateCategory(parseInt(req.params.categoryId), req.body);
-    res.status(200).json(result);
+    Joi.assert(req.params, Joi.object({ categoryId: resourceIdSchema }));
+    Joi.assert(req.body, categorySchema);
+
+    const { categoryId } = req.params;
+    const { name, label, description, isDefault, groupId } = req.body;
+
+    const result = await updateCategory(Number.parseInt(categoryId), {
+      name,
+      label,
+      description,
+      isDefault,
+      groupId,
+    });
+    return res.status(200).json(result);
   } catch(e: any) {
-    res.status(400).json({ message: e.message });
+    return handleError(res, e);
   }
 };
 
 const post: RequestHandler = async (req, res) => {
   try {
-    const result = await addCategory(req.body);
-    res.status(201).json(result);
+    Joi.assert(req.body, categorySchema);
+    const { name, label, description, isDefault, groupId } = req.body;
+    const result = await addCategory({
+      name,
+      label,
+      description,
+      isDefault,
+      groupId,
+    });
+    return res.status(201).json(result);
   } catch(e: any) {
-    res.status(400).json({ message: e.message });
+    return handleError(res, e);
   }
 };
 
 const remove: RequestHandler = async (req, res) => {
   try {
-    const result = await removeCategory(parseInt(req.params.categoryId));
-    res.status(200).json(result);
+    Joi.assert(req.params, Joi.object({ categoryId: resourceIdSchema }));
+    const { categoryId } = req.params;
+    const result = await removeCategory(Number.parseInt(categoryId));
+    return res.status(200).json(result);
   } catch(e: any) {
-    res.status(400).json({ message: e.message });
+    return handleError(res, e);
   }
 };
 

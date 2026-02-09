@@ -1,10 +1,11 @@
-import axios from 'axios';
+import axios, { AxiosRequestConfig } from 'axios';
 import { combineDataProviders, DataProvider } from 'react-admin';
 
 import { API_PREFIX as P, StorageKey } from '@app/constants.ts';
 import { getStorageValue } from '@app/utils.ts';
+import { Pattern, Patterns } from '@app/types.ts';
 
-export function withAuth() {
+export function withAuth(): AxiosRequestConfig {
   const token: string = getStorageValue(StorageKey.Token) ?? '';
   return {
     withCredentials: true,
@@ -55,12 +56,11 @@ const baseProvider: DataProvider = {
 const squaresProvider: DataProvider = {
   ...baseProvider,
   getList: async (resource) => {
-    const res = await fetch(`${P}/${resource}`, withAuth());
-    const json = await res.json()
-    const data = json.map((s: { categories: string|null }) => ({
+    const res = await axios.get(`${P}/${resource}`, withAuth());
+    const data = res.data.map((s: { categories: string|null }) => ({
       ...s,
       categories: s.categories
-        ? s.categories.split(',').map((c) => parseInt(c))
+        ? s.categories.split(',').map((c) => Number.parseInt(c))
         : [],
     }));
     return { data, total: data.length };
@@ -70,7 +70,7 @@ const squaresProvider: DataProvider = {
     const data = {
       ...res.data,
       categories: res.data.categories
-        ? res.data.categories.split(',').map((c: string) => parseInt(c))
+        ? res.data.categories.split(',').map((c: string) => Number.parseInt(c))
         : [],
     }
     return { data };
@@ -94,6 +94,58 @@ const squaresProvider: DataProvider = {
   },
 };
 
+const gamesProvider: DataProvider = {
+  ...baseProvider,
+  getList: async (resource) => {
+    const res = await axios.get(`${P}/${resource}`, withAuth());
+    const data = res.data.map((g: { patterns: Patterns }) => {
+      const { patterns, ...req } = g;
+      return {
+        ...req,
+        patternIds: patterns.map((p: Pattern) => p.id),
+      };
+    });
+    return { data, total: data.length };
+  },
+  getOne: async (resource, params) => {
+    const res = await axios.get(`${P}/${resource}/${params.id}`, withAuth());
+    const { patterns, ...req } = res.data;
+    const data = {
+      ...req,
+      patternIds: patterns.map((p: Pattern) => p.id),
+    };
+    return { data };
+  },
+  update: async (resource, params) => {
+    const prevPats = params.previousData.patternIds;
+    const pats = params.data.patternIds;
+
+    const { patternIds: _, ...paramData} = params.data;
+
+    const removed = prevPats.filter((p: number) => !pats.includes(p));
+    const added = pats.filter((p: number) => !prevPats.includes(p));
+
+    const { data } = await axios.put(
+      `${P}/${resource}/${params.id}`,
+      {
+        ...paramData,
+        patterns: { added, removed }
+      },
+      withAuth(),
+    );
+    return { data };
+  },
+  create: async (resource, params) => {
+    const { patternIds: patterns = [], ...paramData } = params.data;
+    const { data } = await axios.post(
+      `${P}/${resource}`,
+      { ...paramData, patterns },
+      withAuth(),
+    );
+    return { data };
+  },
+}
+
 const usersProvider: DataProvider = {
   ...baseProvider,
   create: async (_resouce, params) => {
@@ -106,11 +158,14 @@ const dataProvider = combineDataProviders((resource) => {
   switch (resource) {
     case 'squares':
       return squaresProvider;
+    case 'games':
+      return gamesProvider;
     case 'users':
       return usersProvider;
     case 'config':
     case 'groups':
     case 'categories':
+    case 'patterns':
       return baseProvider;
     default:
       console.error('Unknown resource:', resource);

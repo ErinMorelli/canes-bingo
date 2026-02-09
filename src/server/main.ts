@@ -1,7 +1,6 @@
 import MySQLSession from 'express-mysql-session';
 import ViteExpress from 'vite-express';
 import session from 'express-session';
-import * as expressSession from 'express-session';
 import bodyParser from 'body-parser';
 import express from 'express';
 import cors from 'cors';
@@ -9,11 +8,16 @@ import cors from 'cors';
 import { dbConfig } from './database.ts';
 import apiRouter from './routers';
 
+const SECRET_KEY = process.env.SECRET_KEY;
+if (!SECRET_KEY) {
+  throw new Error('SECRET_KEY environment variable is required');
+}
+
 const port = process.env.PORT || 3000;
 
 const app = express();
 
-const MySQLStore = MySQLSession(expressSession);
+const MySQLStore = MySQLSession(session);
 const sessionStore = new MySQLStore({...dbConfig});
 
 app.set('trust proxy', 1);
@@ -22,12 +26,16 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
 }));
+
 app.use(bodyParser.json());
+
 app.use(session({
-  secret: process.env.SECRET_KEY || '',
+  secret: SECRET_KEY,
   cookie: {
     maxAge: 24 * 60 * 60 * 1000,  // 24 hours
     httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
   },
   resave: false,
   saveUninitialized: false,

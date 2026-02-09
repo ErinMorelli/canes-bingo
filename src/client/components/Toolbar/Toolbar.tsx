@@ -13,7 +13,7 @@ import type { CheckboxProps } from 'antd';
 
 import { selectBoardArgs } from '@slices';
 import { StorageKey } from '@app/constants.ts';
-import { useGroups, useSquares } from '@hooks';
+import { useGameBoard, useGroups } from '@hooks';
 import { initStorageValue, setStorageValue } from '@app/utils.ts';
 
 import { Options } from '../Options';
@@ -28,7 +28,7 @@ export function Toolbar({
   cardRef,
   customClass = '',
 }: Readonly<ToolbarProps>) {
-  const { generateBoard, squaresError } = useSquares();
+  const { loadBoard, generateBoard, squaresError } = useGameBoard();
   const { groupsLoaded } = useGroups();
 
   const boardArgs = useSelector(selectBoardArgs);
@@ -59,9 +59,11 @@ export function Toolbar({
   }
 
   const handleReload = useCallback(
-  () => generateBoard(boardArgs),
-  [boardArgs, generateBoard]
+    () => generateBoard(boardArgs),
+    [boardArgs, generateBoard]
   );
+
+  const handleReset = useCallback(() => loadBoard(true), [loadBoard]);
 
   return (
     <div className="toolbar">
@@ -88,15 +90,19 @@ export function Toolbar({
       <Drawer
         title="Game Options"
         className={customClass}
-        width={300}
+        size={300}
         open={drawerOpen || squaresError}
         onClose={() => !squaresError && setDrawerOpen(false)}
+        extra={
+          <Button size="small" onClick={handleReset}>
+            Reset
+          </Button>
+        }
         footer={
           <Popover
             open={!tourSeen}
             trigger="click"
             placement="leftBottom"
-            title={<h3 style={{ color: "#CE1126" }}>NEW!</h3>}
             content={
               <div style={{ maxWidth: '250px' }}>
                 <p style={{ marginBottom: '10px' }}>

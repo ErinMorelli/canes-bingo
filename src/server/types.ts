@@ -1,4 +1,10 @@
-import { Generated, Insertable, Selectable, Updateable } from 'kysely';
+import {
+  Generated,
+  Insertable,
+  JSONColumnType,
+  Selectable,
+  Updateable
+} from 'kysely';
 
 export type GetSquaresQuery = {
   include?: string
@@ -42,6 +48,37 @@ export interface SquareCategoryTable {
   categoryId: number;
 }
 
+export type PatternSquare = {
+  col: number,
+  row: number,
+}
+export type PatternSquares = Array<PatternSquare>;
+
+export interface PatternTable {
+  patternId: Generated<number>;
+  name: string;
+  squares: JSONColumnType<PatternSquares>;
+}
+export type Pattern = Selectable<PatternTable>;
+export type NewPattern = Insertable<PatternTable>;
+export type PatternUpdate = Updateable<PatternTable>;
+
+export interface GameTable {
+  gameId: Generated<number>;
+  name: string;
+  description?: string;
+  isDefault: boolean;
+}
+export type Game = Selectable<GameTable>;
+export type NewGame = Insertable<GameTable>;
+export type GameUpdate = Updateable<GameTable>;
+
+export interface PatternGameTable {
+  id: Generated<number>;
+  gameId: number;
+  patternId: number;
+}
+
 export interface ConfigTable {
   id: Generated<number>;
   key: string;
@@ -67,6 +104,9 @@ export interface Database {
   groups: GroupTable;
   categories: CategoryTable;
   squareCategories: SquareCategoryTable;
+  games: GameTable;
+  patterns: PatternTable;
+  patternGames: PatternGameTable;
   config: ConfigTable;
   users: UserTable;
 }

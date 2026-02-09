@@ -5,9 +5,11 @@ import {
   selectBoard,
   updateSquare,
   updateBoardArgs,
-  selectDefaultArgs, selectBoardArgs,
+  selectDefaultArgs, selectBoardArgs, selectSelectedGame,
 } from '@slices';
-import { Board } from '@app/types';
+
+import { Board, BoardArgs, Pattern } from '@app/types';
+import { validateBoardPattern } from '@app/utils.ts';
 
 import { useSquares } from './useSquares.ts';
 
@@ -16,15 +18,20 @@ type UseGameBoardResult = {
   boardReady: boolean;
   loadBoard: (force?: boolean) => void;
   selectSquare: (row: number, col: number) => void;
+  validateGameBoard: () => boolean;
+  generateBoard: (boardArgs: BoardArgs) => void;
+  squaresError: boolean;
 }
 
 export function useGameBoard(): UseGameBoardResult {
   const dispatch = useDispatch();
-  const { generateBoard } = useSquares();
+  const { generateBoard, squaresError } = useSquares();
 
   const board = useSelector(selectBoard);
   const boardArgs = useSelector(selectBoardArgs);
   const defaultArgs = useSelector(selectDefaultArgs);
+
+  const selectedGame = useSelector(selectSelectedGame);
 
   const shouldLoadBoard = useMemo(
     () => !board.length || !Object.keys(boardArgs).length,
@@ -50,6 +57,13 @@ export function useGameBoard(): UseGameBoardResult {
     }));
   }, [board, dispatch]);
 
+  const validateGameBoard = useCallback(() => {
+    const patterns = selectedGame?.patterns || [];
+    return patterns.some((pattern: Pattern) => {
+      return validateBoardPattern(board, pattern);
+    });
+  }, [board, selectedGame]);
+
   const boardReady = useMemo(
     () => !!board && board.length > 0,
     [board]
@@ -60,5 +74,8 @@ export function useGameBoard(): UseGameBoardResult {
     boardReady,
     loadBoard,
     selectSquare,
+    validateGameBoard,
+    generateBoard,
+    squaresError,
   };
 }

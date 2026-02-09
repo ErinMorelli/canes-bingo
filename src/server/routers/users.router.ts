@@ -1,4 +1,7 @@
 import { RequestHandler, Router } from 'express';
+import Joi from 'joi';
+
+import { isAuthenticated } from './auth.router.ts';
 
 import {
   addUser,
@@ -7,54 +10,80 @@ import {
   removeUser,
   updateUser
 } from '../controllers';
-import { isAuthenticated } from './auth.router.ts';
+import { handleError, resourceIdSchema } from '../utils.ts';
+
+const newUserSchema = Joi.object({
+  username: Joi.string().required(),
+  password: Joi.string().required(),
+});
+
+const updateUserSchema = Joi.object({
+  username: Joi.string().required(),
+  password: Joi.string(),
+});
 
 const router = Router();
 
 const list: RequestHandler = async (_req, res) => {
   try {
     const result = await getUsers();
-    res.status(200).json(result);
-  } catch (err: any) {
-    res.status(400).json({
-      message: err.message
-    });
+    return res.status(200).json(result);
+  } catch (e: any) {
+    return handleError(res, e);
   }
 };
 
 const get: RequestHandler = async (req, res) => {
   try {
-    const result = await getUser(parseInt(req.params.userId));
-    res.status(200).json(result);
+    Joi.assert(req.params, Joi.object({ userId: resourceIdSchema }));
+    const { userId } = req.params;
+    const result = await getUser(Number.parseInt(userId));
+    return res.status(200).json(result);
   } catch (e: any) {
-    res.status(400).json({ message: e.message });
+    return handleError(res, e);
   }
 };
 
 const put: RequestHandler = async (req, res) => {
   try {
-    const result = await updateUser(parseInt(req.params.userId), req.body);
-    res.status(200).json(result);
+    Joi.assert(req.params, Joi.object({ userId: resourceIdSchema }));
+    Joi.assert(req.body, updateUserSchema);
+
+    const { userId } = req.params;
+    const { username, password } = req.body;
+
+    const result = await updateUser(Number.parseInt(userId), {
+      username,
+      password,
+    });
+    return res.status(200).json(result);
   } catch(e: any) {
-    res.status(400).json({ message: e.message });
+    return handleError(res, e);
   }
 };
 
 const post: RequestHandler = async (req, res) => {
   try {
-    const result = await addUser(req.body);
-    res.status(201).json(result);
+    Joi.assert(req.body, newUserSchema);
+    const { username, password } = req.body;
+    const result = await addUser({
+      username,
+      password,
+    });
+    return res.status(201).json(result);
   } catch(e: any) {
-    res.status(400).json({ message: e.message });
+    return handleError(res, e);
   }
 };
 
 const remove: RequestHandler = async (req, res) => {
   try {
-    const result = await removeUser(parseInt(req.params.userId));
-    res.status(200).json(result);
+    Joi.assert(req.params, Joi.object({ userId: resourceIdSchema }));
+    const { userId } = req.params;
+    const result = await removeUser(Number.parseInt(userId));
+    return res.status(200).json(result);
   } catch(e: any) {
-    res.status(400).json({ message: e.message });
+    return handleError(res, e);
   }
 };
 
