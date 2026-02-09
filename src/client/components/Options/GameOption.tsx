@@ -72,7 +72,7 @@ export default function GameOption() {
               <Text strong>Game Pattern</Text>
             </Flex>
           }
-          extra={selectedGame?.description && (
+          extra={selectedGame && (
             <Button
               type="link"
               size="small"

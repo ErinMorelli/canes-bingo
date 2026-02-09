@@ -3,8 +3,8 @@ import { sql } from 'kysely';
 import { db } from '../database.ts';
 import { GameUpdate, NewGame } from '../types.ts';
 
-function gamesBaseQuery() {
-  return db
+function gamesBaseQuery(trx = db) {
+  return trx
     .selectFrom('games as g')
     .leftJoin('patternGames as pg', 'g.gameId', 'pg.gameId')
     .leftJoin('patterns as p', 'p.patternId', 'pg.patternId')
@@ -31,8 +31,8 @@ export async function getGames() {
   return await gamesBaseQuery().execute();
 }
 
-export async function getGame(gameId: number) {
-  return await gamesBaseQuery()
+export async function getGame(gameId: number, trx = db) {
+  return await gamesBaseQuery(trx)
     .where('g.gameId', '=', gameId)
     .executeTakeFirstOrThrow();
 }
@@ -53,7 +53,7 @@ export async function addGame(game: NewGame, patterns: Array<number>) {
         })))
         .execute();
     }
-    return await getGame(gameId);
+    return await getGame(gameId, trx);
   });
 }
 
@@ -93,21 +93,21 @@ export async function updateGame(
         ]))
         .execute();
     }
-    return await getGame(gameId);
+    return await getGame(gameId, trx);
   });
 }
 
 export async function removeGame(gameId: number) {
   return await db.transaction().execute(async (trx) => {
-    const game = await getGame(gameId);
+    const game = await getGame(gameId, trx);
     await trx
       .deleteFrom('patternGames')
       .where('gameId', '=', gameId)
       .execute();
     await trx
-        .deleteFrom('games')
-        .where('gameId', '=', gameId)
-        .execute();
+      .deleteFrom('games')
+      .where('gameId', '=', gameId)
+      .execute();
     return game;
   });
 }

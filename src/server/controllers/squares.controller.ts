@@ -82,8 +82,8 @@ export async function getSquares(
   return await includeQuery.execute();
 }
 
-export async function getSquare(squareId: number) {
-  return await db
+export async function getSquare(squareId: number, trx = db) {
+  return await trx
     .with('cats', (_db) => _db
       .selectFrom('categories as c')
       .leftJoin('squareCategories as sc', 'sc.categoryId', 'c.categoryId')
@@ -123,7 +123,7 @@ export async function addSquare(square: NewSquare, categories: Array<number>) {
         })))
         .execute();
     }
-    return await getSquare(squareId);
+    return await getSquare(squareId, trx);
   });
 }
 
@@ -163,13 +163,13 @@ export async function updateSquare(
         ]))
         .execute();
     }
-    return await getSquare(squareId);
+    return await getSquare(squareId, trx);
   });
 }
 
 export async function removeSquare(squareId: number) {
   return await db.transaction().execute(async (trx) => {
-    const square = await getSquare(squareId);
+    const square = await getSquare(squareId, trx);
     await trx
       .deleteFrom('squareCategories')
       .where('squareId', '=', squareId)

@@ -70,8 +70,8 @@ export function Inventory() {
       })
       .filter((s) => s.active)
       .sort((a, b) => {
-        const aVal = a.value.replace('"', '').toLowerCase();
-        const bVal = b.value.replace('"', '').toLowerCase();
+        const aVal = a.value.replace(/"/g, '').toLowerCase();
+        const bVal = b.value.replace(/"/g, '').toLowerCase();
         return aVal.localeCompare(bVal);
       }),
     [debouncedQuery, squares]

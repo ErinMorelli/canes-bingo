@@ -24,8 +24,8 @@ export async function getCategories(groupId?: number) {
   return await query.execute();
 }
 
-export async function getCategory(categoryId: number) {
-  return await db
+export async function getCategory(categoryId: number, trx = db) {
+  return await trx
     .selectFrom('categories as c')
     .select([
       'c.categoryId as id',
@@ -60,7 +60,7 @@ export async function updateCategory(categoryId: number, category: CategoryUpdat
 
 export async function removeCategory(categoryId: number) {
   return await db.transaction().execute(async (trx) => {
-    const category = await getCategory(categoryId);
+    const category = await getCategory(categoryId, trx);
     await trx
       .deleteFrom('squareCategories')
       .where('categoryId', '=', categoryId)

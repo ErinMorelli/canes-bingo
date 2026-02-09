@@ -29,7 +29,7 @@ export function useGames(): UseGamesResult {
   const games = useSelector(selectGames);
   const gamesLoaded = useSelector(selectGamesLoaded);
   const selectedGame = useSelector(selectSelectedGame);
-  const isEnabled = useSelector(selectEnabled);
+  const isEnabled = useSelector(selectEnabled) ?? false;
 
   const loadGames = useCallback(
     () => {

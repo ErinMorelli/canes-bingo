@@ -34,13 +34,9 @@ export function PatternAnimated({
     if (intervalRef.current || !patterns.length) return;
 
     const maxIdx = patterns.length - 1;
-    let idx = 0;
 
     intervalRef.current = setInterval(() => {
-      let next = idx + 1;
-      if (next > maxIdx) next = 0;
-      idx = next;
-      setVisible(next);
+      setVisible((prev) => (prev + 1 > maxIdx ? 0 : prev + 1));
     }, speed || DEFAULT_SPEED);
   }, [intervalRef, patterns, speed]);
 

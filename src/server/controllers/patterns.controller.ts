@@ -14,8 +14,8 @@ export async function getPatterns() {
     .execute();
 }
 
-export async function getPattern(patternId: number) {
-  return await db
+export async function getPattern(patternId: number, trx = db) {
+  return await trx
     .selectFrom('patterns as p')
     .select(PATTERN_COLUMNS)
     .where('p.patternId', '=', patternId)
@@ -41,7 +41,7 @@ export async function updatePattern(patternId: number, updatedPattern: PatternUp
 
 export async function removePattern(patternId: number) {
   return await db.transaction().execute(async (trx) => {
-    const pattern = await getPattern(patternId);
+    const pattern = await getPattern(patternId, trx);
     await trx
       .deleteFrom('patternGames')
       .where('patternId', '=', patternId)
