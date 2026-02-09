@@ -98,13 +98,7 @@ const gamesProvider: DataProvider = {
   ...baseProvider,
   getList: async (resource) => {
     const res = await axios.get(`${P}/${resource}`, withAuth());
-    const data = res.data.map((g: { patterns: Patterns }) => {
-      const { patterns, ...req } = g;
-      return {
-        ...req,
-        patternIds: patterns.map((p: Pattern) => p.id),
-      };
-    });
+    const data = res.data;
     return { data, total: data.length };
   },
   getOne: async (resource, params) => {
