@@ -10,7 +10,7 @@ import { PatternAnimated, PatternGame } from '../Pattern';
 
 const { Text, Title, Paragraph } = Typography;
 
-type GameOption = {
+type GameOptionType = {
   value: number;
   label: string;
   data: Game;
@@ -36,12 +36,12 @@ export default function GameOption() {
 
   const [open, setOpen] = useState<boolean>(false);
 
-  const handleChange = useCallback((value?: GameOption | GameOption[]) => {
+  const handleChange = useCallback((value?: GameOptionType | GameOptionType[]) => {
     if (!value || Array.isArray(value)) return;
     setSelectedGame(value.data);
   }, [setSelectedGame]);
 
-  const options = useMemo<GameOption[]>(() => {
+  const options = useMemo<GameOptionType[]>(() => {
     return games.map(game => ({
       value: game.id,
       label: game.name,

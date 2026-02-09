@@ -32,9 +32,7 @@ const list: RequestHandler = async (_, res) => {
 
 const get: RequestHandler = async (req, res) => {
   try {
-    Joi.assert(req.params, Joi.object({
-      groupId: Joi.alternatives().try(Joi.string(), Joi.number()).required()
-    }));
+    Joi.assert(req.params, Joi.object({ groupId: Joi.string().required() }));
     const { groupId } = req.params;
     const result = /^\d+$/.exec(groupId)
       ? await getGroup(Number.parseInt(groupId))

@@ -180,7 +180,7 @@ export async function removeSquare(squareId: number) {
       .deleteFrom('squareCategories')
       .where('squareId', '=', squareId)
       .execute()
-      .then(async () => await trx
+      .then(() => trx
         .deleteFrom('squares')
         .where('squareId', '=', squareId)
         .execute()

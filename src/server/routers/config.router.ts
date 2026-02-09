@@ -31,9 +31,7 @@ const list: RequestHandler = async (_req, res) => {
 
 const get: RequestHandler = async (req, res) => {
   try {
-    Joi.assert(req.params, Joi.object({
-      configId: Joi.alternatives().try(Joi.string(), Joi.number()).required()
-    }));
+    Joi.assert(req.params, Joi.object({ configId: Joi.string().required() }));
     const { configId } = req.params;
     const result = /^\d+$/.exec(configId)
       ? await getConfigValue(Number.parseInt(configId))

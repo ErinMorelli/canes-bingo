@@ -1,25 +1,24 @@
 import { db } from '../database.ts';
 import { NewPattern, PatternUpdate } from '../types.ts';
 
+const PATTERN_COLUMNS = [
+  'p.patternId as id',
+  'p.name as name',
+  'p.squares as squares',
+] as const;
+
+
 export async function getPatterns() {
   return await db
     .selectFrom('patterns as p')
-    .select([
-      'p.patternId as id',
-      'p.name as name',
-      'p.squares as squares',
-    ])
+    .select(PATTERN_COLUMNS)
     .execute();
 }
 
 export async function getPattern(patternId: number) {
   return await db
     .selectFrom('patterns as p')
-    .select([
-      'p.patternId as id',
-      'p.name as name',
-      'p.squares as squares',
-    ])
+    .select(PATTERN_COLUMNS)
     .where('p.patternId', '=', patternId)
     .executeTakeFirstOrThrow();
 }
@@ -48,7 +47,7 @@ export async function removePattern(patternId: number) {
       .deleteFrom('patternGames')
       .where('patternId', '=', patternId)
       .execute()
-      .then(async () => await trx
+      .then(() => trx
         .deleteFrom('patterns')
         .where('patternId', '=', patternId)
         .execute()

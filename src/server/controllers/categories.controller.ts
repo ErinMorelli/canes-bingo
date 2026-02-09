@@ -65,7 +65,7 @@ export async function removeCategory(categoryId: number) {
       .deleteFrom('squareCategories')
       .where('categoryId', '=', categoryId)
       .execute()
-      .then(async () => await trx
+      .then(() => trx
         .deleteFrom('categories')
         .where('categoryId', '=', categoryId)
         .execute()

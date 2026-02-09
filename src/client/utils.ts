@@ -154,7 +154,8 @@ export function parsePatternValue(value: string | PatternSquare[]): PatternSquar
   if (!value) return [];
   if (typeof value === 'string') {
     try {
-      return JSON.parse(value);
+       const parsed = JSON.parse(value);
+       return Array.isArray(parsed) ? parsed : [];
     } catch (err) {
       console.error(err);
       return [];

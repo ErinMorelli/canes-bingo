@@ -99,19 +99,19 @@ const gamesProvider: DataProvider = {
   getList: async (resource) => {
     const res = await axios.get(`${P}/${resource}`, withAuth());
     const data = res.data.map((g: { patterns: Patterns }) => {
-      const patterns = g.patterns || [];
+      const { patterns, ...req } = g;
       return {
-        ...g,
-        patternIds: patterns.map(p => p.id),
+        ...req,
+        patternIds: patterns.map((p: Pattern) => p.id),
       };
     });
     return { data, total: data.length };
   },
   getOne: async (resource, params) => {
     const res = await axios.get(`${P}/${resource}/${params.id}`, withAuth());
-    const patterns = res.data.patterns || [];
+    const { patterns, ...req } = res.data;
     const data = {
-      ...res.data,
+      ...req,
       patternIds: patterns.map((p: Pattern) => p.id),
     };
     return { data };

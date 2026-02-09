@@ -3,35 +3,10 @@ import { sql } from 'kysely';
 import { db } from '../database.ts';
 import { GameUpdate, NewGame } from '../types.ts';
 
-export async function getGames() {
-  return await db
+function gamesBaseQuery() {
+  return db
     .selectFrom('games as g')
     .leftJoin('patternGames as pg', 'g.gameId', 'pg.gameId')
-    .leftJoin('patterns as p', 'p.patternId', 'pg.patternId')
-    .select([
-       'g.gameId as id',
-      'g.name as name',
-      'g.description as description',
-      sql<boolean>`
-        if(g.is_default = true, cast(true as json), cast(false as json))
-      `.as('isDefault'),
-      sql<any>`
-        if(count(p.pattern_id) = 0, JSON_ARRAY(), JSON_ARRAYAGG(
-          JSON_OBJECT(
-            'id', p.pattern_id,
-            'name', p.name,
-            'squares', p.squares
-          )
-        ))`.as('patterns')
-    ])
-    .groupBy('g.gameId')
-    .execute();
-}
-
-export async function getGame(gameId: number) {
-  return await db
-    .selectFrom('games as g')
-    .leftJoin('patternGames as pg', 'pg.gameId', 'g.gameId')
     .leftJoin('patterns as p', 'p.patternId', 'pg.patternId')
     .select([
       'g.gameId as id',
@@ -47,10 +22,18 @@ export async function getGame(gameId: number) {
             'name', p.name,
             'squares', p.squares
           )
-        ))`.as('patterns')
+        ))`.as('patterns'),
     ])
+    .groupBy('g.gameId');
+}
+
+export async function getGames() {
+  return await gamesBaseQuery().execute();
+}
+
+export async function getGame(gameId: number) {
+  return await gamesBaseQuery()
     .where('g.gameId', '=', gameId)
-    .groupBy('g.gameId')
     .executeTakeFirstOrThrow();
 }
 
@@ -128,7 +111,7 @@ export async function removeGame(gameId: number) {
       .deleteFrom('patternGames')
       .where('gameId', '=', gameId)
       .execute()
-      .then(async () => await trx
+      .then(() => trx
         .deleteFrom('games')
         .where('gameId', '=', gameId)
         .execute()

@@ -1,7 +1,8 @@
 import { NoResultError } from 'kysely';
+import { Response } from 'express';
 import Joi from 'joi';
 
-export function handleError(res: any, e: Error) {
+export function handleError(res: Response, e: Error) {
   if (e instanceof NoResultError) {
     return res.status(404).json({ message: 'Not Found' });
   }

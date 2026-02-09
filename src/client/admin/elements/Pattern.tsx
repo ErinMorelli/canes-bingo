@@ -107,7 +107,13 @@ export function PatternInput({ name, size }: PatternInputProps) {
 
   return (
     <div className="pattern-input">
-      <input hidden {...input.field} type="text" value={JSON.stringify(input.field.value)}  />
+      <input
+        hidden
+        readOnly
+        type="text"
+        name={input.field.name}
+        value={JSON.stringify(input.field.value)}
+      />
       <PatternGrid
         size={size}
         selected={selected}
