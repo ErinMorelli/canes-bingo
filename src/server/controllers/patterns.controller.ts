@@ -23,11 +23,14 @@ export async function getPattern(patternId: number, trx = db) {
 }
 
 export async function addPattern(newPattern: NewPattern) {
-  return await db
-    .insertInto('patterns')
-    .values(newPattern)
-    .executeTakeFirstOrThrow()
-    .then(({ insertId }) => getPattern(Number(insertId)));
+  return await db.transaction().execute(async (trx) => {
+    const result = await trx
+      .insertInto('patterns')
+      .values(newPattern)
+      .executeTakeFirstOrThrow();
+    const patternId = Number(result.insertId);
+    return await getPattern(patternId, trx);
+  });
 }
 
 export async function updatePattern(patternId: number, updatedPattern: PatternUpdate) {

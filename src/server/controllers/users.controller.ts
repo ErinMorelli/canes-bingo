@@ -6,8 +6,8 @@ import { NewUser, UserUpdate } from '../types.ts';
 export const hashPassword = async (password: string): Promise<string>  =>
   new Promise((resolve, reject) => {
     bcrypt.hash(password, 10, (error, hash) =>  {
-      if (error) reject(error);
-      resolve(hash);
+      if (error) return reject(error);
+      return resolve(hash);
     });
   });
 
