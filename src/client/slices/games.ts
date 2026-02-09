@@ -30,7 +30,13 @@ export const gamesSlice = createAppSlice({
       {
         fulfilled: (state, { payload }) => {
           state.games = payload.games;
-          state.selectedGame = payload.defaultGame;
+          const stillExists = (
+            state.selectedGame &&
+            payload.games.some(g => g.id === state.selectedGame!.id)
+          );
+          if (!stillExists) {
+           state.selectedGame = payload.defaultGame;
+          }
           state.gamesLoaded = true;
         },
         rejected: (state) => {

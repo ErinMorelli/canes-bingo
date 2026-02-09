@@ -66,7 +66,7 @@ export type PatternUpdate = Updateable<PatternTable>;
 export interface GameTable {
   gameId: Generated<number>;
   name: string;
-  description: string;
+  description?: string;
   isDefault: boolean;
 }
 export type Game = Selectable<GameTable>;

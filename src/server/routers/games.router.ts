@@ -10,7 +10,7 @@ import {
   removeGame,
   updateGame
 } from '../controllers';
-import { handleError } from '../utils.ts';
+import { handleError, resourceIdSchema } from '../utils.ts';
 
 const newGameSchema = Joi.object({
   name: Joi.string().required(),
@@ -42,7 +42,7 @@ const list: RequestHandler = async (_, res) => {
 
 const get: RequestHandler = async (req, res) => {
   try {
-    Joi.assert(req.params, Joi.object({ gameId: Joi.number().required() }));
+    Joi.assert(req.params, Joi.object({ gameId: resourceIdSchema }));
     const { gameId } = req.params;
     const result = await getGame(Number.parseInt(gameId));
     return res.status(200).json(result);
@@ -53,7 +53,7 @@ const get: RequestHandler = async (req, res) => {
 
 const put: RequestHandler = async (req, res) => {
   try {
-    Joi.assert(req.params, Joi.object({ gameId: Joi.number().required() }));
+    Joi.assert(req.params, Joi.object({ gameId: resourceIdSchema }));
     Joi.assert(req.body, updateGameSchema);
 
     const { gameId } = req.params;
@@ -90,7 +90,7 @@ const post: RequestHandler = async (req, res) => {
 
 const remove: RequestHandler = async (req, res) => {
   try {
-    Joi.assert(req.params, Joi.object({ gameId: Joi.number().required() }));
+    Joi.assert(req.params, Joi.object({ gameId: resourceIdSchema }));
     const { gameId } = req.params;
     const result = await removeGame(Number.parseInt(gameId));
     return res.status(200).json(result);

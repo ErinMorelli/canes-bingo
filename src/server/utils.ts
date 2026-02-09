@@ -20,3 +20,8 @@ export function handleError(res: any, e: Error) {
   console.error(e);
   return res.status(500).json({ message: 'Server Error' });
 }
+
+export const resourceIdSchema = Joi
+  .string()
+  .pattern(/^\d+$/)
+  .required();

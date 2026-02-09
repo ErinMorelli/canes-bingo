@@ -30,7 +30,9 @@ export default function GameOption() {
     setIsEnabled,
   } = useGames();
 
-  useEffect(() => loadGames(), [loadGames]);
+  useEffect(() => {
+    loadGames();
+  }, [loadGames]);
 
   const [open, setOpen] = useState<boolean>(false);
 

@@ -11,7 +11,7 @@ import {
   updateSquare
 } from '../controllers';
 import { GetSquaresQuery } from '../types.ts';
-import { handleError } from '../utils.ts';
+import { handleError, resourceIdSchema } from '../utils.ts';
 
 const newSquareSchema = Joi.object({
   content: Joi.string().required(),
@@ -64,7 +64,7 @@ const list: RequestHandler = async (
 
 const get: RequestHandler = async (req, res) => {
   try {
-    Joi.assert(req.params, Joi.object({ squareId: Joi.number().required() }));
+    Joi.assert(req.params, Joi.object({ squareId: resourceIdSchema }));
     const { squareId } = req.params;
     const result = await getSquare(Number.parseInt(squareId));
     return res.status(200).json(result);
@@ -75,7 +75,7 @@ const get: RequestHandler = async (req, res) => {
 
 const put: RequestHandler = async (req, res) => {
   try {
-    Joi.assert(req.params, Joi.object({ squareId: Joi.number().required() }));
+    Joi.assert(req.params, Joi.object({ squareId: resourceIdSchema }));
     Joi.assert(req.body, updateSquareSchema);
 
     const { squareId } = req.params;
@@ -111,7 +111,7 @@ const post: RequestHandler = async (req, res) => {
 
 const remove: RequestHandler = async (req, res) => {
   try {
-    Joi.assert(req.params, Joi.object({ squareId: Joi.number().required() }));
+    Joi.assert(req.params, Joi.object({ squareId: resourceIdSchema }));
     const { squareId } = req.params;
     const result = await removeSquare(Number.parseInt(squareId));
     return res.status(200).json(result);

@@ -11,7 +11,7 @@ import {
   removeGroup,
   updateGroup,
 } from '../controllers';
-import { handleError } from '../utils.ts';
+import { handleError, resourceIdSchema } from '../utils.ts';
 
 const groupSchema = Joi.object({
   name: Joi.string().required(),
@@ -47,7 +47,7 @@ const get: RequestHandler = async (req, res) => {
 
 const put: RequestHandler = async (req, res) => {
   try {
-    Joi.assert(req.params, Joi.object({ groupId: Joi.number().required() }));
+    Joi.assert(req.params, Joi.object({ groupId: resourceIdSchema }));
     Joi.assert(req.body, groupSchema);
 
     const { groupId } = req.params;
@@ -81,7 +81,7 @@ const post: RequestHandler = async (req, res) => {
 
 const remove: RequestHandler = async (req, res) => {
   try {
-    Joi.assert(req.params, Joi.object({ groupId: Joi.number().required() }));
+    Joi.assert(req.params, Joi.object({ groupId: resourceIdSchema }));
     const { groupId } = req.params;
     const result = await removeGroup(Number.parseInt(groupId));
     return res.status(200).json(result);

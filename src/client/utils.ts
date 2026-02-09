@@ -180,6 +180,7 @@ export function getSquareStyle(size?: number) {
 
 export function validateBoardPattern(board: Board, pattern: Pattern): boolean {
   const squares = pattern.squares || [];
+  if (squares.length === 0) return false;
   return squares.every(({ row, col }) => {
     return board[row]?.[col]?.selected;
   });

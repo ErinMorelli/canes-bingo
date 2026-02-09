@@ -21,7 +21,7 @@ import { PatternField, PatternInput } from '../elements';
 
 const transformPattern = (data: { name: string; squares: PatternSquare[] }) => ({
   name: data.name,
-  squares: JSON.stringify(data.squares),
+  squares: JSON.stringify(data.squares ?? []),
 });
 
 export const PatternsList = () => (

@@ -10,7 +10,7 @@ import {
   removePattern,
   updatePattern
 } from '../controllers';
-import { handleError } from '../utils.ts';
+import { handleError, resourceIdSchema } from '../utils.ts';
 
 const patternSchema = Joi.object({
   name: Joi.string().required(),
@@ -37,7 +37,7 @@ const list: RequestHandler = async (_, res) => {
 
 const get: RequestHandler = async (req, res) => {
   try {
-    Joi.assert(req.params, Joi.object({ patternId: Joi.number().required() }));
+    Joi.assert(req.params, Joi.object({ patternId: resourceIdSchema }));
     const { patternId } = req.params;
     const result = await getPattern(Number.parseInt(patternId));
     return res.status(200).json(result);
@@ -48,7 +48,7 @@ const get: RequestHandler = async (req, res) => {
 
 const put: RequestHandler = async (req, res) => {
   try {
-    Joi.assert(req.params, Joi.object({ patternId: Joi.number().required() }));
+    Joi.assert(req.params, Joi.object({ patternId: resourceIdSchema }));
     Joi.assert(req.body, patternSchema);
 
     const { patternId } = req.params;
@@ -87,7 +87,7 @@ const post: RequestHandler = async (req, res) => {
 
 const remove: RequestHandler = async (req, res) => {
   try {
-    Joi.assert(req.params, Joi.object({ patternId: Joi.number().required() }));
+    Joi.assert(req.params, Joi.object({ patternId: resourceIdSchema }));
     const { patternId } = req.params;
     const result = await removePattern(Number.parseInt(patternId));
     return res.status(200).json(result);

@@ -10,7 +10,7 @@ import {
   removeCategory,
   updateCategory
 } from '../controllers';
-import { handleError } from '../utils.ts';
+import { handleError, resourceIdSchema } from '../utils.ts';
 
 const categorySchema = Joi.object({
   name: Joi.string().required(),
@@ -24,9 +24,7 @@ const router = Router();
 
 const list: RequestHandler = async (req, res) => {
   try {
-    Joi.assert(req.query, Joi.object({
-      group_id: Joi.alternatives().try(Joi.string(), Joi.number()),
-    }));
+    Joi.assert(req.query, Joi.object({ group_id: Joi.string().pattern(/^\d+$/) }));
     const { group_id: groupId } = req.query;
     const parsedId = typeof groupId === 'string' ? Number.parseInt(groupId) : undefined;
     const result = await getCategories(parsedId);
@@ -38,7 +36,7 @@ const list: RequestHandler = async (req, res) => {
 
 const get: RequestHandler = async (req, res) => {
   try {
-    Joi.assert(req.params, Joi.object({ categoryId: Joi.number().required() }));
+    Joi.assert(req.params, Joi.object({ categoryId: resourceIdSchema }));
     const { categoryId } = req.params;
     const result = await getCategory(Number.parseInt(categoryId));
     return res.status(200).json(result);
@@ -49,7 +47,7 @@ const get: RequestHandler = async (req, res) => {
 
 const put: RequestHandler = async (req, res) => {
   try {
-    Joi.assert(req.params, Joi.object({ categoryId: Joi.number().required() }));
+    Joi.assert(req.params, Joi.object({ categoryId: resourceIdSchema }));
     Joi.assert(req.body, categorySchema);
 
     const { categoryId } = req.params;
@@ -87,7 +85,7 @@ const post: RequestHandler = async (req, res) => {
 
 const remove: RequestHandler = async (req, res) => {
   try {
-    Joi.assert(req.params, Joi.object({ categoryId: Joi.number().required() }));
+    Joi.assert(req.params, Joi.object({ categoryId: resourceIdSchema }));
     const { categoryId } = req.params;
     const result = await removeCategory(Number.parseInt(categoryId));
     return res.status(200).json(result);

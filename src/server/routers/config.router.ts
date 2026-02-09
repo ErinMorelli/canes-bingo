@@ -11,7 +11,7 @@ import {
   removeConfig,
   updateConfig
 } from '../controllers';
-import { handleError } from '../utils.ts';
+import { handleError, resourceIdSchema } from '../utils.ts';
 
 const configSchema = Joi.object({
   key: Joi.string().required(),
@@ -46,7 +46,7 @@ const get: RequestHandler = async (req, res) => {
 
 const put: RequestHandler = async (req, res) => {
   try {
-    Joi.assert(req.params, Joi.object({ configId: Joi.number().required() }));
+    Joi.assert(req.params, Joi.object({ configId: resourceIdSchema }));
     Joi.assert(req.body, configSchema);
 
     const { configId } = req.params;
@@ -75,7 +75,7 @@ const post: RequestHandler = async (req, res) => {
 
 const remove: RequestHandler = async (req, res) => {
   try {
-    Joi.assert(req.params, Joi.object({ configId: Joi.number().required() }));
+    Joi.assert(req.params, Joi.object({ configId: resourceIdSchema }));
     const { configId } = req.params;
     const result = await removeConfig(Number.parseInt(configId));
     return res.status(200).json(result);

@@ -26,7 +26,7 @@ const squares = db.schema
   .addColumn('square_id', 'integer', (col) => col.primaryKey().autoIncrement())
   .addColumn('content', 'varchar(50)', (col) => col.notNull())
   .addColumn('description', 'varchar(255)', (col) => col.notNull())
-  .addColumn('active', 'boolean', (col) => col.defaultTo('true'))
+  .addColumn('active', 'boolean', (col) => col.defaultTo(true))
   .addUniqueConstraint('content', ['content']);
 
 const groups = db.schema
@@ -44,7 +44,7 @@ const categories = db.schema
   .addColumn('label', 'varchar(50)', (col) => col.notNull())
   .addColumn('description', 'varchar(255)')
   .addColumn('group_id', 'integer')
-  .addColumn('is_default', 'boolean', (col) => col.defaultTo('false'))
+  .addColumn('is_default', 'boolean', (col) => col.defaultTo(false))
   .addUniqueConstraint('name', ['name'])
   .addForeignKeyConstraint('group_id', ['group_id'], 'groups', ['group_id']);
 
@@ -62,7 +62,7 @@ const games = db.schema
   .addColumn('game_id', 'integer', (col) => col.primaryKey().autoIncrement())
   .addColumn('name', 'varchar(50)', (col) => col.notNull())
   .addColumn('description', 'varchar(255)')
-  .addColumn('is_default', 'boolean', (col) => col.defaultTo('false'))
+  .addColumn('is_default', 'boolean', (col) => col.defaultTo(false))
   .addUniqueConstraint('name', ['name']);
 
 const patterns = db.schema
@@ -108,9 +108,9 @@ const tables = [
 ];
 
 async function createAll() {
-  return Promise.all(
-    tables.map((table) => table.ifNotExists().execute())
-  );
+  for (const table of tables) {
+    await table.ifNotExists().execute();
+  }
 }
 
 createAll()
