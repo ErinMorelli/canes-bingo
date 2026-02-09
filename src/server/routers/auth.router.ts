@@ -47,9 +47,7 @@ const login: RequestHandler = async (req, res, next) => {
       username,
       password,
     });
-    if (!user) {
-      return res.status(401).send();
-    } else {
+    if (user) {
       const { userId, username } = user;
       const token = createUserToken(user);
       return req.session.regenerate((err) => {
@@ -61,7 +59,8 @@ const login: RequestHandler = async (req, res, next) => {
         });
       });
     }
-  } catch (e: any) {
+    return res.status(401).send();
+  } catch {
     return res.status(401).send();
   }
 };
@@ -98,12 +97,12 @@ const register: RequestHandler = async (req, res) => {
 const session: RequestHandler = async (req, res) => {
   try {
     const { user } = req.session;
-    if (!user) {
-      return res.status(401).send();
-    } else {
+    if (user) {
       return res.status(200).json(user);
+    } else {
+      return res.status(401).send();
     }
-  } catch (e: any) {
+  } catch {
     return res.status(401).send();
   }
 };

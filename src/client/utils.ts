@@ -10,7 +10,9 @@ import {
   GroupResult,
   GroupsStateGroups,
   ImgurUploadResult,
-  MultiGroup, Pattern, Patterns, PatternSquare,
+  MultiGroup,
+  Pattern,
+  PatternSquare,
   SingleGroup,
   Square,
   Squares
@@ -33,7 +35,7 @@ function shuffleArray(arr: Squares): Squares {
 }
 
 function chunkArray<T>(list: Array<T>, chunkSize = 5): Array<Array<T>> {
-  return [...Array(Math.ceil(list.length / chunkSize))].map(
+  return [...new Array(Math.ceil(list.length / chunkSize))].map(
     (_,i) => list.slice(i * chunkSize, i * chunkSize + chunkSize)
   );
 }
@@ -60,8 +62,7 @@ export function convertArgsToString(
   ].join(',');
 
   const excludeSingles = Group.SingleGroups
-    .map((g: SingleGroup) => groups[g]!.categories)
-    .flat()
+    .flatMap((g: SingleGroup) => groups[g]!.categories)
     .map((c: Category) => c.name)
     .filter((n) => !includes.includes(n));
 
@@ -70,8 +71,7 @@ export function convertArgsToString(
     ...Group.MultiGroups
       .filter((g: MultiGroup) => Object.keys(boardArgs).includes(g))
       .map((g: MultiGroup) => boardArgs[g])
-      .map((c: Array<Category>) => c.map(i => i.name))
-      .flat()
+      .flatMap((c: Array<Category>) => c.map(i => i.name))
   ].join(',');
 
   return [includes, excludes];
@@ -94,11 +94,6 @@ export async function fetchConfigValue(key: ConfigKey): Promise<string> {
 
 export async function fetchAllSquares(): Promise<Squares> {
   return await axios.get(`${API_PREFIX}/squares`)
-    .then((res) => res.data);
-}
-
-export async function fetchAllPatterns(): Promise<Patterns> {
-  return await axios.get(`${API_PREFIX}/patterns`)
     .then((res) => res.data);
 }
 

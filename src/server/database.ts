@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import dotenv from 'dotenv';
 import { ConnectionOptions, createPool } from 'mysql2';
 import { CamelCasePlugin, Kysely, MysqlDialect, MysqlPool } from 'kysely';

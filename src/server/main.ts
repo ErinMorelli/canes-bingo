@@ -46,6 +46,5 @@ app.use('/api/v1', apiRouter);
 
 const server = app.listen(port);
 
-ViteExpress.bind(app, server).then(() => {
-  console.info(`Server is listening on port ${port}`);
-});
+await ViteExpress.bind(app, server);
+console.info(`Server is listening on port ${port}`);

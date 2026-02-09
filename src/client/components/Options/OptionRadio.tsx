@@ -57,16 +57,16 @@ export default function OptionRadio({ groupName, hideMargin }: RadioOptionProps)
         buttonStyle="solid"
         optionType="button"
       >
-        {group.categories.map((cat) => !cat.description ? (
-          <Radio.Button value={cat.name} key={cat.id}>
-            {cat.label}
-          </Radio.Button>
-        ) : (
+        {group.categories.map((cat) => cat.description ? (
           <Tooltip title={cat.description} key={cat.id}>
             <Radio.Button value={cat.name} title={cat.description}>
               {cat.label}
             </Radio.Button>
           </Tooltip>
+        ) : (
+          <Radio.Button value={cat.name} key={cat.id}>
+            {cat.label}
+          </Radio.Button>
         ))}
       </Radio.Group>
     </Form.Item>

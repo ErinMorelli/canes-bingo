@@ -40,9 +40,8 @@ export default function OptionSelect({ groupName, hideMargin }: SelectOptionProp
   );
 
   const options = useMemo(
-    () => !group
-      ? []
-      : [...group.categories]
+    () => group
+      ? [...group.categories]
         .sort((a: Category, b: Category) => {
           if (a.label.toUpperCase() < b.label.toUpperCase()) {
             return -1;
@@ -55,7 +54,8 @@ export default function OptionSelect({ groupName, hideMargin }: SelectOptionProp
         .map((cat) => ({
           value: cat.name,
           label: cat.label
-        })),
+        }))
+      : [],
     [group]
   );
 
@@ -68,7 +68,7 @@ export default function OptionSelect({ groupName, hideMargin }: SelectOptionProp
     dispatch(updateBoardArg({ groupName, value: newGroups }));
   }, [dispatch, group?.categories, groupName]);
 
-  return !group ? null : (
+  return group ? (
     <Form.Item
       tooltip={group.description || undefined}
       style={hideMargin ? { marginBottom: 0 } : undefined}
@@ -89,5 +89,5 @@ export default function OptionSelect({ groupName, hideMargin }: SelectOptionProp
         placeholder="Click to select..."
       />
    </Form.Item>
-  )
+  ) : null;
 }

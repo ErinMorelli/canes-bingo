@@ -1,6 +1,6 @@
 #! /usr/bin/env node
 
-import path from 'path';
+import path from 'node:path';
 import dotenv from 'dotenv';
 import { createPool } from 'mysql2';
 import { Kysely, MysqlDialect } from 'kysely';
@@ -113,7 +113,11 @@ async function createAll() {
   }
 }
 
-createAll()
-  .then(() => console.log('Success!'))
-  .catch((err) => console.error('ERROR:', err))
-  .finally(() => process.exit());
+try {
+  await createAll();
+  console.log('Success!');
+} catch (err) {
+  console.error('ERROR:', err);
+} finally {
+  process.exit();
+}

@@ -104,7 +104,7 @@ export default function Dashboard() {
   return (
     <Box sx={{width: '100%'}}>
       <Title title="Quick Settings"/>
-      <div>&nbsp;</div>
+      <div>{' '}</div>
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, md: 4 }}>
           <ConfigCard

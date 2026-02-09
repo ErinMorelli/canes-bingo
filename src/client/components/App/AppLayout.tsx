@@ -17,8 +17,8 @@ const { Header, Content, Footer } = Layout
 const notificationKey = 'squaresError';
 
 type AppLayoutProps = {
-  themeClass?: string;
-  themeName: string;
+  readonly themeClass?: string;
+  readonly themeName: string;
 }
 
 export function AppLayout({ themeClass, themeName }: AppLayoutProps) {
@@ -141,7 +141,7 @@ export function AppLayout({ themeClass, themeName }: AppLayoutProps) {
             </div>
             <div className="bottom-message">
               <p>
-                Have an idea for a new square?&nbsp;
+                Have an idea for a new square?{' '}
                 <a
                   href="https://forms.gle/LS87Lr95QDixh9At5"
                   target="_blank"
@@ -151,7 +151,7 @@ export function AppLayout({ themeClass, themeName }: AppLayoutProps) {
                 </a>!
               </p>
               <p>
-                Not sure what a square means?&nbsp;
+                Not sure what a square means?{' '}
                 <Link to="/squares">Look up the meaning here</Link>!
               </p>
             </div>

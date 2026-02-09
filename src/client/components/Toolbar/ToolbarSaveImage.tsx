@@ -19,14 +19,14 @@ export function ToolbarSaveImage({ cardRef }: Readonly<SaveBoardImageProps>) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [imgurLink, setImgurLink] = useState<string|undefined>(undefined);
 
-  function imageError(message: string) {
+  const imageError = useCallback((message: string) => {
     void messageApi.open({
       type: 'error',
       content: <Text>{message}. Please try again later.</Text>
     });
-  }
+  }, [messageApi]);
 
-  function saveImage(blob: Blob | null) {
+  const saveImage = useCallback((blob: Blob | null) => {
     if (!blob) {
       setSaveLoading(false);
       imageError('Unable to save image');
@@ -42,30 +42,28 @@ export function ToolbarSaveImage({ cardRef }: Readonly<SaveBoardImageProps>) {
     link.href = objectUrl;
     link.download = fileName;
     link.click();
-
     setSaveLoading(false);
-
-    document.body.removeChild(link);
+    link.remove();
     setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
-  }
+  }, [imageError]);
 
-  function shareImage(blob: Blob | null) {
+  const shareImage = useCallback((blob: Blob | null) => {
     if (!blob) return;
 
     uploadImageToImgur(blob).then((result) => {
       setShareLoading(false);
-      if (result !== null) {
+      if (result === null) {
+        imageError('Unable to get image link');
+      } else {
         setImgurLink(result.data.link);
         setIsModalOpen(true);
-      } else {
-        imageError('Unable to get image link');
       }
     })
-  }
+  }, [imageError]);
 
-  async function takeScreenshot(
+  const takeScreenshot = async (
     cardRef: RefObject<HTMLDivElement>
-  ): Promise<HTMLCanvasElement | null> {
+  ): Promise<HTMLCanvasElement | null> => {
     if (!cardRef.current) return null;
 
     const card = document.createElement('div');
@@ -88,38 +86,38 @@ export function ToolbarSaveImage({ cardRef }: Readonly<SaveBoardImageProps>) {
 
     return await html2canvas(card, { logging: false })
       .then((canvas) => {
-        app.removeChild(card);
+        card.remove();
         return canvas;
       }).catch((err) => {
-        app.removeChild(card);
+        card.remove();
         console.error(err);
         return null;
       });
-  }
+  };
 
   const handleSaveImage = useCallback(() => {
     setSaveLoading(true);
     takeScreenshot(cardRef).then((canvas) => {
-      if (canvas !== null) {
-        canvas.toBlob(saveImage, 'image/png');
-      } else {
+      if (canvas === null) {
         imageError('Unable to save image');
         setSaveLoading(false);
+      } else {
+        canvas.toBlob(saveImage, 'image/png');
       }
     });
-  }, [cardRef]);
+  }, [cardRef, imageError, saveImage]);
 
   const handleShareImage = useCallback(() => {
     setShareLoading(true);
     takeScreenshot(cardRef).then((canvas) => {
-      if (canvas !== null) {
-        canvas.toBlob(shareImage, 'image/png');
-      } else {
+      if (canvas === null) {
         imageError('Unable to get image link');
         setShareLoading(false);
+      } else {
+        canvas.toBlob(shareImage, 'image/png');
       }
     });
-  }, [cardRef]);
+  }, [cardRef, imageError, shareImage]);
 
   return (
     <>

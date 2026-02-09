@@ -113,7 +113,7 @@ export async function addSquare(square: NewSquare, categories: Array<number>) {
       .insertInto('squares')
       .values(square)
       .executeTakeFirstOrThrow();
-    const squareId = Number(result.insertId!);
+    const squareId = Number(result.insertId);
     if (categories.length > 0) {
       await trx
         .insertInto('squareCategories')

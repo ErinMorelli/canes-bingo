@@ -20,7 +20,7 @@ export default function AppFooter() {
         Carolina Hurricanes and team logo are trademark of the <a
         href="https://www.nhl.com/hurricanes"
         target="_blank"
-        rel="noreferrer nofollow">Carolina Hurricanes Hockey Club</a>.<br/>&nbsp;<br />
+        rel="noreferrer nofollow">Carolina Hurricanes Hockey Club</a>.<br/>{' '}<br />
         The word mark and image of the Stanley Cup are registered trademarks of the <a
         href="https://www.nhl.com"
         target="_blank"
