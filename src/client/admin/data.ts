@@ -3,7 +3,7 @@ import { combineDataProviders, DataProvider } from 'react-admin';
 
 import { API_PREFIX as P, StorageKey } from '@app/constants.ts';
 import { getStorageValue } from '@app/utils.ts';
-import { Pattern, Patterns } from '@app/types.ts';
+import { Pattern } from '@app/types.ts';
 
 export function withAuth(): AxiosRequestConfig {
   const token: string = getStorageValue(StorageKey.Token) ?? '';
