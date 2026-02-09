@@ -26,7 +26,7 @@ const list: RequestHandler = async (req, res) => {
   try {
     Joi.assert(req.query, Joi.object({ group_id: Joi.string().pattern(/^\d+$/) }));
     const { group_id: groupId } = req.query;
-    const parsedId = typeof groupId === 'string' ? Number.parseInt(groupId) : undefined;
+    const parsedId = groupId ? Number.parseInt(groupId as string) : undefined;
     const result = await getCategories(parsedId);
     return res.status(200).json(result);
   } catch (e: any) {

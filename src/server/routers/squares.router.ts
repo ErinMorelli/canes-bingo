@@ -33,7 +33,7 @@ const updateSquareSchema = Joi.object({
 const squareListQuerySchema = Joi.object({
   exclude: Joi.string(),
   include: Joi.string(),
-  category_id: Joi.number(),
+  category_id: Joi.string().pattern(/^\d+$/),
 });
 
 const router = Router();
