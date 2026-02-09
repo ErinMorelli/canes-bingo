@@ -24,7 +24,9 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
 
     const [hasWon, setHasWon] = useState<boolean>(false);
 
-    useEffect(() => setHasWon(false), [isEnabled, selectedGame]);
+    useEffect(() => {
+      setHasWon(false);
+    }, [isEnabled, selectedGame, board]);
 
     useEffect(() => {
       if (!isEnabled || hasWon) return;
