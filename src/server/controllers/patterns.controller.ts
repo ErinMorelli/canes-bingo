@@ -31,12 +31,14 @@ export async function addPattern(newPattern: NewPattern) {
 }
 
 export async function updatePattern(patternId: number, updatedPattern: PatternUpdate) {
-  return await db
-    .updateTable('patterns')
-    .set(updatedPattern)
-    .where('patternId', '=', patternId)
-    .execute()
-    .then(() => getPattern(patternId));
+  return await db.transaction().execute(async (trx) => {
+    await trx
+      .updateTable('patterns')
+      .set(updatedPattern)
+      .where('patternId', '=', patternId)
+      .execute();
+    return await getPattern(patternId, trx);
+  });
 }
 
 export async function removePattern(patternId: number) {

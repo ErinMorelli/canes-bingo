@@ -27,8 +27,8 @@ export async function getGroups() {
     .execute();
 }
 
-export async function getGroup(groupId: number) {
-  return await db
+export async function getGroup(groupId: number, trx = db) {
+  return await trx
     .selectFrom('groups as g')
     .select([
       'g.groupId as id',
@@ -65,27 +65,33 @@ export async function getGroupByName(groupName: string) {
 }
 
 export async function updateGroup(groupId: number, group: GroupUpdate) {
-  return await db
-    .updateTable('groups')
-    .set(group)
-    .where('groupId', '=', groupId)
-    .execute()
-    .then(() => getGroup(groupId));
+  return await db.transaction().execute(async (trx) => {
+    await trx
+      .updateTable('groups')
+      .set(group)
+      .where('groupId', '=', groupId)
+      .execute();
+    return await getGroup(groupId, trx);
+  });
 }
 
 export async function addGroup(group: NewGroup) {
-  return await db
-    .insertInto('groups')
-    .values(group)
-    .executeTakeFirstOrThrow()
-    .then((result) => getGroup(Number(result.insertId)));
+  return await db.transaction().execute(async (trx) => {
+    const result = await trx.insertInto('groups')
+      .values(group)
+      .executeTakeFirstOrThrow();
+    const groupId = Number(result.insertId);
+    return await getGroup(groupId, trx);
+  });
 }
 
 export async function removeGroup(groupId: number) {
-  const group = await getGroup(groupId);
-  return await db
-    .deleteFrom('groups')
-    .where('groupId', '=', groupId)
-    .execute()
-    .then(() => group);
+  return await db.transaction().execute(async (trx) => {
+    const group = await getGroup(groupId, trx);
+    await trx
+      .deleteFrom('groups')
+      .where('groupId', '=', groupId)
+      .execute();
+    return group;
+  });
 }

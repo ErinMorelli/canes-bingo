@@ -42,20 +42,25 @@ export async function getCategory(categoryId: number, trx = db) {
 }
 
 export async function addCategory(category: NewCategory) {
-  return await db
-    .insertInto('categories')
-    .values(category)
-    .executeTakeFirstOrThrow()
-    .then((result) => getCategory(Number(result.insertId!)));
+  return await db.transaction().execute(async (trx) => {
+    const result = await trx
+      .insertInto('categories')
+      .values(category)
+      .executeTakeFirstOrThrow();
+    const categoryId = Number(result.insertId);
+    return await getCategory(categoryId, trx);
+  });
 }
 
 export async function updateCategory(categoryId: number, category: CategoryUpdate) {
-  return await db
-    .updateTable('categories')
-    .set(category)
-    .where('categoryId', '=', categoryId)
-    .execute()
-    .then(() => getCategory(categoryId));
+  return await db.transaction().execute(async (trx) => {
+    await trx
+      .updateTable('categories')
+      .set(category)
+      .where('categoryId', '=', categoryId)
+      .execute();
+    return await getCategory(categoryId, trx);
+  });
 }
 
 export async function removeCategory(categoryId: number) {

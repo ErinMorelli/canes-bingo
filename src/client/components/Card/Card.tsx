@@ -53,7 +53,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
         }, 500);
         return () => clearTimeout(timeout);
       }
-    }, [board, hasWon, isEnabled, validateGameBoard]);
+    }, [board, hasWon, isEnabled, theme, notify, validateGameBoard]);
 
     function handleClick(rowId: number, coldId: number) {
       selectSquare(rowId, coldId);

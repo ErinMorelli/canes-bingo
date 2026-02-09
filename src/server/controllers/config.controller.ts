@@ -8,8 +8,8 @@ export async function getConfig() {
     .execute();
 }
 
-export async function getConfigValue(id: number) {
-  return await db
+export async function getConfigValue(id: number, trx = db) {
+  return await trx
     .selectFrom('config')
     .selectAll()
     .where('id', '=', id)
@@ -25,27 +25,34 @@ export async function getConfigValueByKey(key: string) {
 }
 
 export async function updateConfig(id: number, config: ConfigUpdate) {
-  return await db
-    .updateTable('config')
-    .set(config)
-    .where('id', '=', id)
-    .execute()
-    .then(() => getConfigValue(id));
+  return await db.transaction().execute(async (trx) => {
+    await trx
+      .updateTable('config')
+      .set(config)
+      .where('id', '=', id)
+      .execute();
+    return await getConfigValue(id, trx);
+  });
 }
 
 export async function addConfig(config: NewConfig) {
-  return await db
-    .insertInto('config')
-    .values(config)
-    .executeTakeFirstOrThrow()
-    .then((result) => getConfigValue(Number(result.insertId!)));
+  return await db.transaction().execute(async (trx) => {
+    const result = await trx
+      .insertInto('config')
+      .values(config)
+      .executeTakeFirstOrThrow();
+    const configId = Number(result.insertId);
+    return await getConfigValue(configId, trx);
+  });
 }
 
 export async function removeConfig(id: number) {
-  const config = await getConfigValue(id);
-  return await db
-    .deleteFrom('config')
-    .where('id', '=', id)
-    .execute()
-    .then(() => config);
+  return await db.transaction().execute(async (trx) => {
+    const config = await getConfigValue(id, trx);
+    await trx
+      .deleteFrom('config')
+      .where('id', '=', id)
+      .execute();
+    return config;
+  });
 }
