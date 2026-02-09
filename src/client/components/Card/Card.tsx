@@ -55,11 +55,12 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
       }
     }, [board, hasWon, isEnabled, theme, notify, validateGameBoard]);
 
-    function handleClick(rowId: number, coldId: number) {
+    const handleClick = (rowId: number, coldId: number)=> {
       selectSquare(rowId, coldId);
     }
 
     const generateRow = (row: BoardSquare[], rowId: number) => {
+      if (!row) return [];
       return row.map((square, colId) => (
         <CardSquare
           key={`${rowId}-${colId}`}
@@ -74,13 +75,13 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
 
     return (
       <div className="bingo" ref={ref}>
-        {board.map((row, rowId) => (
+        {board.map((row, rowId) => row ? (
           <div
             className="row"
             id={`row-${rowId}`}
             key={`${row.length}-${rowId}`}
           >{generateRow(row, rowId)}</div>
-        ))}
+        ) : null)}
       </div>
     );
   }

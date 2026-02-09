@@ -5,7 +5,9 @@ import {
   selectBoard,
   updateSquare,
   updateBoardArgs,
-  selectDefaultArgs, selectBoardArgs, selectSelectedGame,
+  selectDefaultArgs,
+  selectBoardArgs,
+  selectSelectedGame,
 } from '@slices';
 
 import { Board, BoardArgs, Pattern } from '@app/types';
