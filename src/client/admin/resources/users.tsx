@@ -30,7 +30,7 @@ export const UserEdit = () => (
   <Edit>
     <SimpleForm>
       <TextInput disabled source="id" name="ID" />
-      <TextInput disabled source="username" name="username" />
+      <TextInput readOnly source="username" name="username" />
       <PasswordInput source="password" name="password" validate={required()} />
       <PasswordInput
         source="confirm_password"

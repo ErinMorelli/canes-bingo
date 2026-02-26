@@ -76,7 +76,7 @@ export function ConfigCard({
     dataProvider
       .update(Resource, {
         id: ConfigId[configKey],
-        data: { value },
+        data: { key: configKey, value },
         previousData,
       })
       .then(() => setLoading(false))

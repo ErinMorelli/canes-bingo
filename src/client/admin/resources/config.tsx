@@ -27,9 +27,14 @@ export const ConfigList = () => (
 );
 
 export const ConfigEdit = () => (
-  <Edit>
+  <Edit
+    transform={(data: { key: string, value: string }) => ({
+      value: data.value,
+      key: camelCase(data.key),
+    })}
+  >
     <SimpleForm>
-      <TextInput name="key" source="key" disabled fullWidth />
+      <TextInput readOnly name="key" source="key" fullWidth />
       <TextInput name="value" source="value" validate={required()} fullWidth />
     </SimpleForm>
   </Edit>
