@@ -41,6 +41,9 @@
     "use-debounce": "^10.0.3",
     "vite-express": "^0.14.1"
   },
+  "overrides": {
+    "lodash": "^4.18.1"
+  },
   "devDependencies": {
     "@mui/lab": "^5.0.0-alpha.165",
     "@mui/material": "^7.0.1",
@@ -61,7 +64,6 @@
     "@typescript-eslint/eslint-plugin": "^8.58.0",
     "@typescript-eslint/parser": "^8.58.0",
     "@vitejs/plugin-react": "^4.3.1",
-    "concurrently": "^8.2.2",
     "eslint": "^8.57.1",
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-refresh": "^0.4.12",
