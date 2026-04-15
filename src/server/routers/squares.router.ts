@@ -21,6 +21,7 @@ const newSquareSchema = Joi.object({
 });
 
 const updateSquareSchema = Joi.object({
+  squareId: Joi.number(),
   content: Joi.string().required(),
   description: Joi.string(),
   active: Joi.boolean(),
@@ -79,7 +80,7 @@ const put: RequestHandler = async (req, res) => {
     Joi.assert(req.body, updateSquareSchema);
 
     const { squareId } = req.params;
-    const { categories, ...updatedSquare} = req.body;
+    const { categories, ...updatedSquare } = req.body;
 
     const result = await updateSquare(
       Number.parseInt(squareId),
