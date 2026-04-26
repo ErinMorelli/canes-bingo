@@ -1,58 +1,48 @@
-import { db } from '../database.ts';
-import { ConfigUpdate, NewConfig } from '../types.ts';
+import { eq } from 'drizzle-orm';
+import createHttpError from 'http-errors';
+
+import { db } from '@server/database';
+import { handleDbError } from '@server/errors';
+import type { DbTransaction } from '@server/database';
+import { config } from '@server/schema';
+import type { NewConfig } from '@server/schema';
 
 export async function getConfig() {
-  return db
-    .selectFrom('config')
-    .selectAll()
-    .execute();
+  return db.select().from(config).execute();
 }
 
-export async function getConfigValue(id: number, trx = db) {
-  return await trx
-    .selectFrom('config')
-    .selectAll()
-    .where('id', '=', id)
-    .executeTakeFirstOrThrow();
+async function getConfigValue(id: number, trx: typeof db | DbTransaction = db) {
+  const [result] = await trx.select().from(config).where(eq(config.id, id)).limit(1);
+  if (!result) throw createHttpError(404, 'Config not found');
+  return result;
 }
 
-export async function getConfigValueByKey(key: string) {
-  return await db
-    .selectFrom('config')
-    .selectAll()
-    .where('key', '=', key)
-    .executeTakeFirstOrThrow();
+export async function getConfigValueByKey(key: string, trx: typeof db | DbTransaction = db) {
+  const [result] = await trx.select().from(config).where(eq(config.key, key)).limit(1);
+  if (!result) throw createHttpError(404, 'Config key not found');
+  return result;
 }
 
-export async function updateConfig(id: number, config: ConfigUpdate) {
-  return await db.transaction().execute(async (trx) => {
-    await trx
-      .updateTable('config')
-      .set(config)
-      .where('id', '=', id)
-      .execute();
-    return await getConfigValue(id, trx);
+export async function updateConfigByKey(key: string, data: Partial<NewConfig>) {
+  return await db.transaction(async (trx) => {
+    await trx.update(config).set(data).where(eq(config.key, key));
+    return await getConfigValueByKey(key, trx);
+  }).catch(handleDbError);
+}
+
+export async function removeConfigByKey(key: string) {
+  return await db.transaction(async (trx) => {
+    const row = await getConfigValueByKey(key, trx);
+    await trx.delete(config).where(eq(config.key, key));
+    return row;
   });
 }
 
-export async function addConfig(config: NewConfig) {
-  return await db.transaction().execute(async (trx) => {
-    const result = await trx
-      .insertInto('config')
-      .values(config)
-      .executeTakeFirstOrThrow();
-    const configId = Number(result.insertId);
+export async function addConfig(data: NewConfig) {
+  return await db.transaction(async (trx) => {
+    const result = await trx.insert(config).values(data);
+    const configId = Number(result[0].insertId);
     return await getConfigValue(configId, trx);
-  });
+  }).catch(handleDbError);
 }
 
-export async function removeConfig(id: number) {
-  return await db.transaction().execute(async (trx) => {
-    const config = await getConfigValue(id, trx);
-    await trx
-      .deleteFrom('config')
-      .where('id', '=', id)
-      .execute();
-    return config;
-  });
-}

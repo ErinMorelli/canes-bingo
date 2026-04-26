@@ -1,58 +1,52 @@
-import { useCallback } from 'react';
-import { useSelector } from 'react-redux';
+import { useEffect, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
-import { Game, Games } from '@app/types.ts';
-import { useAppDispatch } from '@app/store.ts';
-import {
-  fetchGames,
-  selectEnabled,
-  selectGame,
-  selectGames,
-  selectGamesLoaded,
-  selectSelectedGame,
-  toggleEnabled
-} from '@slices';
+import { Game, Games } from '@app/types';
+import { LOCAL_STORAGE_PREFIX } from '@app/constants';
+import { apiClient, getData } from '@app/api';
+import { Api } from '@app/api-endpoints';
 
-type UseGamesResult = {
-  games: Games;
-  selectedGame?: Game;
-  loadGames: () => void;
-  setSelectedGame: (game: Game) => void;
-  gamesLoaded: boolean;
-  isEnabled: boolean;
-  setIsEnabled: (enabled: boolean) => void;
-}
+import { useLocalStorage } from './useLocalStorage';
 
-export function useGames(): UseGamesResult {
-  const dispatch = useAppDispatch();
+const SELECTED_GAME_KEY = `${LOCAL_STORAGE_PREFIX}:selectedGame`;
+const ENABLED_KEY = `${LOCAL_STORAGE_PREFIX}:gamesEnabled`;
 
-  const games = useSelector(selectGames);
-  const gamesLoaded = useSelector(selectGamesLoaded);
-  const selectedGame = useSelector(selectSelectedGame);
-  const isEnabled = useSelector(selectEnabled) ?? false;
-
-  const loadGames = useCallback(
-    () => {
-      if (!gamesLoaded) dispatch(fetchGames());
+export function useGames() {
+  const { data: games = [], isLoading } = useQuery({
+    queryKey: ['games'],
+    queryFn: async () => {
+      const result = await apiClient.provide(Api.games.list, {});
+      return getData(result).items as Games;
     },
-    [dispatch, gamesLoaded]
+  });
+
+  const [selectedGameId, setSelectedGameId] = useLocalStorage<number | null>(
+    SELECTED_GAME_KEY,
+    null
   );
+  const [isEnabled, setIsEnabled] = useLocalStorage<boolean>(ENABLED_KEY, true);
 
-  const setSelectedGame = useCallback((game: Game) => {
-    dispatch(selectGame(game));
-  }, [dispatch]);
+  // Initialize to default game if nothing is persisted
+  useEffect(() => {
+    if (!isLoading && games.length && selectedGameId === null) {
+      const defaultGame = games.find((g) => g.isDefault);
+      if (defaultGame) setSelectedGameId(defaultGame.id);
+    }
+  }, [isLoading, games, selectedGameId, setSelectedGameId]);
 
-  const setIsEnabled = useCallback((enabled: boolean) => {
-    dispatch(toggleEnabled(enabled));
-  }, [dispatch]);
+  const selectedGame = useMemo<Game | undefined>(
+    () =>
+      games.find((g) => g.id === selectedGameId) ??
+      games.find((g) => g.isDefault),
+    [games, selectedGameId]
+  );
 
   return {
     games,
     selectedGame,
-    setSelectedGame,
-    loadGames,
-    gamesLoaded,
+    gamesLoaded: !isLoading,
     isEnabled,
     setIsEnabled,
+    setSelectedGame: (game: Game) => setSelectedGameId(game.id),
   };
 }

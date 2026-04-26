@@ -10,7 +10,8 @@ import { decode } from 'he';
 
 import { BoardSquare } from '@app/types';
 import { fetchConfigValue } from '@app/utils';
-import { ConfigKey } from '@app/constants.ts';
+import { ConfigKey } from '@app/constants';
+
 import { useConfig } from '@hooks';
 
 type SquareProps = {

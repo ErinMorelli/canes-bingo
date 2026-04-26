@@ -1,35 +1,47 @@
-import { ConfigKey, Group as G } from './constants.ts';
+import { z } from 'zod';
 import { ThemeConfig } from 'antd';
+
+import { categoryOutputSchema } from '@schema/category.schema';
+import { gameOutputSchema } from '@schema/game.schema';
+import { groupOutputSchema } from '@schema/group.schema';
+import { patternSquareSchema, patternOutputSchema } from '@schema/pattern.schema';
+import { squareOutputSchema } from '@schema/square.schema';
+
+import { Group as G } from './constants';
+
+// --- Derived from API output schemas ---
+
+export type PatternSquare = z.infer<typeof patternSquareSchema>;
+export type Pattern = z.infer<typeof patternOutputSchema>;
+export type Patterns = Array<Pattern>;
+
+export type Category = Omit<z.infer<typeof categoryOutputSchema>, 'groupId'>;
+
+export type Square = Omit<z.infer<typeof squareOutputSchema>, 'categories'>;
+export type Squares = Array<Square>;
+
+export type Game = z.infer<typeof gameOutputSchema>;
+export type Games = Array<Game>;
+
+export type GroupResult = Required<z.infer<typeof groupOutputSchema>>;
+
+// --- Client-only types ---
 
 export type SingleGroup = typeof G.SingleGroups[number];
 export type MultiGroup = typeof G.MultiGroups[number];
-
-export type Group = SingleGroup | MultiGroup
+export type Group = SingleGroup | MultiGroup;
 export type GroupValue<T> = T extends SingleGroup ? Category : Array<Category>;
 
 export type BaseBoardArgs<T extends Group> = Record<T, GroupValue<T>>;
 export type BoardArgs = BaseBoardArgs<SingleGroup> & BaseBoardArgs<MultiGroup>;
 
 export type BaseUpdateBoardArg<G extends Group> = {
-  groupName: G,
+  groupName: G;
   value: BoardArgs[G];
 };
 export type UpdateBoardArg =
   | BaseUpdateBoardArg<SingleGroup>
   | BaseUpdateBoardArg<MultiGroup>;
-
-export type Square = {
-  id: number;
-  value: string;
-  description?: string;
-  active: boolean;
-};
-export type Squares = Array<Square>;
-
-export type SquaresState = {
-  squares: Squares;
-  squaresLoaded: boolean;
-}
 
 export type BoardSquare = {
   selected: boolean;
@@ -37,38 +49,8 @@ export type BoardSquare = {
 };
 export type Board = Array<Array<BoardSquare>>;
 
-export type UpdateSquareArgs = {
-  col: number;
-  row: number;
-  value: BoardSquare;
-};
-
-export type Category = {
-  id: number;
-  name: string;
-  label: string;
-  description?: string;
-  isDefault: boolean;
-};
-
-export type GroupResult = Omit<Category, 'name' | 'isDefault'> & {
-  description?: string;
-  categories: Array<Category>;
-};
-
-export type FetchGroupResult = {
-  group: GroupResult;
-  groupName: string;
-};
-
 export type GroupsStateGroups = {
   [value in Group]?: GroupResult;
-};
-
-export type GroupsState = {
-  groups: GroupsStateGroups;
-  defaultArgs: BoardArgs;
-  loaded: boolean;
 };
 
 export type ImgurUploadResult = {
@@ -86,46 +68,9 @@ export type ImgurUploadResult = {
   };
 };
 
-export type ConfigState = Record<ConfigKey, string>;
-
-export type ConfigResult = {
-  id?: number;
-  key: ConfigKey
-  value: string;
-};
-
 export type Theme = {
   config: ThemeConfig;
   label: string;
   customClass?: string;
 };
 
-export type PatternSquare = {
-  col: number;
-  row: number;
-};
-
-export type Pattern = {
-  id: number;
-  name: string;
-  squares: Array<PatternSquare>;
-};
-
-export type Patterns = Array<Pattern>;
-
-export type Game = {
-  id: number;
-  name: string;
-  description?: string;
-  isDefault: boolean;
-  patterns: Patterns;
-}
-
-export type Games = Array<Game>;
-
-export type GameState = {
-  games: Games;
-  gamesLoaded: boolean;
-  selectedGame?: Game;
-  enabled?: boolean;
-};

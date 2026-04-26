@@ -21,11 +21,11 @@ import { useDebounce } from 'use-debounce';
 
 import { useConfig } from '@hooks';
 
-import { ConfigKey } from '@app/constants.ts';
-import { Square } from '@app/types.ts';
-import { fetchAllSquares, fetchConfigValue } from '@app/utils.ts';
+import { ConfigKey } from '@app/constants';
+import { Square } from '@app/types';
+import { fetchAllSquares, fetchConfigValue } from '@app/utils';
 
-import AppFooter from '../App/AppFooter.tsx';
+import AppFooter from '@components/App/AppFooter';
 
 const { Header, Content, Footer } = Layout;
 

@@ -2,15 +2,13 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Layout, notification, Space, Spin, Typography } from 'antd';
 
-import { useGameBoard, useGroups, useSquares } from '@hooks';
+import { useConfig, useGameBoard, useGroups } from '@hooks';
 
-import { Card } from '../Card';
-import { Toolbar } from '../Toolbar';
+import { Card } from '@components/Card';
+import { Toolbar } from '@components/Toolbar';
 
-import AppFooter from './AppFooter.tsx';
-import { fetchConfigValue } from '@app/utils.ts';
-import { ConfigKey } from '@app/constants.ts';
-import { AppLights } from '@app/components/App/AppLights.tsx';
+import AppFooter from './AppFooter';
+import { AppLights } from './AppLights';
 
 const { Header, Content, Footer } = Layout
 
@@ -27,9 +25,9 @@ export function AppLayout({ themeClass, themeName }: AppLayoutProps) {
     maxCount: 1,
   });
 
-  const { groupsLoaded, loadGroups } = useGroups();
-  const { boardReady, loadBoard } = useGameBoard();
-  const { squaresError } = useSquares();
+  const { isLoading: groupsLoading } = useGroups();
+  const { boardReady, squaresError } = useGameBoard();
+  const { headerText, customClass: serverCustomClass, festiveLights } = useConfig();
 
   const cardRef = useRef<HTMLDivElement>(null);
 
@@ -38,44 +36,19 @@ export function AppLayout({ themeClass, themeName }: AppLayoutProps) {
     [boardReady, squaresError]
   );
 
-  const [headerText, setHeaderText] = useState<string>();
   const [customClass, setCustomClass] = useState<string>();
   const [playoffWins, setPlayoffWins] = useState<number>();
-  const [lightsEnabled, setLightsEnabled] = useState(false);
 
   useEffect(() => {
-    fetchConfigValue(ConfigKey.HeaderText).then(setHeaderText);
-  }, []);
-
-  useEffect(() => {
-    fetchConfigValue(ConfigKey.CustomClass).then((customClass) => {
-      if (themeClass) {
-        setCustomClass(`${customClass} ${themeClass}`);
-      } else {
-        setCustomClass(customClass);
-      }
-      const parsed = /playoffs(\s(\d+)-wins?)?/.exec(customClass);
+    const combined = [serverCustomClass, themeClass].filter(Boolean).join(' ') || undefined;
+    setCustomClass(combined);
+    if (serverCustomClass) {
+      const parsed = /playoffs(\s(\d+)-wins?)?/.exec(serverCustomClass);
       if (parsed) {
         setPlayoffWins(Number.parseInt(parsed[2] || '0'));
       }
-    });
-  }, [themeClass]);
-
-  useEffect(() => {
-    fetchConfigValue(ConfigKey.FestiveLights).then((val) => {
-      if (val?.toLowerCase().trim() === 'on') {
-        setLightsEnabled(true);
-      } else {
-        setLightsEnabled(false);
-      }
-    })
-  }, []);
-
-  useEffect(() => loadGroups());
-
-  useEffect(() => {
-    if (groupsLoaded) loadBoard();
-  }, [groupsLoaded, loadBoard]);
+    }
+  }, [serverCustomClass, themeClass]);
 
   useEffect(() => {
     if (squaresError) {
@@ -105,7 +78,7 @@ export function AppLayout({ themeClass, themeName }: AppLayoutProps) {
     <Space orientation="vertical" style={{ width: '100%' }} className={customClass}>
       {contextHolder}
       <Layout className={`app app-${themeName}`}>
-        {lightsEnabled && <AppLights />}
+        {festiveLights && <AppLights />}
         <Header>
           <h1>{headerText}</h1>
         </Header>
@@ -129,7 +102,7 @@ export function AppLayout({ themeClass, themeName }: AppLayoutProps) {
             )}
             <Toolbar cardRef={cardRef} customClass={customClass} />
             <div className="board-wrapper">
-              <Spin size="large" spinning={!isBoardReady}>
+              <Spin size="large" spinning={groupsLoading || !isBoardReady}>
                 {boardReady && (
                   <Card
                     ref={cardRef}

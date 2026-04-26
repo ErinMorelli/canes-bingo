@@ -1,79 +1,56 @@
-import { sql } from 'kysely';
+import { eq, sql } from 'drizzle-orm';
+import createHttpError from 'http-errors';
 
-import { db } from '../database.ts';
-import { CategoryUpdate, NewCategory } from '../types.ts';
+import { db } from '@server/database';
+import { handleDbError } from '@server/errors';
+import type { DbTransaction } from '@server/database';
+import { categories, squareCategories } from '@server/schema';
+import type { NewCategory } from '@server/schema';
+
+const categorySelect = {
+  id: categories.categoryId,
+  name: categories.name,
+  label: categories.label,
+  description: categories.description,
+  isDefault: sql<boolean>`if(${categories.isDefault} = true, cast(true as json), cast(false as json))`,
+  groupId: categories.groupId,
+};
 
 export async function getCategories(groupId?: number) {
-  let query = db
-    .selectFrom('categories as c')
-    .select([
-      'c.categoryId as id',
-      'c.name as name',
-      'c.label as label',
-      'c.description as description',
-      sql<boolean>`
-        if(c.is_default = true, cast(true as json), cast(false as json))
-      `.as('isDefault'),
-      `c.groupId as groupId`,
-    ]);
-
-  if (groupId) {
-    query = query.where('c.groupId', '=', groupId);
-  }
-
-  return await query.execute();
+  const query = db.select(categorySelect).from(categories);
+  return groupId ? query.where(eq(categories.groupId, groupId)) : query;
 }
 
-export async function getCategory(categoryId: number, trx = db) {
-  return await trx
-    .selectFrom('categories as c')
-    .select([
-      'c.categoryId as id',
-      'c.name as name',
-      'c.label as label',
-      'c.description as description',
-      sql<boolean>`
-        if(c.is_default = true, cast(true as json), cast(false as json))
-      `.as('isDefault'),
-      `c.groupId as groupId`,
-    ])
-    .where('c.categoryId', '=', categoryId)
-    .executeTakeFirstOrThrow();
+export async function getCategory(categoryId: number, trx: typeof db | DbTransaction = db) {
+  const [result] = await trx
+    .select(categorySelect)
+    .from(categories)
+    .where(eq(categories.categoryId, categoryId))
+    .limit(1);
+  if (!result) throw createHttpError(404, 'Category not found');
+  return result;
 }
 
 export async function addCategory(category: NewCategory) {
-  return await db.transaction().execute(async (trx) => {
-    const result = await trx
-      .insertInto('categories')
-      .values(category)
-      .executeTakeFirstOrThrow();
-    const categoryId = Number(result.insertId);
+  return await db.transaction(async (trx) => {
+    const result = await trx.insert(categories).values(category);
+    const categoryId = Number(result[0].insertId);
     return await getCategory(categoryId, trx);
-  });
+  }).catch(handleDbError);
 }
 
-export async function updateCategory(categoryId: number, category: CategoryUpdate) {
-  return await db.transaction().execute(async (trx) => {
-    await trx
-      .updateTable('categories')
-      .set(category)
-      .where('categoryId', '=', categoryId)
-      .execute();
+export async function updateCategory(categoryId: number, category: Partial<NewCategory>) {
+  return await db.transaction(async (trx) => {
+    await trx.update(categories).set(category).where(eq(categories.categoryId, categoryId));
     return await getCategory(categoryId, trx);
-  });
+  }).catch(handleDbError);
 }
 
 export async function removeCategory(categoryId: number) {
-  return await db.transaction().execute(async (trx) => {
+  return await db.transaction(async (trx) => {
     const category = await getCategory(categoryId, trx);
-    await trx
-      .deleteFrom('squareCategories')
-      .where('categoryId', '=', categoryId)
-      .execute();
-    await trx
-      .deleteFrom('categories')
-      .where('categoryId', '=', categoryId)
-      .execute();
+    await trx.delete(squareCategories).where(eq(squareCategories.categoryId, categoryId));
+    await trx.delete(categories).where(eq(categories.categoryId, categoryId));
     return category;
   });
 }

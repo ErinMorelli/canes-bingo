@@ -1,5 +1,4 @@
 import { RefObject, useCallback, useState } from 'react';
-import { useSelector } from 'react-redux';
 import { ReloadOutlined, ToolFilled } from '@ant-design/icons';
 import {
   Button,
@@ -11,13 +10,14 @@ import {
   Spin,
 } from 'antd';
 
-import { selectBoardArgs } from '@slices';
-import { StorageKey } from '@app/constants.ts';
 import { useGameBoard, useGroups } from '@hooks';
-import { initStorageValue, setStorageValue } from '@app/utils.ts';
 
-import { Options } from '../Options';
-import { ToolbarSaveImage } from './ToolbarSaveImage.tsx';
+import { StorageKey } from '@app/constants';
+import { initStorageValue, setStorageValue } from '@app/utils';
+
+import { Options } from '@components/Options';
+
+import { ToolbarSaveImage } from './ToolbarSaveImage';
 
 type ToolbarProps = {
   cardRef: RefObject<HTMLDivElement>;
@@ -29,9 +29,7 @@ export function Toolbar({
   customClass = '',
 }: Readonly<ToolbarProps>) {
   const { loadBoard, generateBoard, squaresError } = useGameBoard();
-  const { groupsLoaded } = useGroups();
-
-  const boardArgs = useSelector(selectBoardArgs);
+  const { isLoading: groupsLoading } = useGroups();
 
   const getTourSeen = initStorageValue<boolean>(
     StorageKey.TourSeen,
@@ -58,11 +56,7 @@ export function Toolbar({
     setStorageValue(StorageKey.TourSeen, true);
   }, [setTourSeen]);
 
-  const handleReload = useCallback(
-    () => generateBoard(boardArgs),
-    [boardArgs, generateBoard]
-  );
-
+  const handleReload = useCallback(() => generateBoard(), [generateBoard]);
   const handleReset = useCallback(() => loadBoard(true), [loadBoard]);
 
   return (
@@ -130,8 +124,8 @@ export function Toolbar({
           </Popover>
         }
       >
-        <Spin size="large" spinning={!groupsLoaded}>
-          {groupsLoaded && <Options />}
+        <Spin size="large" spinning={groupsLoading}>
+          {!groupsLoading && <Options />}
         </Spin>
       </Drawer>
     </div>

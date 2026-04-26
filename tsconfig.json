@@ -25,9 +25,14 @@
     "paths": {
       "@app/*": ["./src/client/*"],
       "@hooks": ["./src/client/hooks"],
-      "@slices": ["./src/client/slices"],
+      "@hooks/*": ["./src/client/hooks/*"],
       "@components": ["./src/client/components"],
-      "@admin": ["./src/client/admin"]
+      "@components/*": ["./src/client/components/*"],
+      "@admin": ["./src/client/admin"],
+      "@admin/*": ["./src/client/admin/*"],
+      "@context/*": ["./src/client/context/*"],
+      "@schema/*": ["./src/schema/*"],
+      "@server/*": ["./src/server/*"]
     }
   },
   "include": ["src"]

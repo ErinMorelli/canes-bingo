@@ -1,9 +1,10 @@
 import { RefObject, useCallback, useState } from 'react';
 import { LinkOutlined, SaveFilled } from '@ant-design/icons';
 import { Button, message, Modal, Tooltip, Typography } from 'antd';
+
 import html2canvas from 'html2canvas';
 
-import { uploadImageToImgur } from '@app/utils.ts';
+import { uploadImageToImgur } from '@app/utils';
 
 const { Link, Paragraph, Text } = Typography;
 

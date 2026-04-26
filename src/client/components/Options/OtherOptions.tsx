@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { Flex, Form, Select, Switch, Typography } from 'antd';
 
-import { themes } from '@app/themes.ts';
+import { themes } from '@app/themes';
 
 import { useConfig } from '@hooks';
 

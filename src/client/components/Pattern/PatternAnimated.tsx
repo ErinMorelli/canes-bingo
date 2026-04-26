@@ -1,7 +1,8 @@
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+
 import { Patterns } from '@app/types.ts';
 
-import { Pattern } from '../Pattern';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Pattern } from '@components/Pattern';
 
 const DEFAULT_SPEED = 350;
 

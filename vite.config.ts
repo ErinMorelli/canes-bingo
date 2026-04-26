@@ -9,16 +9,16 @@ export default defineConfig({
     alias: {
       '@app': path.resolve(__dirname, './src/client'),
       '@hooks': path.resolve(__dirname, './src/client/hooks'),
-      '@slices': path.resolve(__dirname, './src/client/slices'),
       '@components': path.resolve(__dirname, './src/client/components'),
       '@admin': path.resolve(__dirname, './src/client/admin'),
+      '@context': path.resolve(__dirname, './src/client/context'),
+      '@schema': path.resolve(__dirname, './src/schema'),
     },
   },
   plugins: [react()],
   server: {
     allowedHosts: [
       'localhost',
-      'test-chamber-003.local'
     ]
   }
 });

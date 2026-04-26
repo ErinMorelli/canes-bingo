@@ -1,183 +1,114 @@
-import { sql } from 'kysely';
+import { and, eq, inArray, or, sql } from 'drizzle-orm';
+import createHttpError from 'http-errors';
 
-import { db } from '../database.ts';
-import { NewSquare, SquareUpdate } from '../types.ts';
+import { db } from '@server/database';
+import { handleDbError } from '@server/errors';
+import type { DbTransaction } from '@server/database';
+import { categories, squareCategories, squares } from '@server/schema';
+import type { NewSquare, NewSquareCategory } from '@server/schema';
+
+function squaresBaseQuery(by: 'id' | 'name', trx: typeof db | DbTransaction = db) {
+  const catColumn = by === 'id' ? categories.categoryId : categories.name;
+  const cats = trx.$with('cats').as(
+    trx
+      .select({ squareId: squareCategories.squareId, cat: catColumn })
+      .from(categories)
+      .leftJoin(squareCategories, eq(squareCategories.categoryId, categories.categoryId)),
+  );
+  return trx
+    .with(cats)
+    .select({
+      id: squares.squareId,
+      value: squares.content,
+      description: squares.description,
+      active: sql<boolean>`if(${squares.active} = true, cast(true as json), cast(false as json))`.as('active'),
+      categories: sql<string | null>`group_concat(${cats.cat})`.as('categories'),
+    })
+    .from(squares)
+    .leftJoin(cats, eq(cats.squareId, squares.squareId))
+    .groupBy(squares.squareId);
+}
 
 export async function getSquares(
-  include?: Array<string>,
-  exclude?: Array<string>,
+  include?: string[],
+  exclude?: string[],
   categoryId?: number,
 ) {
   if (!include && !exclude) {
-    let query = db
-      .with('cats', (_db) => _db
-        .selectFrom('categories as c')
-        .leftJoin('squareCategories as sc', 'sc.categoryId', 'c.categoryId')
-        .select(['sc.squareId', 'c.categoryId'])
-      )
-      .selectFrom('squares as s')
-      .leftJoin('cats', 'cats.squareId', 's.squareId')
-      .select([
-        's.squareId as id',
-        's.content as value',
-        's.description as description',
-        sql<boolean>`
-         if(s.active = true, cast(true as json), cast(false as json))
-        `.as('active'),
-        ({ fn }) => fn
-          .agg('group_concat', ['cats.categoryId'])
-          .as('categories')
-      ])
-      .groupBy('s.squareId');
-
+    const query = squaresBaseQuery('id');
     if (categoryId) {
-      query = query.where('cats.categoryId', '=', categoryId);
+      return query.where(sql`cats.cat = ${categoryId}`).execute();
     }
-
-    return await query.execute();
+    return query.execute();
   }
 
-  const baseQuery = db
-    .with('cats', (_db) => _db
-      .selectFrom('categories as c')
-      .leftJoin('squareCategories as sc', 'sc.categoryId', 'c.categoryId')
-      .select(['sc.squareId', 'c.name'])
-    )
-    .selectFrom('squares as s')
-    .leftJoin('cats', 'cats.squareId', 's.squareId')
-    .select([
-      's.squareId as id',
-      's.content as value',
-      's.description as description',
-      sql<boolean>`
-         if(s.active = true, cast(true as json), cast(false as json))
-      `.as('active'),
-      ({ fn }) => fn
-        .agg('group_concat', ['cats.name'])
-        .as('categories')
-    ])
-    .groupBy('s.squareId');
+  const baseSubquery = squaresBaseQuery('name').as('a');
 
   const includeQuery = db
-    .selectFrom(baseQuery.as('a'))
-    .selectAll()
-    .where((eb) =>
-      eb.or(include!.map((i) =>
-        sql<boolean>`FIND_IN_SET(${i}, ${eb.ref('a.categories')})`
-      ))
-    );
+    .select()
+    .from(baseSubquery)
+    .where(or(...include!.map((i) => sql<boolean>`FIND_IN_SET(${i}, ${baseSubquery.categories})`)));
 
   if (exclude) {
-    const excludeQuery = db
-      .selectFrom(includeQuery.as('b'))
-      .selectAll()
-      .where((eb) =>
-        eb.and(exclude.map((e) =>
-          sql<boolean>`NOT FIND_IN_SET(${e}, ${eb.ref('b.categories')})`
-        ))
-      );
-    return await excludeQuery.execute();
+    const excludeSubquery = includeQuery.as('b');
+    return db
+      .select()
+      .from(excludeSubquery)
+      .where(and(...exclude.map((e) => sql<boolean>`NOT FIND_IN_SET(${e}, ${excludeSubquery.categories})`)))
+      .execute();
   }
 
-  return await includeQuery.execute();
+  return includeQuery.execute();
 }
 
-export async function getSquare(squareId: number, trx = db) {
-  return await trx
-    .with('cats', (_db) => _db
-      .selectFrom('categories as c')
-      .leftJoin('squareCategories as sc', 'sc.categoryId', 'c.categoryId')
-      .select(['sc.squareId', 'c.categoryId'])
-    )
-    .selectFrom('squares as s')
-    .leftJoin('cats', 'cats.squareId', 's.squareId')
-    .select([
-      's.squareId as id',
-      's.content as value',
-      's.description as description',
-      sql<boolean>`
-         if(s.active = true, cast(true as json), cast(false as json))
-      `.as('active'),
-      ({ fn }) => fn
-        .agg('group_concat', ['cats.categoryId'])
-        .as('categories')
-    ])
-    .where('s.squareId', '=', squareId)
-    .groupBy('s.squareId')
-    .executeTakeFirstOrThrow();
+export async function getSquare(squareId: number, trx: typeof db | DbTransaction = db) {
+  const [result] = await squaresBaseQuery('id', trx).where(eq(squares.squareId, squareId)).limit(1);
+  if (!result) throw createHttpError(404, 'Square not found');
+  return result;
 }
 
-export async function addSquare(square: NewSquare, categories: Array<number>) {
-  return await db.transaction().execute(async (trx) => {
-    const result = await trx
-      .insertInto('squares')
-      .values(square)
-      .executeTakeFirstOrThrow();
-    const squareId = Number(result.insertId);
-    if (categories.length > 0) {
-      await trx
-        .insertInto('squareCategories')
-        .values(categories.map((categoryId) => ({
-          categoryId,
-          squareId
-        })))
-        .execute();
+export async function addSquare(square: NewSquare, categoryIds: number[]) {
+  return await db.transaction(async (trx) => {
+    const result = await trx.insert(squares).values(square);
+    const squareId = Number(result[0].insertId);
+    if (categoryIds.length > 0) {
+      await trx.insert(squareCategories).values(
+        categoryIds.map((categoryId): NewSquareCategory => ({ categoryId, squareId })),
+      );
     }
     return await getSquare(squareId, trx);
-  });
+  }).catch(handleDbError);
 }
 
 export async function updateSquare(
   squareId: number,
-  square: SquareUpdate,
-  categories: {
-    added: Array<number>;
-    removed: Array<number>;
-  }
+  square: Partial<NewSquare>,
+  categoryUpdates: { added: number[]; removed: number[] },
 ) {
-  return await db.transaction().execute(async (trx) => {
-    await trx
-      .updateTable('squares')
-      .set({
-        content: square.content,
-        description: square.description,
-        active: square.active,
-      })
-      .where('squareId', '=', squareId)
-      .execute();
-    if (categories.added.length > 0) {
-      await trx
-        .insertInto('squareCategories')
-        .values(categories.added.map((categoryId) => ({
-          categoryId,
-          squareId
-        })))
-        .execute();
+  return await db.transaction(async (trx) => {
+    await trx.update(squares).set(square).where(eq(squares.squareId, squareId));
+    if (categoryUpdates.added.length > 0) {
+      await trx.insert(squareCategories).values(
+        categoryUpdates.added.map((categoryId): NewSquareCategory => ({ categoryId, squareId })),
+      );
     }
-    if (categories.removed.length > 0) {
-      await trx
-        .deleteFrom('squareCategories')
-        .where((eb) => eb.and([
-          eb('squareId', '=', squareId),
-          eb('categoryId', 'in', categories.removed)
-        ]))
-        .execute();
+    if (categoryUpdates.removed.length > 0) {
+      await trx.delete(squareCategories).where(
+        and(
+          eq(squareCategories.squareId, squareId),
+          inArray(squareCategories.categoryId, categoryUpdates.removed),
+        ),
+      );
     }
     return await getSquare(squareId, trx);
-  });
+  }).catch(handleDbError);
 }
 
 export async function removeSquare(squareId: number) {
-  return await db.transaction().execute(async (trx) => {
+  return await db.transaction(async (trx) => {
     const square = await getSquare(squareId, trx);
-    await trx
-      .deleteFrom('squareCategories')
-      .where('squareId', '=', squareId)
-      .execute();
-    await trx
-      .deleteFrom('squares')
-      .where('squareId', '=', squareId)
-      .execute();
+    await trx.delete(squareCategories).where(eq(squareCategories.squareId, squareId));
+    await trx.delete(squares).where(eq(squares.squareId, squareId));
     return square;
   });
 }

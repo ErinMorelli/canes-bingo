@@ -1,82 +1,49 @@
-import {
-  Admin,
-  AppBar,
-  AppBarProps,
-  defaultDarkTheme,
-  defaultLightTheme,
-  Layout,
-  LayoutProps,
-  LoadingIndicator,
-  Resource,
-  ToggleThemeButton
-} from 'react-admin';
-import { IconButton, Tooltip } from '@mui/material';
+import { Navigate, Route, Routes } from 'react-router-dom';
+import { App, ConfigProvider, theme } from 'antd';
+import { QueryClientProvider } from '@tanstack/react-query';
 
-import CategoriesIcon from '@mui/icons-material/DiscountRounded';
-import ConfigIcon from '@mui/icons-material/TuneRounded';
-import GamesIcon from '@mui/icons-material/ExtensionRounded';
-import GroupsIcon from '@mui/icons-material/FolderCopyRounded';
-import LinkIcon from '@mui/icons-material/Launch';
-import PatternsIcon from '@mui/icons-material/PatternRounded';
-import SquaresIcon from '@mui/icons-material/ViewCompactRounded';
-import UsersIcon from '@mui/icons-material/PeopleRounded';
+import { queryClient } from '@app/queryClient';
 
-import {
-  Dashboard,
-  categories,
-  config,
-  games,
-  groups,
-  patterns,
-  squares,
-  users,
-} from './resources'
-
-import authProvider from './auth.ts';
-import dataProvider from './data.ts';
-
-const TopBar = (props: AppBarProps) => (
-  <AppBar
-    {...props}
-    toolbar={(
-      <>
-        <ToggleThemeButton />
-        <LoadingIndicator />
-        <Tooltip title="Go to site" enterDelay={300}>
-          <IconButton color="inherit" href="/" target="_blank">
-            <LinkIcon />
-          </IconButton>
-        </Tooltip>
-      </>
-    )}
-  />
-);
-
-const AppLayout = (props: LayoutProps) => (
-  <Layout {...props} appBar={TopBar} appBarAlwaysOn />
-);
+import { AuthProvider } from './context/auth';
+import { ProtectedRoute } from './components/ProtectedRoute';
+import { AdminLayout } from './components/AdminLayout';
+import { LoginPage } from './components/LoginPage';
+import { SquaresPage } from './pages/SquaresPage';
+import { CategoriesPage } from './pages/CategoriesPage';
+import { GroupsPage } from './pages/GroupsPage';
+import { PatternsPage } from './pages/PatternsPage';
+import { GamesPage } from './pages/GamesPage';
+import { UsersPage } from './pages/UsersPage';
+import { ConfigPage } from './pages/ConfigPage';
 
 const AdminApp = () => (
-  <Admin
-    title="Admin | Carolina Hurricanes Bingo"
-    basename="/admin"
-    theme={defaultLightTheme}
-    darkTheme={defaultDarkTheme}
-    defaultTheme="dark"
-    dataProvider={dataProvider}
-    authProvider={authProvider}
-    layout={AppLayout}
-    dashboard={Dashboard}
-    requireAuth
-  >
-    <Resource name="squares" icon={SquaresIcon} {...squares} />
-    <Resource name="categories" icon={CategoriesIcon} {...categories} />
-    <Resource name="groups" icon={GroupsIcon} {...groups} />
-    <Resource name="patterns" icon={PatternsIcon} {...patterns} />
-    <Resource name="games" icon={GamesIcon} {...games} />
-    <Resource name="users" icon={UsersIcon} {...users} />
-    <Resource name="config" icon={ConfigIcon} {...config} />
-  </Admin>
+  <QueryClientProvider client={queryClient}>
+  <ConfigProvider theme={{ algorithm: theme.darkAlgorithm }}>
+    <App>
+      <AuthProvider>
+        <Routes>
+          <Route path="login" element={<LoginPage />} />
+          <Route
+            element={
+              <ProtectedRoute>
+                <AdminLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<Navigate to="config" replace />} />
+            <Route path="config"     element={<ConfigPage />} />
+            <Route path="squares"    element={<SquaresPage />} />
+            <Route path="categories" element={<CategoriesPage />} />
+            <Route path="groups"     element={<GroupsPage />} />
+            <Route path="patterns"   element={<PatternsPage />} />
+            <Route path="games"      element={<GamesPage />} />
+            <Route path="users"      element={<UsersPage />} />
+          </Route>
+        </Routes>
+      </AuthProvider>
+    </App>
+  </ConfigProvider>
+  </QueryClientProvider>
 );
 
 export default AdminApp;

@@ -1,1 +1,1 @@
-export { PatternInput, PatternField } from './Pattern.tsx';
+export { PatternInput, PatternField } from './Pattern';
