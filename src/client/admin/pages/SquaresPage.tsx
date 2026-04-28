@@ -12,7 +12,7 @@ const { Title } = Typography;
 
 function parseCategoryIds(raw: string | null): number[] {
   if (!raw) return [];
-  return raw.split(',').map((s) => parseInt(s.trim(), 10)).filter(Boolean);
+  return raw.split(',').map((s) => Number.parseInt(s.trim(), 10)).filter(Boolean);
 }
 
 export function SquaresPage() {

@@ -3,7 +3,7 @@ import { Spin } from 'antd';
 
 import { useAuth } from '@admin/context/auth';
 
-export function ProtectedRoute({ children }: { children: React.ReactNode }) {
+export function ProtectedRoute({ children }: Readonly<{ children: React.ReactNode }>) {
   const { user, loading } = useAuth();
 
   if (loading) {

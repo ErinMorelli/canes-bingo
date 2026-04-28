@@ -19,7 +19,7 @@ export class ErrorBoundary extends Component<Props, State> {
           title="Something went wrong"
           subTitle={this.state.error.message}
           extra={
-            <Button type="primary" onClick={() => window.location.reload()}>
+            <Button type="primary" onClick={() => globalThis.location.reload()}>
               Reload page
             </Button>
           }

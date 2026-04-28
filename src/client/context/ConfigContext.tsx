@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo } from 'react';
+import { createContext, useCallback, useContext, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
 import { Theme } from '@app/types';
@@ -25,7 +25,7 @@ type ConfigContextValue = {
 
 const ConfigContext = createContext<ConfigContextValue | null>(null);
 
-export function ConfigProvider({ children }: { children: React.ReactNode }) {
+export function ConfigProvider({ children }: Readonly<{ children: React.ReactNode }>) {
   const { data: configItems = [], isLoading } = useQuery({
     queryKey: ['config'],
     queryFn: async () => {
@@ -52,23 +52,31 @@ export function ConfigProvider({ children }: { children: React.ReactNode }) {
     return { ...themes[resolved], name: resolved };
   }, [localTheme, serverConfig]);
 
-  const showTooltips = localTooltips !== null ? localTooltips === 'true' : true;
+  const showTooltips = localTooltips === null ? true : localTooltips === 'true';
 
   const headerText = serverConfig[ConfigKey.HeaderText];
   const customClass = serverConfig[ConfigKey.CustomClass];
   const festiveLights =
     serverConfig[ConfigKey.FestiveLights]?.toLowerCase().trim() === 'on';
 
-  const value: ConfigContextValue = {
-    theme,
-    setTheme: setLocalTheme,
-    showTooltips,
-    setTooltips: (v: boolean) => setLocalTooltips(String(v)),
-    headerText,
-    customClass,
-    festiveLights,
-    isLoading,
-  };
+  const setTooltips = useCallback(
+    (v: boolean) => setLocalTooltips(String(v)),
+    [setLocalTooltips]
+  );
+
+  const value = useMemo<ConfigContextValue>(
+    () => ({
+      theme,
+      setTheme: setLocalTheme,
+      showTooltips,
+      setTooltips,
+      headerText,
+      customClass,
+      festiveLights,
+      isLoading,
+    }),
+    [theme, setLocalTheme, showTooltips, setTooltips, headerText, customClass, festiveLights, isLoading]
+  );
 
   return (
     <ConfigContext.Provider value={value}>

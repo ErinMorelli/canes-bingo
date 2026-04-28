@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button, Form, Input, Modal, Popconfirm, Select, Space, Switch, Table, Typography, message } from 'antd';
-import { EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { Button, Form, Input, Select, Switch, Table, Typography, message } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
 
 import { apiClient, getData } from '@app/api';
 import { Api } from '@app/api-endpoints';
 
+import { CrudModal, RowActions } from '@admin/elements';
 import { AdminCategory as Category, AdminGroup as Group } from '@admin/types';
 
 const { Title } = Typography;
@@ -62,12 +63,11 @@ export function CategoriesPage() {
       title: '',
       width: 100,
       render: (_: unknown, record: Category) => (
-        <Space>
-          <Button size="small" icon={<EditOutlined />} onClick={() => openEdit(record)} />
-          <Popconfirm title="Delete this category?" onConfirm={() => deleteMutation.mutate(record.id)}>
-            <Button size="small" danger icon={<DeleteOutlined />} />
-          </Popconfirm>
-        </Space>
+        <RowActions
+          onEdit={() => openEdit(record)}
+          onDelete={() => deleteMutation.mutate(record.id)}
+          deleteLabel="Delete this category?"
+        />
       ),
     },
   ];
@@ -79,13 +79,13 @@ export function CategoriesPage() {
         <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>New Category</Button>
       </div>
       <Table rowKey="id" columns={columns} dataSource={categories} loading={catsLoading} pagination={false} size="small" />
-      <Modal
-        title={editing ? 'Edit Category' : 'New Category'}
+      <CrudModal
+        entity="Category"
+        editing={!!editing}
         open={modalOpen}
+        isPending={saveMutation.isPending}
         onCancel={() => setModalOpen(false)}
         onOk={() => form.submit()}
-        confirmLoading={saveMutation.isPending}
-        destroyOnHidden
       >
         <Form form={form} layout="vertical" onFinish={(v) => saveMutation.mutate(v)}>
           <Form.Item name="name" label="Name" rules={[{ required: true }]}>
@@ -104,7 +104,7 @@ export function CategoriesPage() {
             <Switch />
           </Form.Item>
         </Form>
-      </Modal>
+      </CrudModal>
     </>
   );
 }

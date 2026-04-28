@@ -5,7 +5,7 @@ import { db } from '@server/database';
 import { handleDbError } from '@server/errors';
 import type { DbTransaction } from '@server/database';
 import { patternGames, patterns } from '@server/schema';
-import type { NewPattern, PatternSquares } from '@server/schema';
+import type { NewPattern } from '@server/schema';
 
 const patternSelect = {
   id: patterns.patternId,
@@ -24,7 +24,7 @@ export async function getPattern(patternId: number, trx: typeof db | DbTransacti
     .where(eq(patterns.patternId, patternId))
     .limit(1);
   if (!result) throw createHttpError(404, 'Pattern not found');
-  return result as typeof result & { squares: PatternSquares };
+  return result;
 }
 
 export async function addPattern(newPattern: NewPattern) {

@@ -4,12 +4,12 @@ import { z } from 'zod';
 export const numericIdSchema = z
   .string()
   .regex(/^\d+$/, 'Must be a numeric ID')
-  .transform(s => parseInt(s, 10));
+  .transform(s => Number.parseInt(s, 10));
 
 export const optionalNumericIdSchema = z
   .string()
   .regex(/^\d+$/, 'Must be a numeric ID')
-  .transform(s => parseInt(s, 10))
+  .transform(s => Number.parseInt(s, 10))
   .optional();
 
 export const regenerateSession = (req: Request) =>

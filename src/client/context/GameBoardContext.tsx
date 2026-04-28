@@ -32,7 +32,7 @@ type GameBoardContextValue = {
 
 const GameBoardContext = createContext<GameBoardContextValue | null>(null);
 
-export function GameBoardProvider({ children }: { children: React.ReactNode }) {
+export function GameBoardProvider({ children }: Readonly<{ children: React.ReactNode }>) {
   const { groups, defaultArgs, isLoading: groupsLoading } = useGroups();
   const { selectedGame } = useGames();
 
@@ -118,18 +118,21 @@ export function GameBoardProvider({ children }: { children: React.ReactNode }) {
     [squaresSuccess, squares]
   );
 
-  const value: GameBoardContextValue = {
-    board,
-    boardArgs,
-    boardReady,
-    squaresLoading,
-    squaresError,
-    loadBoard,
-    generateBoard,
-    selectSquare,
-    updateBoardArg,
-    validateGameBoard,
-  };
+  const value = useMemo<GameBoardContextValue>(
+    () => ({
+      board,
+      boardArgs,
+      boardReady,
+      squaresLoading,
+      squaresError,
+      loadBoard,
+      generateBoard,
+      selectSquare,
+      updateBoardArg,
+      validateGameBoard,
+    }),
+    [board, boardArgs, boardReady, squaresLoading, squaresError, loadBoard, generateBoard, selectSquare, updateBoardArg, validateGameBoard]
+  );
 
   return (
     <GameBoardContext.Provider value={value}>

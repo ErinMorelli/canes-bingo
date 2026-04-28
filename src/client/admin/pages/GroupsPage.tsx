@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button, Form, Input, Modal, Popconfirm, Space, Table, Typography, message } from 'antd';
-import { EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { Button, Form, Input, Table, Typography, message } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
 
 import { apiClient, getData } from '@app/api';
 import { Api } from '@app/api-endpoints';
 
+import { CrudModal, RowActions } from '@admin/elements';
 import { AdminGroup as Group } from '@admin/types';
 
 const { Title } = Typography;
@@ -54,12 +55,11 @@ export function GroupsPage() {
       title: '',
       width: 100,
       render: (_: unknown, record: Group) => (
-        <Space>
-          <Button size="small" icon={<EditOutlined />} onClick={() => openEdit(record)} />
-          <Popconfirm title="Delete this group?" onConfirm={() => deleteMutation.mutate(record.id)}>
-            <Button size="small" danger icon={<DeleteOutlined />} />
-          </Popconfirm>
-        </Space>
+        <RowActions
+          onEdit={() => openEdit(record)}
+          onDelete={() => deleteMutation.mutate(record.id)}
+          deleteLabel="Delete this group?"
+        />
       ),
     },
   ];
@@ -71,13 +71,13 @@ export function GroupsPage() {
         <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>New Group</Button>
       </div>
       <Table rowKey="id" columns={columns} dataSource={groups} loading={isLoading} pagination={false} size="small" />
-      <Modal
-        title={editing ? 'Edit Group' : 'New Group'}
+      <CrudModal
+        entity="Group"
+        editing={!!editing}
         open={modalOpen}
+        isPending={saveMutation.isPending}
         onCancel={() => setModalOpen(false)}
         onOk={() => form.submit()}
-        confirmLoading={saveMutation.isPending}
-        destroyOnHidden
       >
         <Form form={form} layout="vertical" onFinish={(v) => saveMutation.mutate(v)}>
           <Form.Item name="name" label="Name" rules={[{ required: true }]}>
@@ -90,7 +90,7 @@ export function GroupsPage() {
             <Input />
           </Form.Item>
         </Form>
-      </Modal>
+      </CrudModal>
     </>
   );
 }
