@@ -21,6 +21,7 @@ function squaresBaseQuery(by: 'id' | 'name', trx: typeof db | DbTransaction = db
       id: squares.squareId,
       value: squares.content,
       description: squares.description,
+      // MySQL2 returns TINYINT(1) booleans as 0/1; the IF/CAST normalises to JSON true/false.
       active: sql<boolean>`if(${squares.active} = true, cast(true as json), cast(false as json))`.as('active'),
       categories: sql<string | null>`group_concat(${cats.cat})`.as('categories'),
     })
@@ -121,5 +122,5 @@ export async function removeSquare(squareId: number) {
     const square = await getSquare(squareId, trx);
     await trx.delete(squares).where(eq(squares.squareId, squareId));
     return square;
-  });
+  }).catch(handleDbError);
 }
