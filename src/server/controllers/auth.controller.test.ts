@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import bcrypt from 'bcrypt';
+import createHttpError from 'http-errors';
 
 vi.mock('./users.controller.ts', () => ({
   getUserByUsername: vi.fn(),
@@ -41,16 +42,16 @@ describe('authenticateUser', () => {
   });
 
   it('returns null when the user does not exist', async () => {
-    mockGetUserByUsername.mockRejectedValue(new Error('User not found'));
+    mockGetUserByUsername.mockRejectedValue(createHttpError(404, 'User not found'));
 
     const result = await authenticateUser({ username: 'unknown', password: 'password' });
     expect(result).toBeNull();
   });
 
-  it('returns null when getUserByUsername throws unexpectedly', async () => {
+  it('rethrows when getUserByUsername throws unexpectedly', async () => {
     mockGetUserByUsername.mockRejectedValue(new Error('DB connection failed'));
 
-    const result = await authenticateUser({ username: 'alice', password: 'password' });
-    expect(result).toBeNull();
+    await expect(authenticateUser({ username: 'alice', password: 'password' }))
+      .rejects.toThrow('DB connection failed');
   });
 });
