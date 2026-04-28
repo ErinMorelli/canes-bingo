@@ -30,16 +30,16 @@ export function CategoriesPage() {
   const invalidate = () => qc.invalidateQueries({ queryKey: ['admin', 'categories'] });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: number) => apiClient.provide(Api.categories.delete, { categoryId: String(id) }),
+    mutationFn: async (id: number) => getData(await apiClient.provide(Api.categories.delete, { categoryId: String(id) })),
     onSuccess: () => { message.success('Deleted'); invalidate(); },
     onError: () => message.error('Delete failed'),
   });
 
   const saveMutation = useMutation({
-    mutationFn: (values: { name: string; label: string; description?: string; groupId?: number; isDefault?: boolean }) =>
+    mutationFn: async (values: { name: string; label: string; description?: string; groupId?: number; isDefault?: boolean }) =>
       editing
-        ? apiClient.provide(Api.categories.update, { categoryId: String(editing.id), ...values })
-        : apiClient.provide(Api.categories.create, values),
+        ? getData(await apiClient.provide(Api.categories.update, { categoryId: String(editing.id), ...values }))
+        : getData(await apiClient.provide(Api.categories.create, values)),
     onSuccess: () => {
       message.success(editing ? 'Updated' : 'Created');
       setModalOpen(false);

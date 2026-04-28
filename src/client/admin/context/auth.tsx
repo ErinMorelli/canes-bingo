@@ -31,8 +31,11 @@ export function AuthProvider({ children }: Readonly<{ children: React.ReactNode 
   }, []);
 
   const logout = useCallback(async () => {
-    await apiClient.provide(Api.auth.logout, {});
-    setUser(null);
+    try {
+      await apiClient.provide(Api.auth.logout, {});
+    } finally {
+      setUser(null);
+    }
   }, []);
 
   const value = useMemo(

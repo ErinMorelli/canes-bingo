@@ -3,13 +3,8 @@ import { HttpError } from 'http-errors';
 
 import { getUserByUsername } from './users.controller';
 
-const checkPassword = async (password: string, hash: string): Promise<boolean> =>
-  new Promise((resolve, reject) => {
-    bcrypt.compare(password, hash, (error, result) => {
-      if (error) reject(error);
-      resolve(result);
-    });
-  });
+const checkPassword = (password: string, hash: string): Promise<boolean> =>
+  bcrypt.compare(password, hash);
 
 export async function authenticateUser({ username, password }: { username: string; password: string }) {
   let user;
@@ -20,5 +15,6 @@ export async function authenticateUser({ username, password }: { username: strin
     throw e;
   }
   const isValid = await checkPassword(password, user.password);
-  return isValid ? user : null;
+  if (!isValid) return null;
+  return { userId: user.userId, username: user.username };
 }

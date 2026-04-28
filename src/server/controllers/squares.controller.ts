@@ -95,7 +95,9 @@ export async function updateSquare(
   categoryUpdates: { added: number[]; removed: number[] },
 ) {
   return await db.transaction(async (trx) => {
-    await trx.update(squares).set(square).where(eq(squares.squareId, squareId));
+    if (Object.keys(square).length > 0) {
+      await trx.update(squares).set(square).where(eq(squares.squareId, squareId));
+    }
     if (categoryUpdates.added.length > 0) {
       await trx.insert(squareCategories).values(
         categoryUpdates.added.map((categoryId): NewSquareCategory => ({ categoryId, squareId })),
@@ -116,7 +118,6 @@ export async function updateSquare(
 export async function removeSquare(squareId: number) {
   return await db.transaction(async (trx) => {
     const square = await getSquare(squareId, trx);
-    await trx.delete(squareCategories).where(eq(squareCategories.squareId, squareId));
     await trx.delete(squares).where(eq(squares.squareId, squareId));
     return square;
   });

@@ -25,16 +25,16 @@ export function GroupsPage() {
   const invalidate = () => qc.invalidateQueries({ queryKey: ['admin', 'groups'] });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: number) => apiClient.provide(Api.groups.delete, { groupId: String(id) }),
+    mutationFn: async (id: number) => getData(await apiClient.provide(Api.groups.delete, { groupId: String(id) })),
     onSuccess: () => { message.success('Deleted'); invalidate(); },
     onError: () => message.error('Delete failed'),
   });
 
   const saveMutation = useMutation({
-    mutationFn: (values: { name: string; label: string; description?: string }) =>
+    mutationFn: async (values: { name: string; label: string; description?: string }) =>
       editing
-        ? apiClient.provide(Api.groups.update, { groupId: String(editing.id), ...values })
-        : apiClient.provide(Api.groups.create, values),
+        ? getData(await apiClient.provide(Api.groups.update, { groupId: String(editing.id), ...values }))
+        : getData(await apiClient.provide(Api.groups.create, values)),
     onSuccess: () => {
       message.success(editing ? 'Updated' : 'Created');
       setModalOpen(false);

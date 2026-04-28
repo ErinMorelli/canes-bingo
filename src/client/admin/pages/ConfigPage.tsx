@@ -47,7 +47,7 @@ export function ConfigPage() {
       const changed = CONFIG_FIELDS.filter(({ key }) => values[key] !== original[key]);
       await Promise.all(
         changed.map(({ key }) =>
-          apiClient.provide(Api.config.update, { configId: key, key, value: values[key] ?? '' })
+          apiClient.provide(Api.config.update, { configId: key, key, value: values[key] ?? '' }).then(getData)
         )
       );
     },

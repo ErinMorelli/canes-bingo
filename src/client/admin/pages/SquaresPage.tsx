@@ -38,31 +38,31 @@ export function SquaresPage() {
   const invalidate = () => qc.invalidateQueries({ queryKey: ['admin', 'squares'] });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: number) => apiClient.provide(Api.squares.delete, { squareId: String(id) }),
+    mutationFn: async (id: number) => getData(await apiClient.provide(Api.squares.delete, { squareId: String(id) })),
     onSuccess: () => { message.success('Deleted'); invalidate(); },
     onError: () => message.error('Delete failed'),
   });
 
   const saveMutation = useMutation({
-    mutationFn: (values: { content: string; description?: string; active: boolean; categoryIds: number[] }) => {
+    mutationFn: async (values: { content: string; description?: string; active: boolean; categoryIds: number[] }) => {
       const cats = values.categoryIds ?? [];
       if (editing) {
         const added = cats.filter((id) => !originalCats.current.includes(id));
         const removed = originalCats.current.filter((id) => !cats.includes(id));
-        return apiClient.provide(Api.squares.update, {
+        return getData(await apiClient.provide(Api.squares.update, {
           squareId: String(editing.id),
           content: values.content,
           description: values.description,
           active: values.active,
           categories: { added, removed },
-        });
+        }));
       }
-      return apiClient.provide(Api.squares.create, {
+      return getData(await apiClient.provide(Api.squares.create, {
         content: values.content,
         description: values.description,
         active: values.active,
         categories: cats,
-      });
+      }));
     },
     onSuccess: () => {
       message.success(editing ? 'Updated' : 'Created');
@@ -117,7 +117,7 @@ export function SquaresPage() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <Title level={4} style={{ margin: 0 }}>Squares</Title>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <Button type="default" icon={<BulbOutlined />} href="https://emorel.li/bingo-suggestions" target="_blank">
+          <Button type="default" icon={<BulbOutlined />} href="https://emorel.li/bingo-suggestions" target="_blank" rel="noopener noreferrer">
             Suggestions
           </Button>
           <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>New Square</Button>
