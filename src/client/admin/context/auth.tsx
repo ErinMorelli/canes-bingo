@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
 import { apiClient, getData } from '@app/api';
 import { Api } from '@app/api-endpoints';
@@ -14,15 +14,17 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-export function AuthProvider({ children }: Readonly<{ children: React.ReactNode }>) {
+export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
     apiClient.provide(Api.auth.session, {})
-      .then((r) => { if (r.status === 'success') setUser(r.data); })
+      .then((r) => { if (mounted && r.status === 'success') setUser(r.data); })
       .catch((e) => { console.error('Session check failed:', e); })
-      .finally(() => setLoading(false));
+      .finally(() => { if (mounted) setLoading(false); });
+    return () => { mounted = false; };
   }, []);
 
   const login = useCallback(async (username: string, password: string) => {

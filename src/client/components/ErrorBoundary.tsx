@@ -15,6 +15,8 @@ export class ErrorBoundary extends Component<Props, State> {
     console.error(error, errorInfo);
   }
 
+  handleRetry = () => this.setState({ error: null });
+
   render() {
     if (this.state.error) {
       return (
@@ -22,11 +24,10 @@ export class ErrorBoundary extends Component<Props, State> {
           status="error"
           title="Something went wrong"
           subTitle="Please reload and try again."
-          extra={
-            <Button type="primary" onClick={() => globalThis.location.reload()}>
-              Reload page
-            </Button>
-          }
+          extra={[
+            <Button key="retry" onClick={this.handleRetry}>Try again</Button>,
+            <Button key="reload" type="primary" onClick={() => globalThis.location.reload()}>Reload page</Button>,
+          ]}
         />
       );
     }

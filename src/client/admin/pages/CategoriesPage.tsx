@@ -49,7 +49,17 @@ export function CategoriesPage() {
   });
 
   const openCreate = () => { setEditing(null); form.resetFields(); setModalOpen(true); };
-  const openEdit = (c: Category) => { setEditing(c); form.setFieldsValue(c); setModalOpen(true); };
+  const openEdit = (c: Category) => {
+    setEditing(c);
+    form.setFieldsValue({
+      name: c.name,
+      label: c.label,
+      description: c.description ?? undefined,
+      groupId: c.groupId ?? undefined,
+      isDefault: c.isDefault,
+    });
+    setModalOpen(true);
+  };
 
   const groupName = (id: number | null) => groups.find((g) => g.id === id)?.name ?? '—';
 

@@ -31,12 +31,15 @@ export function GroupsPage() {
   });
 
   const saveMutation = useMutation({
-    mutationFn: async (values: { name: string; label: string; description?: string }) =>
-      editing
-        ? getData(await apiClient.provide(Api.groups.update, { groupId: String(editing.id), ...values }))
-        : getData(await apiClient.provide(Api.groups.create, values)),
-    onSuccess: () => {
-      message.success(editing ? 'Updated' : 'Created');
+    mutationFn: async (values: { name: string; label: string; description?: string }) => {
+      const wasEditing = Boolean(editing);
+      const payload = wasEditing
+        ? getData(await apiClient.provide(Api.groups.update, { groupId: String(editing!.id), ...values }))
+        : getData(await apiClient.provide(Api.groups.create, values));
+      return { payload, wasEditing };
+    },
+    onSuccess: ({ wasEditing }) => {
+      message.success(wasEditing ? 'Updated' : 'Created');
       setModalOpen(false);
       invalidate();
     },
@@ -44,7 +47,15 @@ export function GroupsPage() {
   });
 
   const openCreate = () => { setEditing(null); form.resetFields(); setModalOpen(true); };
-  const openEdit = (g: Group) => { setEditing(g); form.setFieldsValue(g); setModalOpen(true); };
+  const openEdit = (g: Group) => {
+    setEditing(g);
+    form.setFieldsValue({
+      name: g.name,
+      label: g.label,
+      description: g.description ?? undefined,
+    });
+    setModalOpen(true);
+  };
 
   const columns = [
     { title: 'ID', dataIndex: 'id', width: 60 },

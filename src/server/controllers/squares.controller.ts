@@ -45,11 +45,12 @@ export async function getSquares(
   const baseSubquery = squaresBaseQuery('name').as('a');
 
   if (!include) {
-    // Only exclude provided: filter out excluded categories from all squares
+    // Only exclude provided: filter out excluded categories from all squares.
+    // COALESCE handles NULL from group_concat so uncategorized squares are kept.
     return db
       .select()
       .from(baseSubquery)
-      .where(and(...exclude!.map((e) => sql<boolean>`NOT FIND_IN_SET(${e}, ${baseSubquery.categories})`)))
+      .where(and(...exclude!.map((e) => sql<boolean>`NOT FIND_IN_SET(${e}, COALESCE(${baseSubquery.categories}, ''))`)))
       .execute();
   }
 

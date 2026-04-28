@@ -36,7 +36,7 @@ export function ConfigPage() {
   });
 
   useEffect(() => {
-    if (configItems.length) {
+    if (configItems.length && !form.isFieldsTouched()) {
       form.setFieldsValue(Object.fromEntries(configItems.map((i) => [i.key, i.value])));
     }
   }, [configItems, form]);
@@ -45,14 +45,17 @@ export function ConfigPage() {
     mutationFn: async (values: Record<string, string>) => {
       const original = Object.fromEntries(configItems.map((i) => [i.key, i.value]));
       const changed = CONFIG_FIELDS.filter(({ key }) => values[key] !== original[key]);
-      await Promise.all(
+      const results = await Promise.allSettled(
         changed.map(({ key }) =>
           apiClient.provide(Api.config.update, { configId: key, key, value: values[key] ?? '' }).then(getData)
         )
       );
+      const failed = results.filter((r): r is PromiseRejectedResult => r.status === 'rejected');
+      if (failed.length > 0) throw new Error(`${failed.length} config update(s) failed`);
     },
-    onSuccess: () => { message.success('Config saved'); qc.invalidateQueries({ queryKey: ['admin', 'config'] }); },
-    onError: () => message.error('Failed to save config'),
+    onSettled: () => qc.invalidateQueries({ queryKey: ['admin', 'config'] }),
+    onSuccess: () => message.success('Config saved'),
+    onError: (err) => message.error(err instanceof Error ? err.message : 'Failed to save config'),
   });
 
   if (isLoading) return <Spin />;
