@@ -59,6 +59,7 @@ export function GroupsPage() {
           onEdit={() => openEdit(record)}
           onDelete={() => deleteMutation.mutate(record.id)}
           deleteLabel="Delete this group?"
+          entityName={record.name}
         />
       ),
     },

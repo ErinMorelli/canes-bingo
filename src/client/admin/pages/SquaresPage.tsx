@@ -103,9 +103,9 @@ export function SquaresPage() {
       width: 100,
       render: (_: unknown, record: SquareWithCats) => (
         <Space>
-          <Button size="small" icon={<EditOutlined />} onClick={() => openEdit(record)} />
+          <Button size="small" icon={<EditOutlined />} onClick={() => openEdit(record)} aria-label={`Edit ${record.value}`} />
           <Popconfirm title="Delete this square?" onConfirm={() => deleteMutation.mutate(record.id)}>
-            <Button size="small" danger icon={<DeleteOutlined />} />
+            <Button size="small" danger icon={<DeleteOutlined />} aria-label={`Delete ${record.value}`} />
           </Popconfirm>
         </Space>
       ),

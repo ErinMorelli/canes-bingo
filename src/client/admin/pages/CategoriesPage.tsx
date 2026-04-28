@@ -67,6 +67,7 @@ export function CategoriesPage() {
           onEdit={() => openEdit(record)}
           onDelete={() => deleteMutation.mutate(record.id)}
           deleteLabel="Delete this category?"
+          entityName={record.name}
         />
       ),
     },

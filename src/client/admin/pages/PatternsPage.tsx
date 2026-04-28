@@ -66,9 +66,9 @@ export function PatternsPage() {
       width: 100,
       render: (_: unknown, record: Pattern) => (
         <Space>
-          <Button size="small" icon={<EditOutlined />} onClick={() => openEdit(record)} />
+          <Button size="small" icon={<EditOutlined />} onClick={() => openEdit(record)} aria-label={`Edit ${record.name}`} />
           <Popconfirm title="Delete this pattern?" onConfirm={() => deleteMutation.mutate(record.id)}>
-            <Button size="small" danger icon={<DeleteOutlined />} />
+            <Button size="small" danger icon={<DeleteOutlined />} aria-label={`Delete ${record.name}`} />
           </Popconfirm>
         </Space>
       ),

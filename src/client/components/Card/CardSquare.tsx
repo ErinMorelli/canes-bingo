@@ -49,6 +49,12 @@ export function CardSquare({ square, rowId, colId, customClass, onClick }: Reado
     [isFreeSpace, value.description]
   );
 
+  const squareAriaLabel = useMemo(() => {
+    const prefix = selected ? 'SELECTED ' : '';
+    if (isFreeSpace) return `${prefix}Free space`;
+    return `${prefix}${String(value.value)}`;
+  }, [isFreeSpace, selected, value.value]);
+
   const popoverClassNames = useMemo(() => {
     const classes = ['square-tooltip'];
     if (customClass) {
@@ -114,7 +120,7 @@ export function CardSquare({ square, rowId, colId, customClass, onClick }: Reado
       key={squareId}
       onClick={() => onClick(rowId, colId)}
       onKeyDown={handleKeyDown}
-      aria-label={`${selected ? 'SELECTED ' : ''} ${squareValue}`}
+      aria-label={squareAriaLabel}
       tabIndex={0}>
       {squareValue}
     </div>

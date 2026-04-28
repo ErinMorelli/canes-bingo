@@ -33,17 +33,24 @@ function PatternGrid({ selected, size, onSelect, onKey }: PatternGridProps) {
     <div className="table">
       {PATTERN_ROWS.map((row) => (
         <div className={`row row-${row}`} key={`row-${row}`}>
-          {PATTERN_COLUMNS.map((col) => (
-            <div
-              role="button"
-              tabIndex={0}
-              key={`square-${row}-${col}`}
-              className={squareClasses(row, col)}
-              style={style}
-              onKeyDown={(e) => onKey?.(e, row, col)}
-              onClick={() => onSelect?.(row, col)}
-            />
-          ))}
+          {PATTERN_COLUMNS.map((col) => {
+            const interactive = !!(onSelect || onKey);
+            const isSelected = selected.some((s) => s.row === row && s.col === col);
+            return (
+              <div
+                key={`square-${row}-${col}`}
+                className={squareClasses(row, col)}
+                style={style}
+                {...(interactive ? {
+                  role: 'button' as const,
+                  tabIndex: 0,
+                  'aria-pressed': isSelected,
+                  onKeyDown: (e: KeyboardEvent) => onKey?.(e, row, col),
+                  onClick: () => onSelect?.(row, col),
+                } : {})}
+              />
+            );
+          })}
         </div>
       ))}
     </div>

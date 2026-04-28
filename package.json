@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "nodemon -w src/server -x tsx src/server/main.ts",
     "start": "NODE_ENV=production tsx src/server/main.ts",
+    "prebuild": "npm run generate:client",
     "build": "vite build",
     "dev:ui": "vite",
     "db:push": "drizzle-kit push",

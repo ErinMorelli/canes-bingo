@@ -49,17 +49,27 @@ export function ToolbarSaveImage({ cardRef }: Readonly<SaveBoardImageProps>) {
   }, [imageError]);
 
   const shareImage = useCallback((blob: Blob | null) => {
-    if (!blob) return;
-
-    uploadImageToImgur(blob).then((result) => {
+    if (!blob) {
       setShareLoading(false);
-      if (result === null) {
-        imageError('Unable to get image link');
-      } else {
+      imageError('Unable to get image link');
+      return;
+    }
+
+    void uploadImageToImgur(blob)
+      .then((result) => {
+        setShareLoading(false);
+        if (result === null) {
+          imageError('Unable to get image link');
+          return;
+        }
         setImgurLink(result.data.link);
         setIsModalOpen(true);
-      }
-    })
+      })
+      .catch((err) => {
+        console.error(err);
+        setShareLoading(false);
+        imageError('Unable to get image link');
+      });
   }, [imageError]);
 
   const takeScreenshot = async (

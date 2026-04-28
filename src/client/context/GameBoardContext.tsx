@@ -52,7 +52,7 @@ export function GameBoardProvider({ children }: Readonly<{ children: React.React
 
   const enabled = !groupsLoading && Object.keys(boardArgs).length > 0;
 
-  const { data: squares = [], isLoading: squaresLoading, isSuccess: squaresSuccess } = useQuery({
+  const { data: squares = [], isLoading: squaresLoading, isSuccess: squaresSuccess, isError: squaresFetchError } = useQuery({
     queryKey: ['squares', boardArgs, selectedGame?.id ?? null, seed],
     queryFn: async () => {
       const [includesStr, excludesStr] = convertArgsToString(boardArgs, groups);
@@ -114,8 +114,8 @@ export function GameBoardProvider({ children }: Readonly<{ children: React.React
 
   const boardReady = board.length > 0;
   const squaresError = useMemo(
-    () => squaresSuccess && squares.length < MIN_SQUARE_COUNT,
-    [squaresSuccess, squares]
+    () => squaresFetchError || (squaresSuccess && squares.length < MIN_SQUARE_COUNT),
+    [squaresFetchError, squaresSuccess, squares]
   );
 
   const value = useMemo<GameBoardContextValue>(

@@ -5,14 +5,25 @@ type RowActionsProps = {
   onEdit: () => void;
   onDelete: () => void;
   deleteLabel: string;
+  entityName?: string;
 };
 
-export function RowActions({ onEdit, onDelete, deleteLabel }: Readonly<RowActionsProps>) {
+export function RowActions({ onEdit, onDelete, deleteLabel, entityName }: Readonly<RowActionsProps>) {
   return (
     <Space>
-      <Button size="small" icon={<EditOutlined />} onClick={onEdit} />
+      <Button
+        size="small"
+        icon={<EditOutlined />}
+        onClick={onEdit}
+        aria-label={entityName ? `Edit ${entityName}` : 'Edit'}
+      />
       <Popconfirm title={deleteLabel} onConfirm={onDelete}>
-        <Button size="small" danger icon={<DeleteOutlined />} />
+        <Button
+          size="small"
+          danger
+          icon={<DeleteOutlined />}
+          aria-label={entityName ? `Delete ${entityName}` : 'Delete'}
+        />
       </Popconfirm>
     </Space>
   );

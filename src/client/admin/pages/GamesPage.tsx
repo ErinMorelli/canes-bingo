@@ -99,9 +99,9 @@ export function GamesPage() {
       width: 100,
       render: (_: unknown, record: GameRow) => (
         <Space>
-          <Button size="small" icon={<EditOutlined />} onClick={() => openEdit(record)} />
+          <Button size="small" icon={<EditOutlined />} onClick={() => openEdit(record)} aria-label={`Edit ${record.name}`} />
           <Popconfirm title="Delete this game?" onConfirm={() => deleteMutation.mutate(record.id)}>
-            <Button size="small" danger icon={<DeleteOutlined />} />
+            <Button size="small" danger icon={<DeleteOutlined />} aria-label={`Delete ${record.name}`} />
           </Popconfirm>
         </Space>
       ),

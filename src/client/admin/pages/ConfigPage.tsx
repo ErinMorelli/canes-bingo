@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
+  Alert,
   Button,
   Col,
   Form,
@@ -26,9 +27,10 @@ const CONFIG_FIELDS: { key: ConfigKey; label: string; help?: string }[] = [
 ];
 
 export function ConfigPage() {
+  const qc = useQueryClient();
   const [form] = Form.useForm();
 
-  const { data: configItems = [], isLoading } = useQuery({
+  const { data: configItems = [], isLoading, isError } = useQuery({
     queryKey: ['admin', 'config'],
     queryFn: async () => getData(await apiClient.provide(Api.config.list, {})).items,
   });
@@ -49,11 +51,12 @@ export function ConfigPage() {
         )
       );
     },
-    onSuccess: () => message.success('Config saved'),
+    onSuccess: () => { message.success('Config saved'); qc.invalidateQueries({ queryKey: ['admin', 'config'] }); },
     onError: () => message.error('Failed to save config'),
   });
 
   if (isLoading) return <Spin />;
+  if (isError) return <Alert type="error" message="Failed to load config" />;
 
   return (
     <>

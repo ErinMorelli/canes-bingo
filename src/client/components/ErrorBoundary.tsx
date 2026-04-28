@@ -11,13 +11,17 @@ export class ErrorBoundary extends Component<Props, State> {
     return { error };
   }
 
+  componentDidCatch(error: Error) {
+    console.error(error);
+  }
+
   render() {
     if (this.state.error) {
       return (
         <Result
           status="error"
           title="Something went wrong"
-          subTitle={this.state.error.message}
+          subTitle="Please reload and try again."
           extra={
             <Button type="primary" onClick={() => globalThis.location.reload()}>
               Reload page

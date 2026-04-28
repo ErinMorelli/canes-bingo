@@ -44,10 +44,19 @@ export async function getSquares(
 
   const baseSubquery = squaresBaseQuery('name').as('a');
 
+  if (!include) {
+    // Only exclude provided: filter out excluded categories from all squares
+    return db
+      .select()
+      .from(baseSubquery)
+      .where(and(...exclude!.map((e) => sql<boolean>`NOT FIND_IN_SET(${e}, ${baseSubquery.categories})`)))
+      .execute();
+  }
+
   const includeQuery = db
     .select()
     .from(baseSubquery)
-    .where(or(...include!.map((i) => sql<boolean>`FIND_IN_SET(${i}, ${baseSubquery.categories})`)));
+    .where(or(...include.map((i) => sql<boolean>`FIND_IN_SET(${i}, ${baseSubquery.categories})`)));
 
   if (exclude) {
     const excludeSubquery = includeQuery.as('b');
