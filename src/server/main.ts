@@ -67,6 +67,7 @@ app.use(session({
 const config = createConfig({
   app,
   cors: false,
+  startupLogo: false,
   logger: { level: 'info', color: true },
   inputSources: {
     get: ['query', 'params'],
