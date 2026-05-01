@@ -1,3 +1,4 @@
+/* eslint-disable */
 type SomeOf<T> = T[keyof T];
 
 /** post /api/v1/login */
@@ -636,7 +637,7 @@ interface HeadApiV1GroupsNegativeResponseVariants {
 type PostApiV1GroupsInput = {
     name: string;
     label: string;
-    description?: string | undefined;
+    description?: (string | null) | undefined;
 };
 
 /** post /api/v1/groups */
@@ -742,7 +743,7 @@ type PutApiV1GroupsGroupIdInput = {
     groupId: string;
     name: string;
     label: string;
-    description?: string | undefined;
+    description?: (string | null) | undefined;
 };
 
 /** put /api/v1/groups/:groupId */
@@ -885,9 +886,9 @@ interface HeadApiV1CategoriesNegativeResponseVariants {
 type PostApiV1CategoriesInput = {
     name: string;
     label: string;
-    description?: string | undefined;
-    groupId?: number | undefined;
-    isDefault?: boolean | undefined;
+    description?: (string | null) | undefined;
+    groupId?: (number | null) | undefined;
+    isDefault?: (boolean | null) | undefined;
 };
 
 /** post /api/v1/categories */
@@ -983,9 +984,9 @@ type PutApiV1CategoriesCategoryIdInput = {
     categoryId: string;
     name: string;
     label: string;
-    description?: string | undefined;
-    groupId?: number | undefined;
-    isDefault?: boolean | undefined;
+    description?: (string | null) | undefined;
+    groupId?: (number | null) | undefined;
+    isDefault?: (boolean | null) | undefined;
 };
 
 /** put /api/v1/categories/:categoryId */

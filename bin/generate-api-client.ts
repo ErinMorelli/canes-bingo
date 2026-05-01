@@ -21,5 +21,6 @@ const integration = await Integration.create({
 });
 
 const code = await integration.printFormatted();
-await writeFile('src/client/api-client.ts', code, 'utf8');
+const header = '/* eslint-disable */\n';
+await writeFile('src/client/api-client.ts', header + code, 'utf8');
 console.info('Generated src/client/api-client.ts');

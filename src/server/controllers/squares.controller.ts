@@ -65,8 +65,7 @@ export async function getSquares(
   const filteredIds = db
     .select({ squareId: filterSub.id })
     .from(filterSub)
-    // at least one of include/exclude is set here, so and() is always non-null
-    .where(and(includeCondition, ...excludeConditions)!);
+    .where(and(includeCondition, ...excludeConditions));
 
   return squaresBaseQuery('id')
     .where(inArray(squares.squareId, filteredIds))
