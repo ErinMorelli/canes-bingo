@@ -68,7 +68,7 @@ export function CategoriesPage() {
   };
 
   const groupMap = useMemo(() => new Map(groups.map((g) => [g.id, g.name])), [groups]);
-  const groupName = (id: number | null) => (id !== null ? groupMap.get(id) : undefined) ?? '—';
+  const groupName = (id: number | null) => id == null ? '—' : (groupMap.get(id) ?? '—');
 
   const columns = [
     { title: 'ID', dataIndex: 'id', width: 60 },

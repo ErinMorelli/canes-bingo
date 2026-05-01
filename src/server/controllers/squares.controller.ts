@@ -38,7 +38,16 @@ export async function getSquares(
   if (!include && !exclude) {
     const query = squaresBaseQuery('id');
     if (categoryId) {
-      return query.where(sql`cats.cat = ${categoryId}`).execute();
+      // Filter at the square level (not the CTE) so group_concat still returns
+      // all categories for each matched square, not just the filtered one.
+      return query.where(
+        inArray(
+          squares.squareId,
+          db.select({ squareId: squareCategories.squareId })
+            .from(squareCategories)
+            .where(eq(squareCategories.categoryId, categoryId)),
+        ),
+      ).execute();
     }
     return query.execute();
   }

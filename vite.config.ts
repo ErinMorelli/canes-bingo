@@ -16,6 +16,12 @@ export default defineConfig({
     },
   },
   plugins: [react()],
+  build: {
+    // Disable the inline modulepreload polyfill so no unaccounted-for inline
+    // scripts appear in production (which would violate the strict CSP).
+    // All target browsers support <link rel="modulepreload"> natively.
+    modulePreload: { polyfill: false },
+  },
   server: {
     allowedHosts: [
       'localhost',

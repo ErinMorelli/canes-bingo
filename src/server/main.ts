@@ -21,7 +21,15 @@ const app = express();
 const MySQLStore = MySQLSession(session);
 const sessionStore = new MySQLStore({ ...dbConfig });
 
-app.set('trust proxy', 1);
+// Configurable via TRUST_PROXY env var (e.g. '1', 'false', '127.0.0.1').
+// Defaults to 1 (trust one hop) to support the typical nginx → app topology.
+const rawTrustProxy = process.env.TRUST_PROXY ?? '1';
+const trustProxy: boolean | number | string =
+  rawTrustProxy === 'true' ? true :
+  rawTrustProxy === 'false' ? false :
+  rawTrustProxy !== '' && !Number.isNaN(Number(rawTrustProxy)) ? Number(rawTrustProxy) :
+  rawTrustProxy;
+app.set('trust proxy', trustProxy);
 
 const isDev = process.env.NODE_ENV !== 'production';
 
@@ -31,7 +39,8 @@ app.use(helmet({
   contentSecurityPolicy: isDev ? false : {
     directives: {
       defaultSrc:  ["'self'"],
-      scriptSrc:   ["'self'", "'unsafe-inline'", 'https://www.googletagmanager.com'],
+      // Hash covers the static GTM init snippet in index.html.
+    scriptSrc:   ["'self'", "'sha256-lix6OnV9laVmvGJmXa4ZU+rBhaioOyWzO28gqlHGBg4='", 'https://www.googletagmanager.com'],
       styleSrc:    ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
       fontSrc:     ["'self'", 'https://fonts.gstatic.com'],
       imgSrc:      ["'self'", 'data:', 'https://i.imgur.com'],
