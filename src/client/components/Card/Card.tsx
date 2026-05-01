@@ -77,10 +77,11 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
     };
 
     return (
-      <div className="bingo" ref={ref}>
+      <div className="bingo" role="grid" ref={ref}>
         {board.map((row, rowId) => row ? (
           <div
             className="row"
+            role="row"
             id={`row-${rowId}`}
             key={`${row.length}-${rowId}`}
           >{generateRow(row, rowId)}</div>

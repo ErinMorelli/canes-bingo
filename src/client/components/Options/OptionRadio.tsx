@@ -42,7 +42,7 @@ export default function OptionRadio({ groupName, hideMargin }: RadioOptionProps)
     <Form.Item
       style={hideMargin ? { marginBottom: 0 } : undefined}
       label={
-        <Typography.Text strong>
+        <Typography.Text strong id={`group-${String(group.id)}`}>
           {group.label}
         </Typography.Text>
       }
@@ -53,10 +53,11 @@ export default function OptionRadio({ groupName, hideMargin }: RadioOptionProps)
         size="middle"
         buttonStyle="solid"
         optionType="button"
+        aria-label={group.label}
       >
         {group.categories.map((cat) => cat.description ? (
           <Tooltip title={cat.description} key={cat.id}>
-            <Radio.Button value={cat.name} title={cat.description}>
+            <Radio.Button value={cat.name} title={`${cat.label} (${cat.description})`}>
               {cat.label}
             </Radio.Button>
           </Tooltip>

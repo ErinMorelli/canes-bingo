@@ -63,7 +63,7 @@ export default function OptionSelect({ groupName, hideMargin }: SelectOptionProp
       tooltip={group.description || undefined}
       style={hideMargin ? { marginBottom: 0 } : undefined}
       label={
-        <Typography.Text strong>
+        <Typography.Text strong id={`group-${String(group.id)}`}>
           {group.label}
         </Typography.Text>
       }
@@ -77,6 +77,7 @@ export default function OptionSelect({ groupName, hideMargin }: SelectOptionProp
         size="middle"
         maxTagCount="responsive"
         placeholder="Click to select..."
+        aria-labelledby={`group-${String(group.id)}`}
       />
    </Form.Item>
   ) : null;

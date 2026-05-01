@@ -60,7 +60,7 @@ export function Toolbar({
   const handleReset = useCallback(() => loadBoard(true), [loadBoard]);
 
   return (
-    <div className="toolbar">
+    <div className="toolbar" role="toolbar">
       <Flex justify="space-between">
         {/* LEFT */}
         <Button

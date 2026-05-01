@@ -112,7 +112,7 @@ export function AppLayout({ themeClass, themeName }: AppLayoutProps) {
                 )}
               </Spin>
             </div>
-            <div className="bottom-message">
+            <div className="bottom-message" role="note">
               <p>
                 Have an idea for a new square?{' '}
                 <a

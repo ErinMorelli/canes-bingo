@@ -50,10 +50,8 @@ export function CardSquare({ square, rowId, colId, customClass, onClick }: Reado
   );
 
   const squareAriaLabel = useMemo(() => {
-    const prefix = selected ? 'SELECTED ' : '';
-    if (isFreeSpace) return `${prefix}Free space`;
-    return `${prefix}${String(value.value)}`;
-  }, [isFreeSpace, selected, value.value]);
+    return isFreeSpace ? 'Free space' : `${String(value.value)}`;
+  }, [isFreeSpace, value.value]);
 
   const popoverClassNames = useMemo(() => {
     const classes = ['square-tooltip'];
@@ -98,31 +96,27 @@ export function CardSquare({ square, rowId, colId, customClass, onClick }: Reado
     }
   }, [isFreeSpace, value.value]);
 
-  const handleKeyDown = useCallback((event: KeyboardEvent<HTMLDivElement>) => {
+  const handleKeyDown = useCallback((event: KeyboardEvent<HTMLButtonElement>) => {
     const key = event.code.toLowerCase();
-
-    if (['enter', 'space'].includes(key)) {
-      event.preventDefault();
-      onClick(rowId, colId);
-    }
-    else if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(key)) {
+    if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(key)) {
       event.preventDefault();
       const nextSquareId = getNextSquare(key, rowId, colId);
       document.getElementById(nextSquareId)?.focus();
     }
-  }, [colId, onClick, rowId]);
+  }, [colId, rowId]);
 
   const squareEl = (
-    <div
-      className={classNames}
-      role="button"
-      id={squareId}
-      key={squareId}
-      onClick={() => onClick(rowId, colId)}
-      onKeyDown={handleKeyDown}
-      aria-label={squareAriaLabel}
-      tabIndex={0}>
-      {squareValue}
+    <div role="gridcell">
+      <button
+        type="button"
+        className={classNames}
+        id={squareId}
+        onClick={() => onClick(rowId, colId)}
+        onKeyDown={handleKeyDown}
+        aria-pressed={selected}
+        aria-label={squareAriaLabel}>
+        {squareValue}
+      </button>
     </div>
   );
 

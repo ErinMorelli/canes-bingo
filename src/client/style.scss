@@ -1,7 +1,5 @@
 @use 'sass:color';
 
-@import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
-
 $square-size: 115px;
 $gap: 6px;
 $card-size: calc(($square-size * 5) + ($gap * 4));
@@ -342,6 +340,7 @@ body {
         overflow: hidden;
         overflow-wrap: anywhere;
         line-height: 20px;
+        font: inherit;
 
         @media only screen and (max-width: $breakpoint) {
           width: $mobile-square-size;
@@ -416,7 +415,7 @@ body {
       overflow: hidden;
       position: absolute;
       z-index: 1;
-      margin: -15px 0 0 0;
+      margin: -15px 0 0;
       padding: 0;
       pointer-events: none;
       width: 100%;
@@ -619,6 +618,14 @@ body {
       }
     }
   }
+}
+
+.pattern-animated {
+  background: none;
+  border: none;
+  padding: 0;
+  display: block;
+  cursor: default;
 }
 
 .bingo-win-notice {

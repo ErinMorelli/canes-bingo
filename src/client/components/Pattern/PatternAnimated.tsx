@@ -61,15 +61,16 @@ export function PatternAnimated({
   }, [patterns, visible])
 
   return patterns.length > 0 ? (
-    <div
-      role="button"
-      tabIndex={0}
+    <button
+      type="button"
+      className="pattern-animated"
       onMouseEnter={startAnimation}
       onMouseLeave={stopAnimation}
       onFocus={startAnimation}
       onBlur={stopAnimation}
+      aria-hidden
     >
       <Pattern selected={selected} size={size} />
-    </div>
+    </button>
   ) : null;
 }

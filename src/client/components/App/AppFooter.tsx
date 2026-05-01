@@ -4,13 +4,14 @@ export default function AppFooter() {
   return (
     <>
       <span>
-        Made with <HeartFilled /> by a <a
+        Made with <HeartFilled aria-label="love" /> by a <a
           href="https://erin.dev"
           target="_blank"
+          aria-label="huge caniac"
           title="Erin Morelli">huge caniac</a>.
       </span>
       <span>
-        <CoffeeOutlined /> <a
+        <CoffeeOutlined aria-hidden /> <a
           href="https://www.buymeacoffee.com/ErinMorelli"
           target="_blank"
           rel="noreferrer nofollow">Buy me a coffee</a> to support future development.

@@ -20,8 +20,8 @@ export function ToolbarSaveImage({ cardRef }: Readonly<SaveBoardImageProps>) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [imgurLink, setImgurLink] = useState<string|undefined>(undefined);
 
-  const imageError = useCallback((message: string) => {
-    void messageApi.open({
+  const imageError = useCallback(async (message: string) => {
+    await messageApi.open({
       type: 'error',
       content: <Text>{message}. Please try again later.</Text>
     });

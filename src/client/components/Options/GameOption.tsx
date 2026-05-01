@@ -71,7 +71,7 @@ export default function GameOption() {
             <Button
               type="link"
               size="small"
-              icon={<EyeOutlined />}
+              icon={<EyeOutlined aria-hidden />}
               disabled={!isEnabled}
               onClick={() => !open && setOpen(true)}
             >
