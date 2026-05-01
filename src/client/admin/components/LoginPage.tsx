@@ -17,7 +17,7 @@ export function LoginPage() {
     setLoading(true);
     try {
       await login(values.username, values.password);
-      navigate('/admin/squares', { replace: true });
+      navigate('/admin/config', { replace: true });
     } catch {
       setError('Invalid username or password.');
     } finally {
@@ -26,7 +26,7 @@ export function LoginPage() {
   };
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', backgroundColor: '#001529' }}>
       <Card style={{ width: 360 }}>
         <Title level={4} style={{ marginBottom: 24 }}>Admin Login</Title>
         {error && <Alert type="error" message={error} style={{ marginBottom: 16 }} />}
