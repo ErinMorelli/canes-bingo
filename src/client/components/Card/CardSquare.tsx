@@ -106,18 +106,16 @@ export function CardSquare({ square, rowId, colId, customClass, onClick }: Reado
   }, [colId, rowId]);
 
   const squareEl = (
-    <div role="gridcell">
-      <button
-        type="button"
-        className={classNames}
-        id={squareId}
-        onClick={() => onClick(rowId, colId)}
-        onKeyDown={handleKeyDown}
-        aria-pressed={selected}
-        aria-label={squareAriaLabel}>
-        {squareValue}
-      </button>
-    </div>
+    <button
+      type="button"
+      className={classNames}
+      id={squareId}
+      onClick={() => onClick(rowId, colId)}
+      onKeyDown={handleKeyDown}
+      aria-pressed={selected}
+      aria-label={squareAriaLabel}>
+      {squareValue}
+    </button>
   );
 
   return showTooltips ? (

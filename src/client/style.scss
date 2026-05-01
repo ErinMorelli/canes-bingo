@@ -337,10 +337,10 @@ body {
         align-items: center;
         text-align: center;
         padding: 5px;
+        font: inherit;
         overflow: hidden;
         overflow-wrap: anywhere;
         line-height: 20px;
-        font: inherit;
 
         @media only screen and (max-width: $breakpoint) {
           width: $mobile-square-size;

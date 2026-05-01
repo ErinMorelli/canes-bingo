@@ -68,7 +68,8 @@ export function PatternAnimated({
       onMouseLeave={stopAnimation}
       onFocus={startAnimation}
       onBlur={stopAnimation}
-      aria-hidden
+      aria-hidden={true}
+      tabIndex={-1}
     >
       <Pattern selected={selected} size={size} />
     </button>
