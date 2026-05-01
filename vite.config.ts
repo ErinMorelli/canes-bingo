@@ -21,6 +21,18 @@ export default defineConfig({
     // scripts appear in production (which would violate the strict CSP).
     // All target browsers support <link rel="modulepreload"> natively.
     modulePreload: { polyfill: false },
+    // antd is ~280 kB gzipped and can't be split further; raise the limit to avoid false-positive noise.
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router', 'react-router-dom'],
+          'vendor-antd': ['antd', '@ant-design/colors'],
+          'vendor-icons': ['@ant-design/icons'],
+          'vendor-query': ['@tanstack/react-query'],
+        },
+      },
+    },
   },
   server: {
     allowedHosts: [
