@@ -21,15 +21,17 @@ const app = express();
 const MySQLStore = MySQLSession(session);
 const sessionStore = new MySQLStore({ ...dbConfig });
 
+function parseTrustProxy(raw: string): boolean | number | string {
+  if (raw === 'true') return true;
+  if (raw === 'false') return false;
+  if (raw !== '' && !Number.isNaN(Number(raw))) return Number(raw);
+  return raw;
+}
+
 // Configurable via TRUST_PROXY env var (e.g. '1', 'false', '127.0.0.1').
 // Defaults to 1 (trust one hop) to support the typical nginx → app topology.
 const rawTrustProxy = process.env.TRUST_PROXY ?? '1';
-const trustProxy: boolean | number | string =
-  rawTrustProxy === 'true' ? true :
-  rawTrustProxy === 'false' ? false :
-  rawTrustProxy !== '' && !Number.isNaN(Number(rawTrustProxy)) ? Number(rawTrustProxy) :
-  rawTrustProxy;
-app.set('trust proxy', trustProxy);
+app.set('trust proxy', parseTrustProxy(rawTrustProxy));
 
 const isDev = process.env.NODE_ENV !== 'production';
 

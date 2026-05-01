@@ -52,33 +52,25 @@ export async function getSquares(
     return query.execute();
   }
 
-  const baseSubquery = squaresBaseQuery('name').as('a');
+  // Use a name-based subquery only for filtering; the outer query uses the
+  // ID-backed shape so `categories` always contains numeric IDs in the output.
+  const filterSub = squaresBaseQuery('name').as('filter');
+  const includeCondition = include
+    ? or(...include.map((i) => sql<boolean>`FIND_IN_SET(${i}, ${filterSub.categories})`))
+    : undefined;
+  const excludeConditions = exclude
+    ? exclude.map((e) => sql<boolean>`NOT FIND_IN_SET(${e}, COALESCE(${filterSub.categories}, ''))`)
+    : [];
 
-  if (!include) {
-    // Only exclude provided: filter out excluded categories from all squares.
-    // COALESCE handles NULL from group_concat so uncategorized squares are kept.
-    return db
-      .select()
-      .from(baseSubquery)
-      .where(and(...exclude!.map((e) => sql<boolean>`NOT FIND_IN_SET(${e}, COALESCE(${baseSubquery.categories}, ''))`)))
-      .execute();
-  }
+  const filteredIds = db
+    .select({ squareId: filterSub.id })
+    .from(filterSub)
+    // at least one of include/exclude is set here, so and() is always non-null
+    .where(and(includeCondition, ...excludeConditions)!);
 
-  const includeQuery = db
-    .select()
-    .from(baseSubquery)
-    .where(or(...include.map((i) => sql<boolean>`FIND_IN_SET(${i}, ${baseSubquery.categories})`)));
-
-  if (exclude) {
-    const excludeSubquery = includeQuery.as('b');
-    return db
-      .select()
-      .from(excludeSubquery)
-      .where(and(...exclude.map((e) => sql<boolean>`NOT FIND_IN_SET(${e}, ${excludeSubquery.categories})`)))
-      .execute();
-  }
-
-  return includeQuery.execute();
+  return squaresBaseQuery('id')
+    .where(inArray(squares.squareId, filteredIds))
+    .execute();
 }
 
 export async function getSquare(squareId: number, trx: typeof db | DbTransaction = db) {
@@ -110,9 +102,20 @@ export async function updateSquare(
       await trx.update(squares).set(square).where(eq(squares.squareId, squareId));
     }
     if (categoryUpdates.added.length > 0) {
-      await trx.insert(squareCategories).values(
-        categoryUpdates.added.map((categoryId): NewSquareCategory => ({ categoryId, squareId })),
-      );
+      const existing = await trx
+        .select({ categoryId: squareCategories.categoryId })
+        .from(squareCategories)
+        .where(and(
+          eq(squareCategories.squareId, squareId),
+          inArray(squareCategories.categoryId, categoryUpdates.added),
+        ));
+      const existingIds = new Set(existing.map((r) => r.categoryId));
+      const toAdd = categoryUpdates.added.filter((id) => !existingIds.has(id));
+      if (toAdd.length > 0) {
+        await trx.insert(squareCategories).values(
+          toAdd.map((categoryId): NewSquareCategory => ({ categoryId, squareId })),
+        );
+      }
     }
     if (categoryUpdates.removed.length > 0) {
       await trx.delete(squareCategories).where(
