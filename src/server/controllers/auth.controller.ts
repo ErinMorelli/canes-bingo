@@ -1,43 +1,23 @@
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+import { HttpError } from 'http-errors';
 
-import { AuthRequest, User } from '../types.ts';
+import { getUserByUsername } from './users.controller';
 
-import { getUser, getUserByUsername } from './users.controller.ts';
+// Generated once at startup. Used as a stand-in hash when the username doesn't
+// exist so bcrypt.compare always runs, keeping response time constant.
+const DUMMY_HASH = bcrypt.hashSync('__timing_dummy__', 10);
 
-const SECRET_KEY = process.env.SECRET_KEY || '';
+const checkPassword = (password: string, hash: string): Promise<boolean> =>
+  bcrypt.compare(password, hash);
 
-export const checkPassword = async (password: string, hash: string): Promise<boolean> =>
-  new Promise((resolve, reject) => {
-    bcrypt.compare(password, hash, (error, result) => {
-      if (error) reject(error);
-      resolve(result);
-    });
-  });
-
-export async function authenticateUser({ username, password }: AuthRequest) {
-  const user = await getUserByUsername(username);
-  const isValid = await checkPassword(password, user.password);
-  return isValid ? user : null;
-}
-
-export function createUserToken({ userId, username }: User) {
-  return jwt.sign(
-    { userId: userId.toString(), username },
-    SECRET_KEY,
-    { expiresIn: '2d' }
-  );
-}
-
-export async function validateUserToken(token?: string) {
-  if (!token) return false;
+export async function authenticateUser({ username, password }: { username: string; password: string }) {
+  let user: Awaited<ReturnType<typeof getUserByUsername>> | undefined;
   try {
-    const userData = jwt.verify(token, SECRET_KEY);
-    if (typeof userData === 'string') return false;
-    const {userId, username} = userData;
-    const user = await getUser(Number.parseInt(userId));
-    return user.username === username ? user : false;
-  } catch {
-    return false;
+    user = await getUserByUsername(username);
+  } catch (e) {
+    if (!(e instanceof HttpError && e.status === 404)) throw e;
   }
+  const isValid = await checkPassword(password, user?.password ?? DUMMY_HASH);
+  if (!user || !isValid) return null;
+  return { userId: user.userId, username: user.username };
 }

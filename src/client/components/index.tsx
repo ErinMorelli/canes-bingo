@@ -1,10 +1,11 @@
 import React from 'react';
-import { Provider } from 'react-redux';
-import { PersistGate } from 'redux-persist/integration/react';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { App as AntApp } from 'antd';
 
-import { App as AntApp, Spin } from 'antd';
+import { queryClient } from '@app/queryClient';
 
-import config from '@app/store.ts';
+import { ConfigProvider } from '@context/ConfigContext';
+import { GameBoardProvider } from '@context/GameBoardContext';
 
 type StoreGateProps = {
   readonly app: React.ReactNode;
@@ -12,10 +13,12 @@ type StoreGateProps = {
 
 export default function StoreGate({ app }: StoreGateProps) {
   return (
-    <Provider store={config.store}>
-      <PersistGate persistor={config.persistor} loading={<Spin fullscreen/>}>
-        <AntApp>{app}</AntApp>
-      </PersistGate>
-    </Provider>
+    <QueryClientProvider client={queryClient}>
+      <ConfigProvider>
+        <GameBoardProvider>
+          <AntApp>{app}</AntApp>
+        </GameBoardProvider>
+      </ConfigProvider>
+    </QueryClientProvider>
   );
 }

@@ -1,12 +1,12 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Button, Flex, Form, Modal, Select, Switch, Typography } from 'antd';
 import { EyeOutlined } from '@ant-design/icons'
 
-import { Game } from '@app/types.ts';
+import { Game } from '@app/types';
 
 import { useConfig, useGames } from '@hooks';
 
-import { PatternAnimated, PatternGame } from '../Pattern';
+import { PatternAnimated, PatternGame } from '@components/Pattern';
 
 const { Text, Title, Paragraph } = Typography;
 
@@ -25,14 +25,9 @@ export default function GameOption() {
     gamesLoaded,
     selectedGame,
     isEnabled,
-    loadGames,
     setSelectedGame,
     setIsEnabled,
   } = useGames();
-
-  useEffect(() => {
-    loadGames();
-  }, [loadGames]);
 
   const [open, setOpen] = useState<boolean>(false);
 

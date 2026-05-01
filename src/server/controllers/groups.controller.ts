@@ -1,97 +1,77 @@
-import { sql } from 'kysely';
+import { eq, sql } from 'drizzle-orm';
+import createHttpError from 'http-errors';
 
-import { db } from '../database.ts';
-import { GroupUpdate, NewGroup } from '../types.ts';
+import { db } from '@server/database';
+import { handleDbError } from '@server/errors';
+import type { DbTransaction } from '@server/database';
+import { categories, groups } from '@server/schema';
+import type { NewGroup } from '@server/schema';
+
+type GroupCategory = { id: number; name: string; label: string; description: string | null; isDefault: boolean };
+
+function groupsBaseQuery(trx: typeof db | DbTransaction = db) {
+  return trx
+    .select({
+      id: groups.groupId,
+      name: groups.name,
+      label: groups.label,
+      description: groups.description,
+      categories: sql<GroupCategory[]>`
+        if(count(${categories.categoryId}) = 0, JSON_ARRAY(), JSON_ARRAYAGG(
+          JSON_OBJECT(
+            'id', ${categories.categoryId},
+            'name', ${categories.name},
+            'label', ${categories.label},
+            'description', ${categories.description},
+            'isDefault', if(${categories.isDefault} = true, cast(true as json), cast(false as json))
+          )
+        ))`,
+    })
+    .from(groups)
+    .leftJoin(categories, eq(categories.groupId, groups.groupId))
+    .groupBy(groups.groupId);
+}
 
 export async function getGroups() {
-  return await db
-    .selectFrom('groups as g')
-    .leftJoin('categories as c', 'c.groupId', 'g.groupId')
-    .select([
-      'g.groupId as id',
-      'g.name as name',
-      'g.label as label',
-      'g.description as description',
-      sql<any>`
-        if(count(c.category_id) = 0, JSON_ARRAY(), JSON_ARRAYAGG(
-          JSON_OBJECT(
-            'id', c.category_id,
-            'name', c.name,
-            'label', c.label,
-            'description', c.description,
-            'isDefault', if(c.is_default = true, cast(true as json), cast(false as json))
-          )
-        ))`.as('categories')
-    ])
-    .groupBy('g.groupId')
-    .execute();
+  return groupsBaseQuery().execute();
 }
 
-export async function getGroup(groupId: number, trx = db) {
-  return await trx
-    .selectFrom('groups as g')
-    .select([
-      'g.groupId as id',
-      'g.name as name',
-      'g.label as label',
-      'g.description as description',
-    ])
-    .where('g.groupId', '=', groupId)
-    .executeTakeFirstOrThrow();
+export async function getGroupById(groupId: number, trx: typeof db | DbTransaction = db) {
+  const [result] = await groupsBaseQuery(trx).where(eq(groups.groupId, groupId)).limit(1);
+  if (!result) throw createHttpError(404, 'Group not found');
+  return result;
 }
 
-export async function getGroupByName(groupName: string) {
-  return await db
-    .selectFrom('groups as g')
-    .select([
-      'g.groupId as id',
-      'g.label as label',
-      'g.description as description',
-      sql<any>`
-        if(count(c.category_id) = 0, JSON_ARRAY(), JSON_ARRAYAGG(
-          JSON_OBJECT(
-            'id', c.category_id,
-            'name', c.name,
-            'label', c.label,
-            'description', c.description,
-            'isDefault', if(c.is_default = true, cast(true as json), cast(false as json))
-          )
-        ))`.as('categories')
-    ])
-    .groupBy('g.groupId')
-    .leftJoin('categories as c', 'c.groupId', 'g.groupId')
-    .where('g.name', '=', groupName)
-    .executeTakeFirstOrThrow();
+async function getGroup(groupId: number, trx: typeof db | DbTransaction = db) {
+  const [result] = await trx
+    .select({ id: groups.groupId, name: groups.name, label: groups.label, description: groups.description })
+    .from(groups)
+    .where(eq(groups.groupId, groupId))
+    .limit(1);
+  if (!result) throw createHttpError(404, 'Group not found');
+  return result;
 }
 
-export async function updateGroup(groupId: number, group: GroupUpdate) {
-  return await db.transaction().execute(async (trx) => {
-    await trx
-      .updateTable('groups')
-      .set(group)
-      .where('groupId', '=', groupId)
-      .execute();
-    return await getGroup(groupId, trx);
-  });
+export async function updateGroup(groupId: number, group: Partial<NewGroup>) {
+  return await db.transaction(async (trx) => {
+    await trx.update(groups).set(group).where(eq(groups.groupId, groupId));
+    return await getGroupById(groupId, trx);
+  }).catch(handleDbError);
 }
 
 export async function addGroup(group: NewGroup) {
-  return await db.transaction().execute(async (trx) => {
-    const result = await trx.insertInto('groups')
-      .values(group)
-      .executeTakeFirstOrThrow();
-    const groupId = Number(result.insertId);
+  return await db.transaction(async (trx) => {
+    const result = await trx.insert(groups).values(group);
+    const groupId = Number(result[0].insertId);
     return await getGroup(groupId, trx);
-  });
+  }).catch(handleDbError);
 }
 
 export async function removeGroup(groupId: number) {
-  return await db.transaction().execute(async (trx) => {
+  return await db.transaction(async (trx) => {
     const group = await getGroup(groupId, trx);
-    await trx
-      .deleteFrom('groups')
-      .where('groupId', '=', groupId)
-      .execute();
+    await trx.update(categories).set({ groupId: null }).where(eq(categories.groupId, groupId));
+    await trx.delete(groups).where(eq(groups.groupId, groupId));
     return group;
   });
 }

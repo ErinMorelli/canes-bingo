@@ -1,29 +1,45 @@
-import { useCallback } from 'react';
-import { useSelector } from 'react-redux';
+import { useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
-import { useAppDispatch } from '../store.ts';
-import { GroupsStateGroups } from '../types.ts';
-import { fetchGroups, selectGroups, selectGroupsLoaded } from '@slices';
+import {
+  BoardArgs,
+  GroupResult,
+  GroupsStateGroups,
+  SingleGroup,
+  Group as G,
+} from '@app/types';
+import { Group } from '@app/constants';
+import { apiClient, getData } from '@app/api';
+import { Api } from '@app/api-endpoints';
 
-type UseGroupsResult = {
-  groups: GroupsStateGroups;
-  loadGroups: () => void;
-  groupsLoaded: boolean;
-};
+export function useGroups() {
+  const { data = [], isLoading } = useQuery({
+    queryKey: ['groups'],
+    queryFn: async () => {
+      const result = await apiClient.provide(Api.groups.list, {});
+      return getData(result).items;
+    },
+    staleTime: 10 * 60 * 1000,
+  });
 
-export function useGroups(): UseGroupsResult {
-  const dispatch = useAppDispatch();
+  const groups = useMemo(() => {
+    const map = {} as GroupsStateGroups;
+    data.forEach((group) => {
+      if (!(Group.AllGroups as readonly string[]).includes(group.name)) return;
+      map[group.name as G] = group as GroupResult;
+    });
+    return map;
+  }, [data]);
 
-  const groups = useSelector(selectGroups);
-  const groupsLoaded = useSelector(selectGroupsLoaded);
+  const defaultArgs = useMemo(() => {
+    const args = {} as BoardArgs;
+    data.forEach((group) => {
+      if (!(Group.AllGroups as readonly string[]).includes(group.name)) return;
+      const defaultCat = (group.categories ?? []).find((c) => c.isDefault);
+      if (defaultCat) args[group.name as SingleGroup] = defaultCat;
+    });
+    return args;
+  }, [data]);
 
-  const loadGroups = useCallback(() => {
-    if (!groupsLoaded) dispatch(fetchGroups());
-  }, [dispatch, groupsLoaded]);
-
-  return {
-    groups,
-    loadGroups,
-    groupsLoaded,
-  };
+  return { groups, defaultArgs, isLoading };
 }

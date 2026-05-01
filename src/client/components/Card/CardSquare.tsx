@@ -10,7 +10,8 @@ import { decode } from 'he';
 
 import { BoardSquare } from '@app/types';
 import { fetchConfigValue } from '@app/utils';
-import { ConfigKey } from '@app/constants.ts';
+import { ConfigKey } from '@app/constants';
+
 import { useConfig } from '@hooks';
 
 type SquareProps = {
@@ -47,6 +48,12 @@ export function CardSquare({ square, rowId, colId, customClass, onClick }: Reado
         : value.description,
     [isFreeSpace, value.description]
   );
+
+  const squareAriaLabel = useMemo(() => {
+    const prefix = selected ? 'SELECTED ' : '';
+    if (isFreeSpace) return `${prefix}Free space`;
+    return `${prefix}${String(value.value)}`;
+  }, [isFreeSpace, selected, value.value]);
 
   const popoverClassNames = useMemo(() => {
     const classes = ['square-tooltip'];
@@ -113,7 +120,7 @@ export function CardSquare({ square, rowId, colId, customClass, onClick }: Reado
       key={squareId}
       onClick={() => onClick(rowId, colId)}
       onKeyDown={handleKeyDown}
-      aria-label={`${selected ? 'SELECTED ' : ''} ${squareValue}`}
+      aria-label={squareAriaLabel}
       tabIndex={0}>
       {squareValue}
     </div>

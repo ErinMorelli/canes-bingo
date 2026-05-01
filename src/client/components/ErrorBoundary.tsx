@@ -1,0 +1,36 @@
+import { Component, ErrorInfo, ReactNode } from 'react';
+import { Button, Result } from 'antd';
+
+type Props = { children: ReactNode };
+type State = { error: Error | null };
+
+export class ErrorBoundary extends Component<Props, State> {
+  state: State = { error: null };
+
+  static getDerivedStateFromError(error: Error): State {
+    return { error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error(error, errorInfo);
+  }
+
+  handleRetry = () => this.setState({ error: null });
+
+  render() {
+    if (this.state.error) {
+      return (
+        <Result
+          status="error"
+          title="Something went wrong"
+          subTitle="Please reload and try again."
+          extra={[
+            <Button key="retry" onClick={this.handleRetry}>Try again</Button>,
+            <Button key="reload" type="primary" onClick={() => globalThis.location.reload()}>Reload page</Button>,
+          ]}
+        />
+      );
+    }
+    return this.props.children;
+  }
+}

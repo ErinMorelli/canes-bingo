@@ -1,4 +1,3 @@
-export const API_PREFIX = '/api/v1';
 export const LOCAL_STORAGE_PREFIX = 'CanesBingo';
 export const IMGUR_CLIENT_ID = import.meta.env.VITE_IMGUR_CLIENT_ID;
 
@@ -13,7 +12,6 @@ export enum ConfigKey {
   HeaderText = 'headerText',
   Theme = 'theme',
   CustomClass = 'customClass',
-  Tooltips = 'tooltips',
   FestiveLights = 'festiveLights',
 }
 
@@ -21,7 +19,6 @@ export const StorageKey = {
   ShowOptionsOnLoad: `${LOCAL_STORAGE_PREFIX}:ShowOptionsOnLoad`,
   TourSeen: `${LOCAL_STORAGE_PREFIX}:TourSeen`,
   App: `${LOCAL_STORAGE_PREFIX}:App`,
-  Token: 'session',
 } as const;
 export type StorageKey = typeof StorageKey[keyof typeof StorageKey];
 

@@ -5,9 +5,10 @@ import type { NotificationInstance } from 'antd/es/notification/interface';
 import confetti from 'canvas-confetti';
 
 import { useConfig, useGameBoard, useGames } from '@hooks';
+
 import { BoardSquare } from '@app/types';
 
-import { CardSquare } from './CardSquare.tsx';
+import { CardSquare } from './CardSquare';
 
 const { Text } = Typography;
 

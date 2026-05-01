@@ -1,1 +1,3 @@
-export { PatternInput, PatternField } from './Pattern.tsx';
+export { PatternInput, PatternField } from './Pattern';
+export { RowActions } from './RowActions';
+export { CrudModal } from './CrudModal';

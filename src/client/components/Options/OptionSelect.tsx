@@ -1,11 +1,9 @@
 import { useCallback, useMemo } from 'react';
-import { useSelector } from 'react-redux';
 import { Form, Select, Typography } from 'antd';
 
-import { selectBoardArgs, updateBoardArg } from '@slices';
-import { Category, MultiGroup } from '@app/types.ts';
-import { useAppDispatch } from '@app/store.ts';
-import { useGroups } from '@hooks';
+import { Category, MultiGroup } from '@app/types';
+
+import { useGroups, useGameBoard } from '@hooks';
 
 type SelectOptionProps= {
   groupName: MultiGroup;
@@ -13,10 +11,8 @@ type SelectOptionProps= {
 };
 
 export default function OptionSelect({ groupName, hideMargin }: SelectOptionProps) {
-  const dispatch = useAppDispatch();
   const { groups } = useGroups();
-
-  const boardArgs = useSelector(selectBoardArgs);
+  const { boardArgs, updateBoardArg } = useGameBoard();
 
   const selected = useMemo(
     () => boardArgs[groupName] || [],
@@ -29,13 +25,7 @@ export default function OptionSelect({ groupName, hideMargin }: SelectOptionProp
   );
 
   const values = useMemo(
-    () => {
-      return selected.map((c: Category) => ({
-        key: c.id.toString(),
-        value: c.name,
-        label: c.label
-      }));
-    },
+    () => selected.map((c: Category) => c.name),
     [selected]
   );
 
@@ -65,8 +55,8 @@ export default function OptionSelect({ groupName, hideMargin }: SelectOptionProp
     const newGroups = newValues
       .map((a) => group?.categories.find((b) => b.name === a))
       .filter(isCategory);
-    dispatch(updateBoardArg({ groupName, value: newGroups }));
-  }, [dispatch, group?.categories, groupName]);
+    updateBoardArg({ groupName, value: newGroups });
+  }, [group?.categories, groupName, updateBoardArg]);
 
   return group ? (
     <Form.Item

@@ -1,8 +1,8 @@
 import React, { useCallback, useMemo } from 'react';
 
-import { PATTERN_COLUMNS, PATTERN_ROWS } from '@app/constants.ts';
-import { PatternSquare } from '@app/types.ts';
-import { getSquareClasses, getSquareStyle } from '@app/utils.ts';
+import { PATTERN_COLUMNS, PATTERN_ROWS } from '@app/constants';
+import { PatternSquare } from '@app/types';
+import { getSquareClasses, getSquareStyle } from '@app/utils';
 
 type PatternProps = {
   readonly selected: Array<PatternSquare>;

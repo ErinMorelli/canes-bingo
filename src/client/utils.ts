@@ -1,13 +1,8 @@
-import axios, { AxiosResponse } from 'axios';
-import FormData from 'form-data';
-
 import {
   Board,
   BoardArgs,
   BoardSquare,
   Category,
-  FetchGroupResult,
-  GroupResult,
   GroupsStateGroups,
   ImgurUploadResult,
   MultiGroup,
@@ -16,14 +11,15 @@ import {
   SingleGroup,
   Square,
   Squares
-} from './types.ts';
+} from './types';
 import {
-  API_PREFIX,
   ConfigKey, DEFAULT_PATTERN_SIZE,
   Group,
   IMGUR_CLIENT_ID,
   StorageKey
-} from './constants.ts';
+} from './constants';
+import { apiClient, getData } from './api';
+import { Api } from './api-endpoints';
 
 function shuffleArray(arr: Squares): Squares {
   const array = [...arr];
@@ -77,27 +73,17 @@ export function convertArgsToString(
   return [includes, excludes];
 }
 
-export async function fetchGroup(groupName: string): Promise<FetchGroupResult> {
-  return await axios
-    .get(`${API_PREFIX}/groups/${groupName}`)
-    .then((res: { data: GroupResult }) => ({
-      group: res.data,
-      groupName
-    }));
-}
-
 export async function fetchConfigValue(key: ConfigKey): Promise<string> {
-  return await axios
-    .get(`${API_PREFIX}/config/${key}`)
-    .then((res: { data: { value: string }}) => res.data.value);
+  const result = await apiClient.provide(Api.config.get, { configId: key });
+  return getData(result).value;
 }
 
 export async function fetchAllSquares(): Promise<Squares> {
-  return await axios.get(`${API_PREFIX}/squares`)
-    .then((res) => res.data);
+  const result = await apiClient.provide(Api.squares.list, {});
+  return getData(result).items as Squares;
 }
 
-export function getStorageValue<T>(key: StorageKey): T | null {
+function getStorageValue<T>(key: StorageKey): T | null {
   try {
     const value = localStorage.getItem(key);
     return value ? JSON.parse(value) : null;
@@ -108,10 +94,6 @@ export function getStorageValue<T>(key: StorageKey): T | null {
 
 export function setStorageValue<T>(key: StorageKey, value: T) {
   return localStorage.setItem(key, JSON.stringify(value));
-}
-
-export function removeStorageValue(key: StorageKey) {
-  return localStorage.removeItem(key);
 }
 
 export function initStorageValue<T>(key: StorageKey, defaultValue: T): T {
@@ -127,22 +109,18 @@ export async function uploadImageToImgur(image: Blob): Promise<ImgurUploadResult
   const form = new FormData();
   form.append('image', image);
 
-  return await axios({
-    method: 'POST',
-    url: 'https://api.imgur.com/3/image',
-    headers: {
-      Authorization: `Client-ID ${IMGUR_CLIENT_ID}`,
-      'Content-Type': 'multipart/form-data;',
-    },
-    data: form
-  })
-    .then((res: AxiosResponse<ImgurUploadResult>) => {
-      return res.data.success ? res.data : null;
-    })
-    .catch((err) => {
-      console.error(err);
-      return null;
+  try {
+    const response = await fetch('https://api.imgur.com/3/image', {
+      method: 'POST',
+      headers: { Authorization: `Client-ID ${IMGUR_CLIENT_ID}` },
+      body: form,
     });
+    const result = await response.json() as ImgurUploadResult;
+    return result.success ? result : null;
+  } catch (err) {
+    console.error(err);
+    return null;
+  }
 }
 
 export function parsePatternValue(value: string | PatternSquare[]): PatternSquare[] {

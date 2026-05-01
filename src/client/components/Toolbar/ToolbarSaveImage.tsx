@@ -1,9 +1,10 @@
 import { RefObject, useCallback, useState } from 'react';
 import { LinkOutlined, SaveFilled } from '@ant-design/icons';
 import { Button, message, Modal, Tooltip, Typography } from 'antd';
+
 import html2canvas from 'html2canvas';
 
-import { uploadImageToImgur } from '@app/utils.ts';
+import { uploadImageToImgur } from '@app/utils';
 
 const { Link, Paragraph, Text } = Typography;
 
@@ -48,17 +49,27 @@ export function ToolbarSaveImage({ cardRef }: Readonly<SaveBoardImageProps>) {
   }, [imageError]);
 
   const shareImage = useCallback((blob: Blob | null) => {
-    if (!blob) return;
-
-    uploadImageToImgur(blob).then((result) => {
+    if (!blob) {
       setShareLoading(false);
-      if (result === null) {
-        imageError('Unable to get image link');
-      } else {
+      imageError('Unable to get image link');
+      return;
+    }
+
+    void uploadImageToImgur(blob)
+      .then((result) => {
+        setShareLoading(false);
+        if (result === null) {
+          imageError('Unable to get image link');
+          return;
+        }
         setImgurLink(result.data.link);
         setIsModalOpen(true);
-      }
-    })
+      })
+      .catch((err) => {
+        console.error(err);
+        setShareLoading(false);
+        imageError('Unable to get image link');
+      });
   }, [imageError]);
 
   const takeScreenshot = async (

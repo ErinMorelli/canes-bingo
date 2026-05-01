@@ -2,10 +2,10 @@ import { Divider, Form, Space } from 'antd';
 
 import { Group } from '@app/constants.ts';
 
-import GameOption from './GameOption.tsx';
-import OptionRadio from './OptionRadio.tsx';
-import OptionSelect from './OptionSelect.tsx';
-import OtherOptions from './OtherOptions.tsx';
+import GameOption from './GameOption';
+import OptionRadio from './OptionRadio';
+import OptionSelect from './OptionSelect';
+import OtherOptions from './OtherOptions';
 
 export function Options() {
   const radioOptions = Group.SingleGroups.map((groupName, idx) => (

@@ -1,5 +1,4 @@
 import { useCallback, useMemo } from 'react';
-import { useSelector } from 'react-redux';
 import {
   Form,
   Radio,
@@ -8,10 +7,9 @@ import {
   Typography
 } from 'antd';
 
-import { selectBoardArgs, updateBoardArg } from '@slices';
-import { useAppDispatch } from '@app/store.ts';
-import { SingleGroup } from '@app/types.ts';
-import { useGroups } from '@hooks';
+import { SingleGroup } from '@app/types';
+
+import { useGroups, useGameBoard } from '@hooks';
 
 type RadioOptionProps = {
   groupName: SingleGroup;
@@ -19,9 +17,8 @@ type RadioOptionProps = {
 }
 
 export default function OptionRadio({ groupName, hideMargin }: RadioOptionProps) {
-  const dispatch = useAppDispatch();
   const { groups } = useGroups();
-  const boardArgs = useSelector(selectBoardArgs);
+  const { boardArgs, updateBoardArg } = useGameBoard();
 
   const group = useMemo(
     () => groups[groupName],
@@ -38,8 +35,8 @@ export default function OptionRadio({ groupName, hideMargin }: RadioOptionProps)
 
   const handleChange = useCallback(({ target }: RadioChangeEvent) => {
     const value = group!.categories.find((c) => c.name === target.value)!;
-    dispatch(updateBoardArg({ groupName, value }));
-  }, [dispatch, group, groupName]);
+    updateBoardArg({ groupName, value });
+  }, [group, groupName, updateBoardArg]);
 
   return !group || !selected ? null : (
     <Form.Item

@@ -1,5 +1,6 @@
 import { ThemeConfig } from 'antd';
-import { Theme } from './types.ts';
+
+import { Theme } from './types';
 
 type GetThemeProps = {
   primary: string;

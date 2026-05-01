@@ -1,113 +1,83 @@
-import { sql } from 'kysely';
+import { and, eq, inArray, sql } from 'drizzle-orm';
+import createHttpError from 'http-errors';
 
-import { db } from '../database.ts';
-import { GameUpdate, NewGame } from '../types.ts';
+import { db } from '@server/database';
+import { handleDbError } from '@server/errors';
+import type { DbTransaction } from '@server/database';
+import { games, patternGames, patterns } from '@server/schema';
+import type { NewGame, PatternSquares } from '@server/schema';
 
-function gamesBaseQuery(trx = db) {
+type GamePattern = { id: number; name: string; squares: PatternSquares };
+
+function gamesBaseQuery(trx: typeof db | DbTransaction = db) {
   return trx
-    .selectFrom('games as g')
-    .leftJoin('patternGames as pg', 'g.gameId', 'pg.gameId')
-    .leftJoin('patterns as p', 'p.patternId', 'pg.patternId')
-    .select([
-      'g.gameId as id',
-      'g.name as name',
-      'g.description as description',
-      sql<boolean>`
-        if(g.is_default = true, cast(true as json), cast(false as json))
-      `.as('isDefault'),
-      sql<any>`
-        if(count(p.pattern_id) = 0, JSON_ARRAY(), JSON_ARRAYAGG(
+    .select({
+      id: games.gameId,
+      name: games.name,
+      description: games.description,
+      isDefault: sql<boolean>`if(${games.isDefault} = true, cast(true as json), cast(false as json))`,
+      patterns: sql<GamePattern[]>`
+        if(count(${patterns.patternId}) = 0, JSON_ARRAY(), JSON_ARRAYAGG(
           JSON_OBJECT(
-            'id', p.pattern_id,
-            'name', p.name,
-            'squares', p.squares
+            'id', ${patterns.patternId},
+            'name', ${patterns.name},
+            'squares', ${patterns.squares}
           )
-        ))`.as('patterns'),
-    ])
-    .groupBy('g.gameId');
+        ))`,
+    })
+    .from(games)
+    .leftJoin(patternGames, eq(patternGames.gameId, games.gameId))
+    .leftJoin(patterns, eq(patterns.patternId, patternGames.patternId))
+    .groupBy(games.gameId);
 }
 
 export async function getGames() {
-  return await gamesBaseQuery().execute();
+  return gamesBaseQuery().execute();
 }
 
-export async function getGame(gameId: number, trx = db) {
-  return await gamesBaseQuery(trx)
-    .where('g.gameId', '=', gameId)
-    .executeTakeFirstOrThrow();
+export async function getGame(gameId: number, trx: typeof db | DbTransaction = db) {
+  const [result] = await gamesBaseQuery(trx).where(eq(games.gameId, gameId)).limit(1);
+  if (!result) throw createHttpError(404, 'Game not found');
+  return result;
 }
 
-export async function addGame(game: NewGame, patterns: Array<number>) {
-  return await db.transaction().execute(async (trx) => {
-    const result = await trx
-      .insertInto('games')
-      .values(game)
-      .executeTakeFirstOrThrow();
-    const gameId = Number(result.insertId);
-    if (patterns.length > 0) {
-      await trx
-        .insertInto('patternGames')
-        .values(patterns.map((patternId) => ({
-          patternId,
-          gameId,
-        })))
-        .execute();
+export async function addGame(game: NewGame, patternIds: number[]) {
+  return await db.transaction(async (trx) => {
+    const result = await trx.insert(games).values(game);
+    const gameId = Number(result[0].insertId);
+    if (patternIds.length > 0) {
+      await trx.insert(patternGames).values(patternIds.map((patternId) => ({ patternId, gameId })));
     }
     return await getGame(gameId, trx);
-  });
+  }).catch(handleDbError);
 }
 
 export async function updateGame(
   gameId: number,
-  game: GameUpdate,
-  patterns: {
-    added: Array<number>;
-    removed: Array<number>;
-  }
+  game: Partial<NewGame>,
+  patternUpdates: { added: number[]; removed: number[] },
 ) {
-  return await db.transaction().execute(async (trx) => {
-    await trx
-      .updateTable('games')
-      .set({
-        name: game.name,
-        description: game.description,
-        isDefault: game.isDefault,
-      })
-      .where('gameId', '=', gameId)
-      .execute();
-    if (patterns.added.length > 0) {
-      await trx
-        .insertInto('patternGames')
-        .values(patterns.added.map((patternId) => ({
-          patternId,
-          gameId,
-        })))
-        .execute();
+  return await db.transaction(async (trx) => {
+    await trx.update(games).set(game).where(eq(games.gameId, gameId));
+    if (patternUpdates.added.length > 0) {
+      await trx.insert(patternGames).values(
+        patternUpdates.added.map((patternId) => ({ patternId, gameId })),
+      );
     }
-    if (patterns.removed.length > 0) {
-      await trx
-        .deleteFrom('patternGames')
-        .where((eb) => eb.and([
-          eb('gameId', '=', gameId),
-          eb('patternId', 'in', patterns.removed)
-        ]))
-        .execute();
+    if (patternUpdates.removed.length > 0) {
+      await trx.delete(patternGames).where(
+        and(eq(patternGames.gameId, gameId), inArray(patternGames.patternId, patternUpdates.removed)),
+      );
     }
     return await getGame(gameId, trx);
-  });
+  }).catch(handleDbError);
 }
 
 export async function removeGame(gameId: number) {
-  return await db.transaction().execute(async (trx) => {
+  return await db.transaction(async (trx) => {
     const game = await getGame(gameId, trx);
-    await trx
-      .deleteFrom('patternGames')
-      .where('gameId', '=', gameId)
-      .execute();
-    await trx
-      .deleteFrom('games')
-      .where('gameId', '=', gameId)
-      .execute();
+    await trx.delete(patternGames).where(eq(patternGames.gameId, gameId));
+    await trx.delete(games).where(eq(games.gameId, gameId));
     return game;
   });
 }

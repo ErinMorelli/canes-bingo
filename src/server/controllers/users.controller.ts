@@ -1,74 +1,64 @@
 import bcrypt from 'bcrypt';
+import { eq } from 'drizzle-orm';
+import createHttpError from 'http-errors';
 
-import { db } from '../database.ts';
-import { NewUser, UserUpdate } from '../types.ts';
+import { db } from '@server/database';
+import { handleDbError } from '@server/errors';
+import type { DbTransaction } from '@server/database';
+import { users } from '@server/schema';
+import type { NewUser } from '@server/schema';
 
-export const hashPassword = async (password: string): Promise<string>  =>
+const hashPassword = async (password: string): Promise<string> =>
   new Promise((resolve, reject) => {
-    bcrypt.hash(password, 10, (error, hash) =>  {
+    bcrypt.hash(password, 10, (error, hash) => {
       if (error) return reject(error);
       return resolve(hash);
     });
   });
 
 export async function getUsers() {
-  return await db
-    .selectFrom('users as u')
-    .select(['u.userId as id', 'u.username as username'])
-    .execute();
+  return db.select({ id: users.userId, username: users.username }).from(users);
 }
 
-export async function getUser(userId: number, trx = db) {
-  return await trx
-    .selectFrom('users as u')
-    .select(['u.userId as id', 'u.username as username'])
-    .where('u.userId', '=', userId)
-    .executeTakeFirstOrThrow();
+export async function getUser(userId: number, trx: typeof db | DbTransaction = db) {
+  const [result] = await trx
+    .select({ id: users.userId, username: users.username })
+    .from(users)
+    .where(eq(users.userId, userId))
+    .limit(1);
+  if (!result) throw createHttpError(404, 'User not found');
+  return result;
 }
 
 export async function getUserByUsername(username: string) {
-  return await db
-    .selectFrom('users as u')
-    .selectAll()
-    .where('u.username', '=', username)
-    .executeTakeFirstOrThrow();
+  const [result] = await db.select().from(users).where(eq(users.username, username)).limit(1);
+  if (!result) throw createHttpError(404, 'User not found');
+  return result;
 }
 
-export async function updateUser(userId: number, user: UserUpdate) {
-  return await db.transaction().execute(async (trx) => {
-    let updatedUser: UserUpdate = {username: user.username};
-    if (user.password) {
-      updatedUser.password = await hashPassword(user.password);
-    }
-    await trx
-      .updateTable('users')
-      .set(updatedUser)
-      .where('userId', '=', userId)
-      .executeTakeFirstOrThrow();
+export async function updateUser(userId: number, user: { username?: string; password?: string }) {
+  return await db.transaction(async (trx) => {
+    const updatedUser: Partial<NewUser> = {};
+    if (user.username !== undefined) updatedUser.username = user.username;
+    if (user.password) updatedUser.password = await hashPassword(user.password);
+    await trx.update(users).set(updatedUser).where(eq(users.userId, userId));
     return await getUser(userId, trx);
-  });
+  }).catch(handleDbError);
 }
 
 export async function addUser(user: NewUser) {
-  return await db.transaction().execute(async (trx) => {
+  return await db.transaction(async (trx) => {
     const password = await hashPassword(user.password);
-    const newUser = {username: user.username, password};
-    const result = await trx
-      .insertInto('users')
-      .values(newUser)
-      .executeTakeFirstOrThrow();
-    const userId = Number(result.insertId);
+    const result = await trx.insert(users).values({ username: user.username, password });
+    const userId = Number(result[0].insertId);
     return await getUser(userId, trx);
-  });
+  }).catch(handleDbError);
 }
 
 export async function removeUser(userId: number) {
-  return await db.transaction().execute(async (trx) => {
+  return await db.transaction(async (trx) => {
     const user = await getUser(userId, trx);
-    await trx
-      .deleteFrom('users')
-      .where('userId', '=', userId)
-      .executeTakeFirstOrThrow();
+    await trx.delete(users).where(eq(users.userId, userId));
     return user;
   });
 }

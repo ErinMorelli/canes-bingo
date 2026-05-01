@@ -1,9 +1,9 @@
 import { useCallback, useState } from 'react';
 import { Flex, Typography } from 'antd';
 
-import { Game } from '@app/types.ts';
+import { Game } from '@app/types';
 
-import { PatternAnimated } from './PatternAnimated.tsx';
+import { PatternAnimated } from './PatternAnimated';
 
 type PatternGameProps = {
   readonly game: Game,

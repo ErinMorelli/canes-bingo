@@ -1,1 +1,1 @@
-export { Options } from './Options.tsx';
+export { Options } from './Options';
