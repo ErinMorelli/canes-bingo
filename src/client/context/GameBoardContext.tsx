@@ -77,8 +77,9 @@ export function GameBoardProvider({ children }: Readonly<{ children: React.React
   const updateBoardArg = useCallback(
     (args: UpdateBoardArg) => {
       setBoardArgs((prev) => ({ ...prev, [args.groupName]: args.value }));
+      setSeed((s) => s + 1);
     },
-    [setBoardArgs]
+    [setBoardArgs, setSeed]
   );
 
   const loadBoard = useCallback(

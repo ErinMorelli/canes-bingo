@@ -40,8 +40,8 @@ export function createBoard(squares: Squares, size = 25): Board {
   const filtered = squares.filter(s => s.active);
   const shuffled = shuffleArray(filtered).slice(0, size);
   const chunks = chunkArray<Square>(shuffled);
-  return chunks.map((row): BoardSquare[] =>
-    row.map((col): BoardSquare => ({
+  return chunks.map((row, rowId): BoardSquare[] =>
+    row.map((col, colId): BoardSquare => ({
       selected: false,
       value: col,
     }))
@@ -156,6 +156,6 @@ export function validateBoardPattern(board: Board, pattern: Pattern): boolean {
   const squares = pattern.squares || [];
   if (squares.length === 0) return false;
   return squares.every(({ row, col }) => {
-    return board[row]?.[col]?.selected;
+    return (row === 2 && col === 2) || board[row]?.[col]?.selected;
   });
 }
