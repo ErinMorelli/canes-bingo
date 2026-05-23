@@ -14,7 +14,8 @@
     "generate:client": "tsx bin/generate-api-client.ts",
     "test": "vitest",
     "test:run": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint --quiet -c .eslintrc.cjs ."
   },
   "dependencies": {
     "@ant-design/colors": "^7.1.0",
