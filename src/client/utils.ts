@@ -80,7 +80,7 @@ export async function fetchConfigValue(key: ConfigKey): Promise<string> {
 
 export async function fetchAllSquares(): Promise<Squares> {
   const result = await apiClient.provide(Api.squares.list, {});
-  return getData(result).items as Squares;
+  return getData(result).items;
 }
 
 function getStorageValue<T>(key: StorageKey): T | null {
