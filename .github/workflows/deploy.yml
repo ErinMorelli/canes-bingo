@@ -3,8 +3,35 @@ name: Deploy to Production
 on:
   workflow_dispatch:
 
+permissions:
+  checks: read
+  contents: read
+
 jobs:
+  check-ci:
+    name: Verify CI Checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check lint and test status
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea  # v7.0.1
+        with:
+          script: |
+            const { data: { check_runs } } = await github.rest.checks.listForRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: context.sha,
+            });
+
+            const required = ['ESLint', 'Unit Tests'];
+            for (const name of required) {
+              const run = check_runs.find(r => r.name === name && r.conclusion === 'success');
+              if (!run) {
+                core.setFailed(`Required check "${name}" has not passed on this commit`);
+              }
+            }
+
   deploy:
+    needs: check-ci
     name: Deploy
     runs-on: ubuntu-latest
 
