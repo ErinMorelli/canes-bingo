@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
 import { Board, BoardArgs, Pattern, UpdateBoardArg } from '@app/types';
@@ -14,23 +14,10 @@ import { useGroups } from '@hooks/useGroups';
 import { useGames } from '@hooks/useGames';
 import { useLocalStorage } from '@hooks/useLocalStorage';
 
+import { GameBoardContext, GameBoardContextValue } from './contexts';
+
 const BOARD_ARGS_KEY = `${LOCAL_STORAGE_PREFIX}:boardArgs`;
 const BOARD_KEY = `${LOCAL_STORAGE_PREFIX}:board`;
-
-type GameBoardContextValue = {
-  board: Board;
-  boardArgs: BoardArgs;
-  boardReady: boolean;
-  squaresLoading: boolean;
-  squaresError: boolean;
-  loadBoard: (force?: boolean) => void;
-  generateBoard: () => void;
-  selectSquare: (row: number, col: number) => void;
-  updateBoardArg: (args: UpdateBoardArg) => void;
-  validateGameBoard: () => boolean;
-};
-
-const GameBoardContext = createContext<GameBoardContextValue | null>(null);
 
 export function GameBoardProvider({ children }: Readonly<{ children: React.ReactNode }>) {
   const { groups, defaultArgs, isLoading: groupsLoading } = useGroups();
@@ -142,8 +129,3 @@ export function GameBoardProvider({ children }: Readonly<{ children: React.React
   );
 }
 
-export function useGameBoardContext(): GameBoardContextValue {
-  const ctx = useContext(GameBoardContext);
-  if (!ctx) throw new Error('useGameBoardContext must be used within GameBoardProvider');
-  return ctx;
-}

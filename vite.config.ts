@@ -25,11 +25,31 @@ export default defineConfig({
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
-        manualChunks: {
-          'vendor-react': ['react', 'react-dom', 'react-router', 'react-router-dom'],
-          'vendor-antd': ['antd', '@ant-design/colors'],
-          'vendor-icons': ['@ant-design/icons'],
-          'vendor-query': ['@tanstack/react-query'],
+        // Rolldown (Vite 8) replaces the object form of `manualChunks` with
+        // `codeSplitting.groups`. Higher priority wins when patterns overlap.
+        codeSplitting: {
+          groups: [
+            {
+              name: 'vendor-react',
+              test: /node_modules[\\/](react|react-dom|react-router|react-router-dom|scheduler)[\\/]/,
+              priority: 40,
+            },
+            {
+              name: 'vendor-icons',
+              test: /node_modules[\\/]@ant-design[\\/]icons(-svg)?[\\/]/,
+              priority: 30,
+            },
+            {
+              name: 'vendor-antd',
+              test: /node_modules[\\/](antd|@ant-design[\\/]colors)[\\/]/,
+              priority: 20,
+            },
+            {
+              name: 'vendor-query',
+              test: /node_modules[\\/]@tanstack[\\/]react-query[\\/]/,
+              priority: 10,
+            },
+          ],
         },
       },
     },

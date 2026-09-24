@@ -176,33 +176,53 @@ body {
   text-align: center;
 
   header {
+    padding: 0;
+    position: relative;
+    clip-path: polygon(0 0, 100% 0, 100% 84%, 0 100%);
+    z-index: 98;
 
-    h1 {
-      font-size: 34px;
-      font-weight: normal;
-      font-family: 'Racing Sans One', 'Inter', Arial, sans-serif;
-    }
+    .header-title {
+      font-family: 'Anton', Arial, sans-serif;
+      font-size: 32px;
+      white-space: nowrap;
 
-    @media only screen and (max-width: $breakpoint) {
-      padding: 0 10px;
-
-      h1 {
-        font-size: 24px;
+      > span {
+        color: var(--ant-color-primary);
       }
     }
+
+    .header {
+      max-width: 790px;
+      margin: 0 auto;
+      inset: 0;
+      padding: 0 0 16px;
+    }
+
+    .header-right {
+      button {
+        font-family: 'Anton', Arial, sans-serif;
+        font-size: 14px;
+        font-weight: 500;
+      }
+    }
+
+
   }
 
   main {
-    padding-bottom: 30px;
-    padding-top: 5px;
+    margin-top: -2px;
+    z-index: 99;
 
-    .toolbar {
-      width: $card-size;
-      margin: 0 auto;
-      padding: 8px 0 10px;
+    .status-bar {
+      width: 100%;
+      height: 76px;
+      background: var(--ant-color-bg-container);
+      border-bottom: 1px solid var(--ant-color-split);
 
-      @media only screen and (max-width: $breakpoint) {
-        width: $mobile-card-size;
+      > div {
+        max-width: 790px;
+        margin: 0 auto;
+        height: 100%;
       }
     }
 
@@ -244,34 +264,46 @@ body {
   }
 
   footer {
-    padding: 24px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    align-content: center;
-    flex-direction: column;
-    gap: 10px;
-    color: var(--ant-color-text);
+    padding: 26px 32px;
 
-    .coffee .anticon {
-      font-size: 16px;
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      align-content: center;
+      flex-direction: column;
+      gap: 10px;
+      font-size: 14px;
+    }
+
+    .footer-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .anticon-heart {
+      color: var(--ant-color-primary);
     }
 
     .disclaimer {
-      font-size: 12px;
-      opacity: .6;
-      font-style: italic;
-      line-height: 16px;
-      padding-top: 10px;
+      font-size: 13px;
+      opacity: .75;
+      line-height: 18px;
+      text-align: center;
+      max-width: 640px;
     }
 
     a {
+      transition: text-decoration 250ms ease-in-out;
+
       &:not(.license) {
-        border-bottom: 1px dotted var(--ant-color-link);
+        text-decoration: underline;
       }
 
       &:focus,
       &:hover {
+        text-decoration: none;
         border-bottom: 0;
       }
     }

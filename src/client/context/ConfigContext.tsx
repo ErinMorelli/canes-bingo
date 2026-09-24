@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
 import { Theme } from '@app/types';
@@ -9,21 +9,10 @@ import { Api } from '@app/api-endpoints';
 
 import { useLocalStorage } from '@hooks/useLocalStorage';
 
+import { ConfigContext, ConfigContextValue } from './contexts';
+
 const THEME_KEY = `${LOCAL_STORAGE_PREFIX}:theme`;
 const TOOLTIPS_KEY = `${LOCAL_STORAGE_PREFIX}:tooltips`;
-
-type ConfigContextValue = {
-  theme: Theme & { name: string };
-  setTheme: (value: string) => void;
-  showTooltips: boolean;
-  setTooltips: (value: boolean) => void;
-  headerText: string | undefined;
-  customClass: string | undefined;
-  festiveLights: boolean;
-  isLoading: boolean;
-};
-
-const ConfigContext = createContext<ConfigContextValue | null>(null);
 
 export function ConfigProvider({ children }: Readonly<{ children: React.ReactNode }>) {
   const { data: configItems = [], isLoading } = useQuery({
@@ -85,8 +74,3 @@ export function ConfigProvider({ children }: Readonly<{ children: React.ReactNod
   );
 }
 
-export function useConfigContext(): ConfigContextValue {
-  const ctx = useContext(ConfigContext);
-  if (!ctx) throw new Error('useConfigContext must be used within ConfigProvider');
-  return ctx;
-}

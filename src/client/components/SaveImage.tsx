@@ -1,5 +1,5 @@
 import { RefObject, useCallback, useState } from 'react';
-import { LinkOutlined, SaveFilled } from '@ant-design/icons';
+import { LinkOutlined } from '@ant-design/icons';
 import { Button, message, Modal, Tooltip, Typography } from 'antd';
 
 import html2canvas from 'html2canvas';
@@ -12,10 +12,9 @@ type SaveBoardImageProps = {
   cardRef: RefObject<HTMLDivElement>;
 }
 
-export function ToolbarSaveImage({ cardRef }: Readonly<SaveBoardImageProps>) {
+export function SaveImage({ cardRef }: Readonly<SaveBoardImageProps>) {
   const [messageApi, contextHolder] = message.useMessage();
 
-  const [saveLoading, setSaveLoading] = useState(false);
   const [shareLoading, setShareLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [imgurLink, setImgurLink] = useState<string|undefined>(undefined);
@@ -26,28 +25,6 @@ export function ToolbarSaveImage({ cardRef }: Readonly<SaveBoardImageProps>) {
       content: <Text>{message}. Please try again later.</Text>
     });
   }, [messageApi]);
-
-  const saveImage = useCallback((blob: Blob | null) => {
-    if (!blob) {
-      setSaveLoading(false);
-      imageError('Unable to save image');
-      return;
-    }
-
-    const fileName = `BingoCard-${Date.now().toString()}`;
-    const objectUrl = URL.createObjectURL(blob);
-
-    const link = document.createElement("a");
-    link.style.display = 'none';
-    document.body.appendChild(link);
-    link.href = objectUrl;
-    link.download = fileName;
-    link.click();
-    setSaveLoading(false);
-    link.remove();
-    setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
-  }, [imageError]);
-
   const shareImage = useCallback((blob: Blob | null) => {
     if (!blob) {
       setShareLoading(false);
@@ -106,18 +83,6 @@ export function ToolbarSaveImage({ cardRef }: Readonly<SaveBoardImageProps>) {
       });
   };
 
-  const handleSaveImage = useCallback(() => {
-    setSaveLoading(true);
-    takeScreenshot(cardRef).then((canvas) => {
-      if (canvas === null) {
-        imageError('Unable to save image');
-        setSaveLoading(false);
-      } else {
-        canvas.toBlob(saveImage, 'image/png');
-      }
-    });
-  }, [cardRef, imageError, saveImage]);
-
   const handleShareImage = useCallback(() => {
     setShareLoading(true);
     takeScreenshot(cardRef).then((canvas) => {
@@ -133,14 +98,6 @@ export function ToolbarSaveImage({ cardRef }: Readonly<SaveBoardImageProps>) {
   return (
     <>
       {contextHolder}
-      <Tooltip title="Save card image file">
-        <Button
-          onClick={handleSaveImage}
-          aria-label="Save card image file"
-          loading={saveLoading}
-          icon={<SaveFilled />}
-        />
-      </Tooltip>
       <Tooltip title="Get card image link">
         <Button
           onClick={handleShareImage}
