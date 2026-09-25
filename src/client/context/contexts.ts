@@ -1,6 +1,12 @@
 import { createContext } from 'react';
 
-import { Board, BoardArgs, Theme, UpdateBoardArg } from '@app/types';
+import {
+  Board,
+  BoardArgs,
+  NHLActiveGame, NHLGameState,
+  Theme,
+  UpdateBoardArg
+} from '@app/types';
 
 export type ConfigContextValue = {
   theme: Theme & { name: string };
@@ -38,3 +44,11 @@ export type DrawerContextValue = {
 };
 
 export const DrawerContext = createContext<DrawerContextValue | null>(null);
+
+export type ActiveGameContextValue = {
+  activeGame: NHLActiveGame;
+  refreshGame: () => void;
+  gameState: NHLGameState;
+};
+
+export const ActiveGameContext = createContext<ActiveGameContextValue | null>(null);

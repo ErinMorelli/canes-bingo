@@ -1,5 +1,10 @@
-import { headerRule } from '@app/themes.ts';
 import { Flex } from 'antd';
+
+import { headerRule } from '@app/themes';
+
+import { ActiveGameProvider } from '@context/ActiveGameContext';
+
+import { StatusGame } from './StatusGame';
 
 type StatusProps = {
   themeName: string;
@@ -15,7 +20,9 @@ export function Status({ themeName }: Readonly<StatusProps>) {
       borderTopStyle: "solid",
     }}>
       <Flex justify="space-between">
-        <div>SCORE</div>
+        <ActiveGameProvider>
+          <StatusGame />
+        </ActiveGameProvider>
         <div>PATTERN</div>
       </Flex>
     </div>

@@ -74,3 +74,59 @@ export type Theme = {
   customClass?: string;
 };
 
+export type NHLScheduleTeam = {
+  id: number;
+  abbrev: string;
+  commonName: { default: string };
+  placeName: { default: string };
+  logo: string;
+  darkLogo: string;
+  score?: number;
+};
+
+export type NHLScheduleGame = {
+  id: number;
+  gameType: number;
+  gameDate: string;
+  startTimeUTC: string;
+  venueUTCOffset: string;
+  venueTimezone: string;
+  gameState: string;
+  gameScheduleState: string;
+  gameCenterLink: string;
+  awayTeam: NHLScheduleTeam;
+  homeTeam: NHLScheduleTeam;
+};
+
+export type NHLScheduleResult = {
+  games: Array<NHLScheduleGame>;
+};
+
+export type NHLActiveGame = {
+  id: number;
+  gameDate: string;
+  startTimeUTC: string;
+  gameState: string;
+  gameScheduleState: string;
+  awayTeam: NHLScheduleTeam;
+  homeTeam: NHLScheduleTeam;
+  shootoutInUse: boolean;
+  otInUse: boolean;
+  displayPeriod: number;
+  regPeriods: number;
+  maxPeriods: number;
+  clock: {
+    timeRemaining: string;
+    secondsRemaining: number;
+    running: boolean;
+    inIntermission: boolean;
+  };
+};
+
+export enum NHLGameState {
+  LIVE = 'live',
+  PREGAME = 'pre',
+  POSTGAME = 'post',
+  FUTURE = 'future',
+  NONE = 'none',
+}

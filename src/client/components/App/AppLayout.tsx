@@ -4,6 +4,7 @@ import { Layout, notification, Space, Spin, Typography } from 'antd';
 import { useConfig, useGameBoard, useGroups } from '@hooks';
 
 import { Card } from '@components/Card';
+import { Status } from '@components/Status';
 
 import { DrawerProvider } from '@context/DrawerContext';
 
@@ -11,7 +12,6 @@ import AppDrawer from './AppDrawer';
 import AppFooter from './AppFooter';
 import AppHeader from './AppHeader';
 import AppLights from './AppLights';
-import { Status } from '@components/Status';
 
 const { Header, Content, Footer } = Layout
 

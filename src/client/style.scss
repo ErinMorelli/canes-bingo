@@ -224,6 +224,47 @@ body {
         margin: 0 auto;
         height: 100%;
       }
+
+      .game-status {
+        .header {
+          display: flex;
+          align-items: baseline;
+          gap: 8px;
+          min-width: 0;
+        }
+
+        .next {
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 0.14em;
+          color: var(--ant-color-text-secondary);
+        }
+
+        .teams {
+          font-family: "Anton", sans-serif;
+          font-size: 26px;
+          white-space: nowrap;
+        }
+
+        .details {
+          font-size: 11px;
+          font-weight: 700;
+        }
+
+        .live-dot {
+          display: inline-block;
+          width: 7px;
+          height: 7px;
+          border-radius: 50%;
+          margin-right: 6px;
+          vertical-align: 1px;
+          background: transparent;
+        }
+
+        .time {
+          color: var(--ant-color-text-secondary);
+        }
+      }
     }
 
     .board-wrapper {
