@@ -82,6 +82,7 @@ export type NHLScheduleTeam = {
   logo: string;
   darkLogo: string;
   score?: number;
+  sog?: number;
 };
 
 export type NHLScheduleGame = {
@@ -93,7 +94,6 @@ export type NHLScheduleGame = {
   venueTimezone: string;
   gameState: string;
   gameScheduleState: string;
-  gameCenterLink: string;
   awayTeam: NHLScheduleTeam;
   homeTeam: NHLScheduleTeam;
 };
@@ -102,24 +102,24 @@ export type NHLScheduleResult = {
   games: Array<NHLScheduleGame>;
 };
 
-export type NHLActiveGame = {
-  id: number;
-  gameDate: string;
-  startTimeUTC: string;
-  gameState: string;
-  gameScheduleState: string;
-  awayTeam: NHLScheduleTeam;
-  homeTeam: NHLScheduleTeam;
+export type NHLActiveGame = NHLScheduleGame & {
   shootoutInUse: boolean;
   otInUse: boolean;
-  displayPeriod: number;
+  tiesInUse: boolean;
   regPeriods: number;
   maxPeriods: number;
-  clock: {
+  // Both are absent until the game starts — confirmed against /landing for a
+  // FUT game, which carries neither.
+  clock?: {
     timeRemaining: string;
     secondsRemaining: number;
     running: boolean;
     inIntermission: boolean;
+  };
+  periodDescriptor?: {
+    number: number;
+    periodType: string;
+    maxRegulationPeriods: number;
   };
 };
 

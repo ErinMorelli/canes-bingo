@@ -97,7 +97,7 @@ export function GameBoardProvider({ children }: Readonly<{ children: React.React
 
   const validateGameBoard = useCallback(() => {
     const patterns = selectedGame?.patterns ?? [];
-    return (patterns as Pattern[]).some((pattern) => validateBoardPattern(board, pattern));
+    return (patterns as Pattern[]).some((pattern) => validateBoardPattern(board, pattern).valid);
   }, [board, selectedGame]);
 
   const boardReady = board.length > 0;
@@ -106,6 +106,16 @@ export function GameBoardProvider({ children }: Readonly<{ children: React.React
     [squaresFetchError, squaresSuccess, squares]
   );
 
+  const squaresRemaining = useMemo(() => {
+    const patterns = selectedGame?.patterns ?? [];
+    const counts = (patterns as Pattern[])
+      .map((pattern) => validateBoardPattern(board, pattern).remaining)
+      // Drop the "not completable" sentinel, or one empty pattern wins the min
+      // and the board reports -1 while real patterns are still in progress.
+      .filter((remaining) => remaining >= 0);
+    return counts.length ? Math.min(...counts) : -1;
+  }, [board, selectedGame]);
+
   const value = useMemo<GameBoardContextValue>(
     () => ({
       board,
@@ -113,13 +123,14 @@ export function GameBoardProvider({ children }: Readonly<{ children: React.React
       boardReady,
       squaresLoading,
       squaresError,
+      squaresRemaining,
       loadBoard,
       generateBoard,
       selectSquare,
       updateBoardArg,
       validateGameBoard,
     }),
-    [board, boardArgs, boardReady, squaresLoading, squaresError, loadBoard, generateBoard, selectSquare, updateBoardArg, validateGameBoard]
+    [board, boardArgs, boardReady, squaresLoading, squaresError, squaresRemaining, loadBoard, generateBoard, selectSquare, updateBoardArg, validateGameBoard]
   );
 
   return (

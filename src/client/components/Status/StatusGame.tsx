@@ -1,12 +1,17 @@
-import { useActiveGame } from '@hooks/useActiveGame';
-import { NHLGameState } from '@app/types';
-import { Flex } from 'antd';
-import { Link } from 'react-router-dom';
 import { useMemo } from 'react';
+import { Link } from 'react-router-dom';
+import { Flex, theme } from 'antd';
 import { format } from 'date-fns';
 
+import { NHLGameState } from '@app/types';
+
+import { useActiveGame } from '@hooks/useActiveGame';
+
+const { useToken } = theme;
+
 export function StatusGame() {
-  const { activeGame, gameState } = useActiveGame();
+  const { activeGame, gameState, isPeriodActive } = useActiveGame();
+  const { token } = useToken();
 
   const home = useMemo(() => activeGame.homeTeam?.abbrev, [activeGame.homeTeam]);
   const away = useMemo(() => activeGame.awayTeam?.abbrev, [activeGame.awayTeam]);
@@ -29,25 +34,31 @@ export function StatusGame() {
     }
 
     if (gameState === NHLGameState.FUTURE) {
-      return format(gameDate, 'E p');
+      return format(gameDate, 'E · p');
     }
 
     if (gameState === NHLGameState.LIVE) {
       const remaining = activeGame.clock?.timeRemaining || '00:00';
+      const periodNumber = activeGame.periodDescriptor?.number;
       let period = '';
-      if (activeGame.displayPeriod === 1) period = '1st';
-      if (activeGame.displayPeriod === 2) period = '2nd';
-      if (activeGame.displayPeriod === 3) period = '3rd';
+      if (periodNumber === 1) period = '1st';
+      if (periodNumber === 2) period = isPeriodActive ? '2nd' : '1st intermission';
+      if (periodNumber === 3) period = isPeriodActive ? '3rd' : '2nd intermission';
+      if (periodNumber === 4) period = isPeriodActive ? 'OT' : '3rd intermission';
+      if (periodNumber === 5) period = 'SO';
       return `${period} · ${remaining}`;
     }
 
     return 'Final';
-  }, [activeGame.clock, activeGame.displayPeriod, activeGame.startTimeUTC, gameState]);
+  }, [activeGame.clock?.timeRemaining, activeGame.periodDescriptor?.number, activeGame.startTimeUTC, gameState, isPeriodActive]);
 
   const backgroundColor = useMemo(() => {
-    if (gameState === NHLGameState.LIVE) return 'red';
+    if (gameState === NHLGameState.LIVE) {
+      if (isPeriodActive) return token.colorPrimary;
+      return token.colorTextSecondary;
+    }
     return 'transparent';
-  }, [gameState]);
+  }, [gameState, isPeriodActive, token.colorPrimary, token.colorTextSecondary]);
 
   const link = useMemo(() => {
     if (gameState === NHLGameState.FUTURE) {
@@ -69,7 +80,9 @@ export function StatusGame() {
         </Flex>
       </Flex>
       <Flex className="details" align="center">
-        <div className="live-dot" style={{ backgroundColor}}></div>
+        <div
+          className={'live-dot' + (gameState === NHLGameState.LIVE ? ' live' : '')}
+          style={{ backgroundColor}}></div>
         <Flex gap={6}>
           <div className="time">{time}</div>
           <span>·</span>

@@ -218,7 +218,7 @@ const getTheme = ({
     },
     Layout: {
       bodyBg: shell,
-      /** The redesign moves the brand colour off the header bar; the header is a neutral surface. */
+      /** The redesign moves the brand color off the header bar; the header is a neutral surface. */
       headerBg: surface,
       headerColor: text,
       headerHeight: 100,

@@ -89,24 +89,55 @@ describe('validateBoardPattern', () => {
     [{ selected: true, value: makeSquare(3) }, { selected: true,  value: makeSquare(4) }],
   ];
 
-  it('returns true when all pattern squares are selected', () => {
+  it('is valid with nothing remaining when all pattern squares are selected', () => {
     const pattern: Pattern = { id: 1, name: 'X', squares: [{ row: 0, col: 0 }, { row: 1, col: 0 }, { row: 1, col: 1 }] };
-    expect(validateBoardPattern(board, pattern)).toBe(true);
+    expect(validateBoardPattern(board, pattern)).toEqual({ valid: true, remaining: 0 });
   });
 
-  it('returns false when a pattern square is not selected', () => {
+  it('counts a single unselected square as one remaining', () => {
     const pattern: Pattern = { id: 1, name: 'X', squares: [{ row: 0, col: 1 }] };
-    expect(validateBoardPattern(board, pattern)).toBe(false);
+    expect(validateBoardPattern(board, pattern)).toEqual({ valid: false, remaining: 1 });
   });
 
-  it('returns false for an empty squares list', () => {
+  it('counts only the squares still needed, not the whole pattern', () => {
+    // (0,0) and (1,1) are selected; (0,1) is not.
+    const pattern: Pattern = { id: 1, name: 'X', squares: [{ row: 0, col: 0 }, { row: 0, col: 1 }, { row: 1, col: 1 }] };
+    expect(validateBoardPattern(board, pattern)).toEqual({ valid: false, remaining: 1 });
+  });
+
+  it('counts every missing square', () => {
+    const emptyBoard: Board = [
+      [{ selected: false, value: makeSquare(1) }, { selected: false, value: makeSquare(2) }],
+      [{ selected: false, value: makeSquare(3) }, { selected: false, value: makeSquare(4) }],
+    ];
+    const pattern: Pattern = { id: 1, name: 'X', squares: [{ row: 0, col: 0 }, { row: 0, col: 1 }, { row: 1, col: 0 }] };
+    expect(validateBoardPattern(emptyBoard, pattern)).toEqual({ valid: false, remaining: 3 });
+  });
+
+  it('treats the centre square as a free space that needs no selection', () => {
+    const fiveByFive: Board = Array.from({ length: 5 }, () =>
+      Array.from({ length: 5 }, (_, col) => ({ selected: false, value: makeSquare(col) }))
+    );
+    const pattern: Pattern = { id: 1, name: 'free', squares: [{ row: 2, col: 2 }] };
+    expect(validateBoardPattern(fiveByFive, pattern)).toEqual({ valid: true, remaining: 0 });
+  });
+
+  it('does not count the free centre toward remaining', () => {
+    const fiveByFive: Board = Array.from({ length: 5 }, () =>
+      Array.from({ length: 5 }, (_, col) => ({ selected: false, value: makeSquare(col) }))
+    );
+    const pattern: Pattern = { id: 1, name: 'row', squares: [{ row: 2, col: 1 }, { row: 2, col: 2 }, { row: 2, col: 3 }] };
+    expect(validateBoardPattern(fiveByFive, pattern)).toEqual({ valid: false, remaining: 2 });
+  });
+
+  it('reports -1 for an empty squares list, which is not a completable pattern', () => {
     const pattern: Pattern = { id: 1, name: 'empty', squares: [] };
-    expect(validateBoardPattern(board, pattern)).toBe(false);
+    expect(validateBoardPattern(board, pattern)).toEqual({ valid: false, remaining: -1 });
   });
 
-  it('returns false when a pattern square is out of bounds', () => {
+  it('never completes when a pattern square is out of bounds', () => {
     const pattern: Pattern = { id: 1, name: 'oob', squares: [{ row: 9, col: 9 }] };
-    expect(validateBoardPattern(board, pattern)).toBe(false);
+    expect(validateBoardPattern(board, pattern)).toEqual({ valid: false, remaining: 1 });
   });
 });
 

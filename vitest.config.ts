@@ -4,13 +4,13 @@ import path from 'node:path';
 export default defineConfig({
   resolve: {
     alias: {
-      '@app': path.resolve(__dirname, './src/client'),
-      '@hooks': path.resolve(__dirname, './src/client/hooks'),
-      '@components': path.resolve(__dirname, './src/client/components'),
-      '@admin': path.resolve(__dirname, './src/client/admin'),
-      '@context': path.resolve(__dirname, './src/client/context'),
-      '@schema': path.resolve(__dirname, './src/schema'),
-      '@server': path.resolve(__dirname, './src/server'),
+      '@app': path.resolve(import.meta.dirname, './src/client'),
+      '@hooks': path.resolve(import.meta.dirname, './src/client/hooks'),
+      '@components': path.resolve(import.meta.dirname, './src/client/components'),
+      '@admin': path.resolve(import.meta.dirname, './src/client/admin'),
+      '@context': path.resolve(import.meta.dirname, './src/client/context'),
+      '@schema': path.resolve(import.meta.dirname, './src/schema'),
+      '@server': path.resolve(import.meta.dirname, './src/server'),
     },
   },
   test: {

@@ -1,5 +1,5 @@
 import { forwardRef, useEffect, useState } from 'react';
-import { Typography } from 'antd';
+import { Flex, Typography } from 'antd';
 import type { NotificationInstance } from 'antd/es/notification/interface';
 
 import confetti from 'canvas-confetti';
@@ -77,16 +77,17 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
     };
 
     return (
-      <div className="bingo" role="grid" ref={ref}>
-        {board.map((row, rowId) => row ? (
-          <div
-            className="row"
-            role="row"
-            id={`row-${rowId}`}
-            key={`${row.length}-${rowId}`}
-          >{generateRow(row, rowId)}</div>
-        ) : null)}
-      </div>
+      <>
+        <div className="bingo" role="grid" ref={ref}>
+          {board.map((row, rowId) =>
+            row ? generateRow(row, rowId) : null)}
+        </div>
+        <Flex className="bingo-footer" align="center">
+          <div>
+            Long-press (or hover on desktop) any square to see what it means
+          </div>
+        </Flex>
+      </>
     );
   }
 );

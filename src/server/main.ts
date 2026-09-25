@@ -9,6 +9,7 @@ import { createConfig, attachRouting } from 'express-zod-api';
 
 import { dbConfig } from './database';
 import { routing } from './routing';
+import { nhlRouter } from './nhl-proxy';
 
 const SECRET_KEY = process.env.SECRET_KEY;
 if (!SECRET_KEY) {
@@ -88,6 +89,9 @@ const config = createConfig({
     patch: ['body', 'params'],
   },
 });
+
+// Mounted before the express-zod-api 404 handler so it is not swallowed by it.
+app.use('/api/nhl', nhlRouter);
 
 const { notFoundHandler } = attachRouting(config, routing);
 app.use('/api', notFoundHandler);

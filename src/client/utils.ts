@@ -152,10 +152,35 @@ export function getSquareStyle(size?: number) {
   return { width: `${s}px`, height: `${s}px` };
 }
 
-export function validateBoardPattern(board: Board, pattern: Pattern): boolean {
+// The center of the 5x5 board is a free space: it counts as covered without
+// ever being selected. createBoard does not mark it, so the rule lives here.
+const FREE_SQUARE_ROW = 2;
+const FREE_SQUARE_COL = 2;
+
+function isSquareCovered(board: Board, { row, col }: PatternSquare): boolean {
+  if (row === FREE_SQUARE_ROW && col === FREE_SQUARE_COL) return true;
+  // Out-of-bounds squares read as undefined, so they stay uncovered and the
+  // pattern can never complete.
+  return board[row]?.[col]?.selected;
+}
+
+/**
+ * How close the board is to completing a pattern.
+ *
+ * `remaining` is the number of pattern squares still to be selected; `valid` is
+ * true only once a non-empty pattern is fully covered.
+ *
+ * A pattern with no squares is not completable, so it reports `remaining: -1`
+ * rather than 0. Callers aggregating across patterns must drop that sentinel
+ * before taking a minimum.
+ */
+export function validateBoardPattern(
+  board: Board,
+  pattern: Pattern
+): { valid: boolean, remaining: number } {
   const squares = pattern.squares || [];
-  if (squares.length === 0) return false;
-  return squares.every(({ row, col }) => {
-    return (row === 2 && col === 2) || board[row]?.[col]?.selected;
-  });
+  if (squares.length === 0) return { valid: false, remaining: -1 };
+
+  const remaining = squares.filter((square) => !isSquareCovered(board, square)).length;
+  return { valid: remaining === 0, remaining };
 }

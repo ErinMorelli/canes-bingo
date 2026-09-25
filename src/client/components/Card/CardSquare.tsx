@@ -1,4 +1,4 @@
-import {
+import React, {
   useCallback,
   useEffect,
   useMemo,
@@ -13,6 +13,9 @@ import { fetchConfigValue } from '@app/utils';
 import { ConfigKey } from '@app/constants';
 
 import { useConfig } from '@hooks';
+
+const WHITE = '#FFFFFF';
+const BLACK = '#000000';
 
 type SquareProps = {
   square: BoardSquare;
@@ -29,7 +32,7 @@ function getSquareId(rowId: number, colId: number) {
 export function CardSquare({ square, rowId, colId, customClass, onClick }: Readonly<SquareProps>) {
   const { selected, value } = square;
 
-  const { showTooltips } = useConfig();
+  const { showTooltips, theme } = useConfig();
 
   const squareId = getSquareId(rowId, colId);
 
@@ -44,7 +47,7 @@ export function CardSquare({ square, rowId, colId, customClass, onClick }: Reado
 
   const squareDescription = useMemo(
     () => isFreeSpace
-        ? 'Free space!'
+        ? 'FREE'
         : value.description,
     [isFreeSpace, value.description]
   );
@@ -68,9 +71,29 @@ export function CardSquare({ square, rowId, colId, customClass, onClick }: Reado
     }
     if (isFreeSpace) {
       classes.push('free-space');
+      classes.push(theme.name);
     }
     return classes.join(' ');
-  }, [isFreeSpace, selected]);
+  }, [isFreeSpace, selected, theme.name]);
+
+  const styles = useMemo(() => {
+    const isDark = theme.name === 'dark';
+
+    const style: React.CSSProperties = {
+      color: theme.config?.token?.colorText,
+      backgroundColor: isDark ? theme.config?.token?.colorBgContainer : theme.config?.token?.colorBgBase,
+      borderColor: theme.config?.token?.colorBorder,
+    };
+    if (selected) {
+      style.backgroundColor = theme.config?.token?.colorPrimary;
+      style.color = WHITE;
+    }
+    if (isFreeSpace) {
+      style.backgroundColor = theme.config.token?.colorText;
+      style.color = isDark ? BLACK : WHITE;
+    }
+    return style;
+  }, [isFreeSpace, selected, theme]);
 
   function getNextSquare(key: string, rowId: number, colId: number) {
     let newRowId = rowId, newColId = colId;
@@ -105,12 +128,18 @@ export function CardSquare({ square, rowId, colId, customClass, onClick }: Reado
     }
   }, [colId, rowId]);
 
+  const handleClick = useCallback((rowId: number, colId: number) => {
+    if (isFreeSpace) return;
+    onClick(rowId, colId);
+  }, [isFreeSpace, onClick]);
+
   const squareEl = (
     <button
       type="button"
       className={classNames}
+      style={styles}
       id={squareId}
-      onClick={() => onClick(rowId, colId)}
+      onClick={() => handleClick(rowId, colId)}
       onKeyDown={handleKeyDown}
       aria-pressed={selected}
       aria-label={squareAriaLabel}>
@@ -122,8 +151,7 @@ export function CardSquare({ square, rowId, colId, customClass, onClick }: Reado
     <Popover
       rootClassName={popoverClassNames}
       mouseEnterDelay={0.5}
-      content={squareDescription}
-      title={squareValue}>
+      content={squareDescription}>
       {squareEl}
     </Popover>
   ) : squareEl;

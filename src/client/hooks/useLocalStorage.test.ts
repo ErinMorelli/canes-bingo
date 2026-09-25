@@ -47,4 +47,37 @@ describe('useLocalStorage', () => {
     expect(result.current[0]).toEqual({ a: 99 });
     expect(JSON.parse(localStorage.getItem('obj-key')!)).toEqual({ a: 99 });
   });
+
+  // Regression: separate components calling the same hook (e.g. useGames in
+  // both GameOption and Status) must not drift apart.
+  it('propagates a write to another hook instance using the same key', () => {
+    const writer = renderHook(() => useLocalStorage<number | null>('shared-key', null));
+    const reader = renderHook(() => useLocalStorage<number | null>('shared-key', null));
+
+    expect(reader.result.current[0]).toBeNull();
+
+    act(() => writer.result.current[1](7));
+
+    expect(writer.result.current[0]).toBe(7);
+    expect(reader.result.current[0]).toBe(7);
+  });
+
+  it('keeps instances on different keys independent', () => {
+    const a = renderHook(() => useLocalStorage('key-a', 'a'));
+    const b = renderHook(() => useLocalStorage('key-b', 'b'));
+
+    act(() => a.result.current[1]('changed'));
+
+    expect(a.result.current[0]).toBe('changed');
+    expect(b.result.current[0]).toBe('b');
+  });
+
+  it('returns a stable reference for an unchanged object value', () => {
+    localStorage.setItem('stable-key', JSON.stringify({ x: 1 }));
+    const { result, rerender } = renderHook(() => useLocalStorage('stable-key', { x: 0 }));
+
+    const first = result.current[0];
+    rerender();
+    expect(result.current[0]).toBe(first);
+  });
 });

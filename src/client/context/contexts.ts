@@ -27,6 +27,7 @@ export type GameBoardContextValue = {
   boardReady: boolean;
   squaresLoading: boolean;
   squaresError: boolean;
+  squaresRemaining: number;
   loadBoard: (force?: boolean) => void;
   generateBoard: () => void;
   selectSquare: (row: number, col: number) => void;
@@ -49,6 +50,7 @@ export type ActiveGameContextValue = {
   activeGame: NHLActiveGame;
   refreshGame: () => void;
   gameState: NHLGameState;
+  isPeriodActive: boolean;
 };
 
 export const ActiveGameContext = createContext<ActiveGameContextValue | null>(null);
