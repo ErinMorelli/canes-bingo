@@ -20,9 +20,16 @@ export default function AppDrawer({ customClass = '' }: AppDrawerProps) {
     <Drawer
       title="Game Options"
       className={customClass}
-      size={300}
+      size={400}
       open={isOpen || squaresError}
+      closable={{ placement: 'end' }}
       onClose={() => !squaresError && close()}
+      footer={
+        <div className="drawer-footer">
+          <div>Notice</div>
+          <div>Button</div>
+        </div>
+      }
       extra={
         <Button size="small" onClick={handleReset}>
           Reset

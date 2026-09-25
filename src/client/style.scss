@@ -38,8 +38,15 @@ body {
   font-family: 'Inter', Arial, sans-serif;
 
   .ant-drawer {
+    .ant-drawer-header {
+      border-bottom: 2px solid var(--ant-color-primary);
+    }
+
     .ant-drawer-title, .ant-checkbox-wrapper {
-      color: var(--ant-color-text-base);
+      font-family: "Anton", sans-serif;
+      color: var(--ant-color-text);
+      font-size: 22px;
+      font-weight: normal;
     }
   }
 
@@ -559,6 +566,28 @@ body {
 }
 
 .options {
+  .options-header {
+    span {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .14em;
+      color: var(--ant-color-text-secondary);
+      text-transform: uppercase;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      width: 100%;
+
+      &::after {
+        content: '';
+        height: 1px;
+        background-color: var(--ant-color-fill-tertiary);
+        display: block;
+        flex: 1;
+      }
+    }
+  }
+
   .select-option-icon.anticon {
     position: relative;
     font-size: 12px;

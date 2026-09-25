@@ -1,4 +1,4 @@
-import { Divider, Form, Space } from 'antd';
+import { Divider, Flex, Form, Space } from 'antd';
 
 import { Group } from '@app/constants.ts';
 
@@ -26,17 +26,20 @@ export function Options() {
 
   return (
     <Form className="options" layout="vertical">
-      <Space
-        style={{ width: '100%' }}
-        orientation="vertical"
-        size="small"
-        separator={<Divider size="middle" />}
-      >
-        <div>{radioOptions}</div>
-        <div>{selectOptions}</div>
-        <OtherOptions />
-        <GameOption />
-      </Space>
+      <Flex className="options-header" align="center">
+        <span>This Game</span>
+      </Flex>
+      {/* Location & Broadcast */}
+      {radioOptions}
+      {/* Scratches */}
+      <div>Scratches</div>
+      {/* Game Pattern */}
+      <GameOption />
+      <Flex className="options-header" align="center">
+        <span>Preferences</span>
+      </Flex>
+      {/* Theme & Tooltips */}
+      <OtherOptions />
     </Form>
   );
 }
