@@ -48,6 +48,10 @@ body {
       font-size: 22px;
       font-weight: normal;
     }
+
+    .ant-drawer-body {
+      padding: 16px 24px 0;
+    }
   }
 
   .dark {
@@ -566,6 +570,11 @@ body {
 }
 
 .options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow: hidden;
+
   .options-header {
     span {
       font-size: 11px;
@@ -586,6 +595,32 @@ body {
         flex: 1;
       }
     }
+  }
+
+  .group-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ant-color-text-secondary);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .tooltip-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ant-color-text);
+  }
+
+  .tooltip-sub {
+    font-size: 13px;
+    color: var(--ant-color-text-secondary);
+  }
+
+  .game-pattern-select-name {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--ant-color-text);
+    white-space: nowrap;
   }
 
   .select-option-icon.anticon {

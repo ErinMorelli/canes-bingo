@@ -474,7 +474,7 @@ export const surfaces: Record<string, Record<string, string>> = {
 export const themes: Record<string, Theme> = {
   default: {
     config: defaultTheme,
-    label: 'Default',
+    label: 'Light',
   },
   whalers: {
     config: whalersTheme,

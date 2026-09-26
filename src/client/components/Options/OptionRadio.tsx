@@ -1,11 +1,5 @@
 import { useCallback, useMemo } from 'react';
-import {
-  Form,
-  Radio,
-  RadioChangeEvent,
-  Tooltip,
-  Typography
-} from 'antd';
+import { Flex, Segmented } from 'antd';
 
 import { SingleGroup } from '@app/types';
 
@@ -13,10 +7,9 @@ import { useGroups, useGameBoard } from '@hooks';
 
 type RadioOptionProps = {
   groupName: SingleGroup;
-  hideMargin?: boolean;
 }
 
-export default function OptionRadio({ groupName, hideMargin }: RadioOptionProps) {
+export default function OptionRadio({ groupName }: RadioOptionProps) {
   const { groups } = useGroups();
   const { boardArgs, updateBoardArg } = useGameBoard();
 
@@ -33,40 +26,26 @@ export default function OptionRadio({ groupName, hideMargin }: RadioOptionProps)
     [boardArgs, groupName]
   );
 
-  const handleChange = useCallback(({ target }: RadioChangeEvent) => {
-    const value = group!.categories.find((c) => c.name === target.value)!;
+  const handleChange = useCallback((val: string) => {
+    const value = group!.categories.find((c) => c.name === val)!;
     updateBoardArg({ groupName, value });
   }, [group, groupName, updateBoardArg]);
 
   return !group || !selected ? null : (
-    <Form.Item
-      style={hideMargin ? { marginBottom: 0 } : undefined}
-      label={
-        <Typography.Text strong id={`group-${String(group.id)}`}>
-          {group.label}
-        </Typography.Text>
-      }
-    >
-      <Radio.Group
-        onChange={handleChange}
+    <Flex className="group-radio" orientation="vertical" gap={6}>
+      <div className="group-title">{group.label}</div>
+      <Segmented<string>
+        block
+        options={group.categories.map((cat) => ({
+          label: cat.label,
+          value: cat.name,
+          tooltip: {
+            title: cat.description,
+          },
+        }))}
         value={selected}
-        size="middle"
-        buttonStyle="solid"
-        optionType="button"
-        aria-label={group.label}
-      >
-        {group.categories.map((cat) => cat.description ? (
-          <Tooltip title={cat.description} key={cat.id}>
-            <Radio.Button value={cat.name} title={`${cat.label} (${cat.description})`}>
-              {cat.label}
-            </Radio.Button>
-          </Tooltip>
-        ) : (
-          <Radio.Button value={cat.name} key={cat.id}>
-            {cat.label}
-          </Radio.Button>
-        ))}
-      </Radio.Group>
-    </Form.Item>
+        onChange={handleChange}
+      />
+    </Flex>
   )
 }

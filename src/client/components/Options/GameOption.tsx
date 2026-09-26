@@ -1,25 +1,13 @@
-import { useCallback, useMemo, useState } from 'react';
-import { Button, Flex, Form, Modal, Select, Switch, Typography } from 'antd';
-import { EyeOutlined } from '@ant-design/icons'
+import { useCallback, useMemo } from 'react';
+import { Flex, Segmented, Switch } from 'antd';
 
 import { Game } from '@app/types';
 
-import { useConfig, useGames } from '@hooks';
+import { useGames } from '@hooks';
 
-import { PatternAnimated, PatternGame } from '@components/Pattern';
-
-const { Text, Title, Paragraph } = Typography;
-
-type GameOptionType = {
-  value: number;
-  label: string;
-  data: Game;
-}
-
-const tooltipText = 'Pick a bingo game pattern to play for and get notified when you win!';
+import { PatternGame } from '@components/Pattern';
 
 export default function GameOption() {
-  const { theme } = useConfig()
   const {
     games,
     gamesLoaded,
@@ -29,100 +17,47 @@ export default function GameOption() {
     setIsEnabled,
   } = useGames();
 
-  const [open, setOpen] = useState<boolean>(false);
-
-  const handleChange = useCallback((value?: GameOptionType | GameOptionType[]) => {
-    if (!value || Array.isArray(value)) return;
-    setSelectedGame(value.data);
+  const handleChange = useCallback((value: Game) => {
+    setSelectedGame(value);
   }, [setSelectedGame]);
 
-  const options = useMemo<GameOptionType[]>(() => {
+  const options = useMemo(() => {
     return games.map(game => ({
-      value: game.id,
-      label: game.name,
-      data: game,
+      value: game,
+      label: (
+        <Flex orientation="vertical" align="center">
+          <PatternGame game={game} size={7} />
+          <div className="game-pattern-select-name">{game.name}</div>
+        </Flex>
+      ),
     }))
   }, [games]);
 
-  const gameRender = useCallback((game?: Game) => {
-    if (!game) return null;
-    return <PatternGame game={game} isEnabled={isEnabled} />
-  }, [isEnabled]);
-
   return gamesLoaded ? (
-    <>
-      <Flex orientation="vertical" gap="4px">
-        <Form.Item
-          className="game-pattern-select"
-          tooltip={tooltipText}
-          style={{ marginBottom: 0 }}
-          label={
-            <Flex orientation="horizontal" gap="10px">
-              <Switch
-                value={isEnabled}
-                checkedChildren="On"
-                unCheckedChildren="Off"
-                onChange={(e) => setIsEnabled(e)}
-              />
-              <Text strong>Game Pattern</Text>
-            </Flex>
-          }
-          extra={selectedGame && (
-            <Button
-              type="link"
-              size="small"
-              icon={<EyeOutlined aria-hidden />}
-              disabled={!isEnabled}
-              onClick={() => !open && setOpen(true)}
-            >
-              View Game Rules
-            </Button>
-          )}
-        >
-          <Select
-            disabled={!isEnabled}
-            value={selectedGame?.id}
-            onChange={(_, opt) => handleChange(opt)}
-            options={options}
-            optionRender={({ data }) => gameRender(data.data)}
-            labelRender={() => gameRender(selectedGame)}
-            classNames={{
-              popup: {
-                root: 'game-pattern-select-popup'
-              }
-            }}
-            showSearch={false}
-          />
-        </Form.Item>
+    <Flex orientation="vertical" gap={8}>
+      <Flex align="center" justify="space-between">
+        <Flex orientation="vertical">
+          <div className="group-title">Game Pattern</div>
+          <div>{selectedGame?.name}</div>
+        </Flex>
+        <Switch
+          value={isEnabled}
+          onChange={(e) => setIsEnabled(e)}
+        />
       </Flex>
-      {selectedGame && (
-        <Modal
-          open={open}
-          footer={null}
-          title={
-            <Title
-              level={4}
-              style={{ color: theme.config.token?.colorPrimary }}
-            >
-              Game Rules: {selectedGame.name}
-            </Title>
-          }
-          closable={{ onClose: () => setOpen(false) }}
-          onCancel={() => setOpen(false)}
-        >
-          <Flex gap="20px">
-            <div style={{ paddingTop: '5px', flex: '1 0 auto' }}>
-              <PatternAnimated
-                patterns={selectedGame.patterns}
-                animate={open}
-                speed={700}
-                size={20}
-              />
-            </div>
-            <Paragraph>{selectedGame.description}</Paragraph>
+      {isEnabled && selectedGame && (
+        <>
+          <Flex>
+            <Segmented<Game>
+              block
+              options={options}
+              value={selectedGame}
+              onChange={handleChange}
+            />
           </Flex>
-        </Modal>
+          <Flex></Flex>
+        </>
       )}
-    </>
+    </Flex>
   ) : null;
 }

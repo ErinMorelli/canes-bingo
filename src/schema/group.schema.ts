@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-const groupCategoryItemSchema = z.object({
+export const groupCategoryItemSchema = z.object({
   id: z.number(),
   name: z.string(),
   label: z.string(),
