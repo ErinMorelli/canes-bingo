@@ -5,6 +5,7 @@ import { useConfig, useDrawer, useGameBoard } from '@hooks';
 
 import { SaveImage } from '@components/SaveImage';
 import { headerButtonTheme } from '@app/themes.ts';
+import { ReloadOutlined, SettingOutlined } from '@ant-design/icons';
 
 type AppHeaderProps = {
   cardRef: RefObject<HTMLDivElement>;
@@ -18,12 +19,17 @@ export default function AppHeader({ cardRef, themeName }: Readonly<AppHeaderProp
 
   return (
     <Flex className="header" justify="space-between" align="center">
-      <div className="header-title">{headerText} <span>Bingo</span></div>
-      <Flex className="header-right" align="center" gap={8}>
+      <div className="header-title">
+          <span className="full">{headerText}</span>
+          <span className="short">Canes</span>
+          <span className="end"> Bingo</span>
+      </div>
+      <Flex className="header-right" align="center">
         <ConfigProvider theme={headerButtonTheme[themeName]}>
           <Button
             className="generate"
             onClick={() => generateBoard()}
+            icon={<ReloadOutlined />}
             title="Generate a new bingo card">
             Generate Card
           </Button>
@@ -31,7 +37,9 @@ export default function AppHeader({ cardRef, themeName }: Readonly<AppHeaderProp
         <SaveImage cardRef={cardRef} />
         <Button
           type="primary"
+          className="open-options"
           onClick={() => open()}
+          icon={<SettingOutlined />}
           title="Open game options drawer">
           Options
         </Button>

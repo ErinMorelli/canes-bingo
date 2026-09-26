@@ -199,6 +199,49 @@ body {
     z-index: 98;
     line-height: normal;
 
+    .header-title {
+      font-family: 'Anton', Arial, sans-serif;
+      font-size: 32px;
+      white-space: nowrap;
+
+      .full {
+        display: inline-block;
+      }
+
+      .short {
+        display: none;
+      }
+
+      .end {
+        color: var(--ant-color-primary);
+      }
+    }
+
+    .header {
+      max-width: 790px;
+      margin: 0 auto;
+      padding: 0 18px 16px;
+      height: 100%;
+      line-height: normal;
+    }
+
+    .header-right {
+      gap: 8px;
+
+      button {
+        font-family: 'Anton', Arial, sans-serif;
+        font-size: 14px;
+        font-weight: 500;
+
+        &.generate,
+        &.open-options {
+          .ant-btn-icon {
+            display: none;
+          }
+        }
+      }
+    }
+
     @media only screen and (max-width: $bp-compact) {
       height: 76px;
       line-height: normal;
@@ -208,41 +251,34 @@ body {
         padding: 0 16px 14px;
       }
 
-      .header-title { font-size: 22px; }
+      .header-title {
+        font-size: 22px;
+
+        .full {
+          display: none;
+        }
+
+        .short {
+          display: inline-block;
+        }
+      }
 
       .header-right {
         gap: 6px;
 
-        .generate .anticon + span,   // or however you label it
-        .generate > span { display: none; }
-        .generate { padding-inline: 12px; }
-      }
-    }
+        .generate,
+        .open-options {
+          padding-inline: 12px;
 
-    .header-title {
-      font-family: 'Anton', Arial, sans-serif;
-      font-size: 32px;
-      white-space: nowrap;
+          .ant-btn-icon {
+            display: inline-block !important;
+          }
 
-      > span {
-        color: var(--ant-color-primary);
-      }
-    }
-
-    .header {
-      max-width: 790px;
-      margin: 0 auto;
-      inset: 0;
-      padding: 0 0 16px;
-      height: 100px;
-      line-height: normal;
-    }
-
-    .header-right {
-      button {
-        font-family: 'Anton', Arial, sans-serif;
-        font-size: 14px;
-        font-weight: 500;
+          .anticon + span,
+          > span {
+            display: none;
+          }
+        }
       }
     }
   }
@@ -260,6 +296,7 @@ body {
       > div {
         max-width: 790px;
         margin: 0 auto;
+        padding: 0 18px;
         height: 100%;
       }
 
@@ -340,6 +377,35 @@ body {
           color: var(--ant-color-text-secondary);
           white-space: nowrap;
         }
+
+        .pattern-animated .pattern-field .table .row .square {
+          width: 8px !important;
+          height: 8px !important;
+        }
+      }
+
+      @media only screen and (max-width: $bp-compact) {
+        > div {
+          max-width: none;
+          padding: 0 16px;
+        }
+
+        .game-status {
+          .teams {
+            font-size: 20px;
+          }
+        }
+
+        .pattern-status {
+          .remaining {
+            font-size: 20px;
+          }
+
+          .pattern-animated .pattern-field .table .row .square {
+            width: 6px !important;
+            height: 6px !important;
+          }
+        }
       }
     }
 
@@ -347,10 +413,6 @@ body {
       max-width: 790px;
       margin: 0 auto;
       padding: 28px 0 44px;
-
-      @media only screen and (max-width: $bp-compact) {
-        padding: 0;
-      }
 
       .bingo-footer {
         width: 100%;
@@ -361,6 +423,17 @@ body {
           font-size: 13px;
           text-align: center;
           color: var(--ant-color-text-secondary);
+        }
+      }
+
+      @media only screen and (max-width: $bp-compact) {
+        padding: 20px 0;
+        max-width: none;
+
+        .bingo-footer {
+          > div {
+            font-size: 11px;
+          }
         }
       }
     }
@@ -439,21 +512,6 @@ body {
     gap: 8px;
     justify-content: center;
 
-    @media only screen and (max-width: $bp-compact) {
-      grid-template-columns: repeat(5, 1fr);
-      grid-template-rows: none;
-      gap: 3px;
-      width: 100%;
-
-      .square {
-        aspect-ratio: 1;
-        border-radius: 8px;
-        padding: 5px 4px;
-        font-size: 14px;
-        line-height: 18px;
-      }
-    }
-
     .square {
       position: relative;
       display: flex;
@@ -492,6 +550,21 @@ body {
       &:hover {
         cursor: pointer;
         border-color: var(--ant-color-primary-hover);
+      }
+    }
+
+    @media only screen and (max-width: $bp-compact) {
+      grid-template-columns: repeat(5, 1fr);
+      grid-template-rows: none;
+      gap: 3px;
+      width: 100%;
+
+      .square {
+        aspect-ratio: 1;
+        border-radius: 8px;
+        padding: 5px 4px;
+        font-size: 14px;
+        line-height: 18px;
       }
     }
   }

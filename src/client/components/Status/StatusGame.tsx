@@ -41,10 +41,10 @@ export function StatusGame() {
       const remaining = activeGame.clock?.timeRemaining || '00:00';
       const periodNumber = activeGame.periodDescriptor?.number;
       let period = '';
-      if (periodNumber === 1) period = '1st';
-      if (periodNumber === 2) period = isPeriodActive ? '2nd' : '1st intermission';
-      if (periodNumber === 3) period = isPeriodActive ? '3rd' : '2nd intermission';
-      if (periodNumber === 4) period = isPeriodActive ? 'OT' : '3rd intermission';
+      if (periodNumber === 1) period = isPeriodActive ? '1st' : '1st int';
+      if (periodNumber === 2) period = isPeriodActive ? '2nd' : '2nd int';
+      if (periodNumber === 3) period = isPeriodActive ? '3rd' : '3rd int';
+      if (periodNumber === 4) period = 'OT';
       if (periodNumber === 5) period = 'SO';
       return `${period} · ${remaining}`;
     }
