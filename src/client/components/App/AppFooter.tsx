@@ -1,9 +1,9 @@
+import { useNavigate } from 'react-router-dom';
 import {
   AppstoreFilled,
   HeartFilled,
   PlusCircleOutlined
 } from '@ant-design/icons';
-
 import { Button, ConfigProvider } from 'antd';
 
 import { footerButtonTheme, footerMuted } from '@app/themes';
@@ -13,13 +13,25 @@ type AppFooterProps = {
 }
 
 export default function AppFooter({ themeName }: AppFooterProps) {
+  const navigate = useNavigate();
+
   const color = footerMuted[themeName];
+
   return (
     <ConfigProvider theme={footerButtonTheme[themeName]}>
       <div className="footer" style={{ color }}>
         <div className="footer-buttons">
-          <Button size="small" icon={<AppstoreFilled />}>Squares Database</Button>
-          <Button size="small" icon={<PlusCircleOutlined />}>Submit a Square</Button>
+          <Button
+            size="small"
+            onClick={() => navigate('/squares')}
+            icon={<AppstoreFilled />}>
+            Squares Database
+          </Button>
+          <Button
+            size="small"
+            icon={<PlusCircleOutlined />}>
+            Submit a Square
+          </Button>
         </div>
         <div className="credits">
           Made with <HeartFilled aria-label="love" /> by a <a

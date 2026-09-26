@@ -9,7 +9,8 @@ $mobile-square-size: $square-size * $mobile-scale;
 $mobile-gap: 4px;
 $mobile-card-size: $mobile-square-size * 5;
 
-$breakpoint: 720px;
+$bp-compact: 720px;   // existing — sheet vs panel, board sizing
+$bp-wide:    1040px;  // new — database table vs cards
 
 $globe-width: 12px;
 $globe-height: 18px;
@@ -88,7 +89,7 @@ body {
       position: relative;
       font-size: 14px;
 
-      @media only screen and (max-width: $breakpoint) {
+      @media only screen and (max-width: $bp-compact) {
         font-size: 12px;
 
         &::after {
@@ -110,7 +111,7 @@ body {
       }
     }
 
-    @media only screen and (max-width: $breakpoint) {
+    @media only screen and (max-width: $bp-compact) {
       .bingo .row #square-2-2 {
         font-size: 12px;
 
@@ -164,7 +165,7 @@ body {
           background-color: rgba(255, 255, 255, .15);
         }
 
-        @media only screen and (max-width: $breakpoint) {
+        @media only screen and (max-width: $bp-compact) {
           gap: 6px;
 
           .win, .tbd {
@@ -324,6 +325,10 @@ body {
       margin: 0 auto;
       padding: 28px 0 44px;
 
+      @media only screen and (max-width: $bp-compact) {
+        padding: 0;
+      }
+
       .bingo-footer {
         width: 100%;
         padding-top: 16px;
@@ -411,6 +416,21 @@ body {
     gap: 8px;
     justify-content: center;
 
+    @media only screen and (max-width: $bp-compact) {
+      grid-template-columns: repeat(5, 1fr);
+      grid-template-rows: none;
+      gap: 3px;
+      width: 100%;
+
+      .square {
+        aspect-ratio: 1;
+        border-radius: 8px;
+        padding: 5px 4px;
+        font-size: 14px;
+        line-height: 18px;
+      }
+    }
+
     .square {
       position: relative;
       display: flex;
@@ -468,7 +488,7 @@ body {
       }
     }
 
-    @media only screen and (max-width: $breakpoint) {
+    @media only screen and (max-width: $bp-compact) {
       width: $mobile-card-size + 10px;
     }
 
@@ -646,6 +666,10 @@ body {
 
     &:hover {
       background-color: rgba(0, 0, 0, 0.06);
+
+      &.dark {
+        background-color: var(--ant-color-fill-quaternary);
+      }
     }
 
     &:not(.selected) {
@@ -655,6 +679,9 @@ body {
     }
 
     &.dark {
+      &.selected {
+        background-color: var(--ant-color-fill-quaternary);
+      }
       .pattern-field .table .row .square:not(.selected):not(.square-2-2) {
         background-color: #4b565f;
       }

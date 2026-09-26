@@ -67,6 +67,14 @@ export function StatusGame() {
     return `https://www.nhl.com/gamecenter/${activeGame.id}`;
   }, [activeGame, gameState]);
 
+  const dotClasses = useMemo(() => {
+    const classes = ['live-dot'];
+    if (gameState === NHLGameState.LIVE && isPeriodActive) {
+      classes.push('live');
+    }
+    return classes.join(' ');
+  }, [gameState, isPeriodActive]);
+
   return (
     <Flex className="game-status" orientation="vertical">
       <Flex className="header">
@@ -81,7 +89,7 @@ export function StatusGame() {
       </Flex>
       <Flex className="details" align="center">
         <div
-          className={'live-dot' + (gameState === NHLGameState.LIVE ? ' live' : '')}
+          className={dotClasses}
           style={{ backgroundColor}}></div>
         <Flex gap={6}>
           <div className="time">{time}</div>
