@@ -127,7 +127,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
     };
 
     return (
-      <div className="bingo" role="grid" ref={setRefs}>
+      <div className="bingo" ref={setRefs}>
         {board.map((row, rowId) =>
           row ? generateRow(row, rowId) : null)}
       </div>

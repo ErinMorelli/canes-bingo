@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Flex, Layout, notification, Space, Spin, Typography } from 'antd';
+import { Layout, notification, Space, Spin, Typography } from 'antd';
 
 import { useConfig, useGameBoard, useGroups } from '@hooks';
 
@@ -30,7 +30,7 @@ export function AppLayout({ themeClass, themeName }: AppLayoutProps) {
 
   const { isLoading: groupsLoading } = useGroups();
   const { boardReady, squaresError } = useGameBoard();
-  const { customClass: serverCustomClass, festiveLights } = useConfig();
+  const { customClass: serverCustomClass, festiveLights, showTooltips } = useConfig();
 
   const cardRef = useRef<HTMLDivElement>(null);
 
@@ -93,12 +93,17 @@ export function AppLayout({ themeClass, themeName }: AppLayoutProps) {
                     />
                   )}
                 </Spin>
+                {/*
+                  Tooltip discovery hint. Gated on `showTooltips` so it never
+                  promises an interaction the board will not honour, and on the
+                  board being ready so it does not float under the spinner.
+                */}
+                {showTooltips && isBoardReady && (
+                  <p className="board-hint">
+                    Long-press (or hover on desktop) any square to see what it means
+                  </p>
+                )}
               </div>
-              {/*<Flex className="bingo-footer" align="center">*/}
-              {/*  <div>*/}
-              {/*    Long-press (or hover on desktop) any square to see what it means*/}
-              {/*  </div>*/}
-              {/*</Flex>*/}
             </Layout>
           </Content>
           <Footer>
