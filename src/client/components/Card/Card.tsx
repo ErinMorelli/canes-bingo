@@ -1,5 +1,5 @@
-import { forwardRef, useEffect, useState } from 'react';
-import { Flex, Typography } from 'antd';
+import { forwardRef, useCallback, useEffect, useRef, useState } from 'react';
+import { Typography } from 'antd';
 import type { NotificationInstance } from 'antd/es/notification/interface';
 
 import confetti from 'canvas-confetti';
@@ -24,6 +24,51 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
     const { theme } = useConfig();
 
     const [hasWon, setHasWon] = useState<boolean>(false);
+
+    // The grid is 5 equal fluid columns, so one measurement sizes every
+    // square. Measuring the grid rather than a cell keeps this to a single
+    // observer instead of 25.
+    const gridRef = useRef<HTMLDivElement | null>(null);
+    const [metrics, setMetrics] = useState({ cellSize: 0, cellPadding: 0 });
+
+    const setRefs = useCallback(
+      (node: HTMLDivElement | null) => {
+        gridRef.current = node;
+        if (typeof ref === 'function') ref(node);
+        else if (ref) ref.current = node;
+      },
+      [ref]
+    );
+
+    useEffect(() => {
+      const node = gridRef.current;
+      if (!node) return;
+
+      const measure = () => {
+        const gap = Number.parseFloat(getComputedStyle(node).columnGap) || 0;
+        const width = node.getBoundingClientRect().width;
+        if (!width) return;
+
+        // Padding comes off a real square so the stylesheet stays the only
+        // place it is defined.
+        const square = node.querySelector('.square');
+        const padding = square
+          ? Number.parseFloat(getComputedStyle(square).paddingLeft) * 2
+          : 0;
+
+        setMetrics({ cellSize: (width - gap * 4) / 5, cellPadding: padding });
+      };
+
+      measure();
+      const observer = new ResizeObserver(measure);
+      observer.observe(node);
+
+      // Canvas text measurement before Inter loads reports the fallback
+      // metrics, which sizes every square off by a step.
+      void document.fonts?.ready.then(measure);
+
+      return () => observer.disconnect();
+    }, []);
 
     useEffect(() => {
       setHasWon(false);
@@ -58,9 +103,12 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
       }
     }, [board, hasWon, isEnabled, theme, notify, validateGameBoard]);
 
-    const handleClick = (rowId: number, coldId: number)=> {
-      selectSquare(rowId, coldId);
-    }
+    // Stable, so the 24 squares that did not change can bail out of the
+    // re-render that marking the 25th triggers.
+    const handleClick = useCallback(
+      (rowId: number, coldId: number) => selectSquare(rowId, coldId),
+      [selectSquare]
+    );
 
     const generateRow = (row: BoardSquare[], rowId: number) => {
       if (!row) return [];
@@ -70,6 +118,8 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
           square={square}
           rowId={rowId}
           colId={colId}
+          cellSize={metrics.cellSize}
+          cellPadding={metrics.cellPadding}
           customClass={customClass}
           onClick={handleClick}
         />
@@ -77,17 +127,10 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
     };
 
     return (
-      <>
-        <div className="bingo" role="grid" ref={ref}>
-          {board.map((row, rowId) =>
-            row ? generateRow(row, rowId) : null)}
-        </div>
-        <Flex className="bingo-footer" align="center">
-          <div>
-            Long-press (or hover on desktop) any square to see what it means
-          </div>
-        </Flex>
-      </>
+      <div className="bingo" role="grid" ref={setRefs}>
+        {board.map((row, rowId) =>
+          row ? generateRow(row, rowId) : null)}
+      </div>
     );
   }
 );

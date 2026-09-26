@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { flushSync } from 'react-dom';
 import { useQuery } from '@tanstack/react-query';
 
 import { Board, BoardArgs, Pattern, UpdateBoardArg } from '@app/types';
@@ -85,11 +86,20 @@ export function GameBoardProvider({ children }: Readonly<{ children: React.React
 
   const selectSquare = useCallback(
     (row: number, col: number) => {
-      setBoard((prev) => {
-        const next = prev.map((r) => [...r]);
-        const square = next[row][col];
-        next[row][col] = { ...square, selected: !square.selected };
-        return next;
+      // Marking a square has to paint on the click that caused it. `setBoard`
+      // reaches React through a useSyncExternalStore subscription, and store
+      // notifications are scheduled at default priority — unlike a plain
+      // setState in a discrete event, they do not get the synchronous flush,
+      // so the daub landed a scheduler tick (15-35ms) after the tap. This is
+      // the one call site where that is visible, and it is only ever called
+      // from the square's own click handler, never from render or an effect.
+      flushSync(() => {
+        setBoard((prev) => {
+          const next = prev.map((r) => [...r]);
+          const square = next[row][col];
+          next[row][col] = { ...square, selected: !square.selected };
+          return next;
+        });
       });
     },
     [setBoard]

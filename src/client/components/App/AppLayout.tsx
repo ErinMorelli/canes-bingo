@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Layout, notification, Space, Spin, Typography } from 'antd';
+import { Flex, Layout, notification, Space, Spin, Typography } from 'antd';
 
 import { useConfig, useGameBoard, useGroups } from '@hooks';
 
@@ -94,6 +94,11 @@ export function AppLayout({ themeClass, themeName }: AppLayoutProps) {
                   )}
                 </Spin>
               </div>
+              {/*<Flex className="bingo-footer" align="center">*/}
+              {/*  <div>*/}
+              {/*    Long-press (or hover on desktop) any square to see what it means*/}
+              {/*  </div>*/}
+              {/*</Flex>*/}
             </Layout>
           </Content>
           <Footer>

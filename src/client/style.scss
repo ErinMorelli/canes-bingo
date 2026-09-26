@@ -4,6 +4,15 @@ $square-size: 115px;
 $gap: 6px;
 $card-size: calc(($square-size * 5) + ($gap * 4));
 
+// Board grid. Cells are 1:1 at every width — one grid rule for the whole PWA —
+// so the board is capped rather than fixed: at >= $board-max you get exactly
+// $board-square cells, and below that the same grid shrinks fluidly. A fixed
+// `repeat(5, 150px)` instead overflows between $bp-compact and $board-max.
+$board-square: 150px;
+$board-gap: 8px;
+$board-gap-mobile: 3px;
+$board-max: calc(($board-square * 5) + ($board-gap * 4)); // 782px
+
 $mobile-scale: .63;
 $mobile-square-size: $square-size * $mobile-scale;
 $mobile-gap: 4px;
@@ -185,7 +194,7 @@ body {
   }
 
   .square-tooltip {
-    max-width: calc($square-size * 3);
+    max-width: 220px;
   }
 }
 
@@ -252,7 +261,7 @@ body {
       }
 
       .header-title {
-        font-size: 22px;
+        font-size: 24px;
 
         .full {
           display: none;
@@ -410,31 +419,17 @@ body {
     }
 
     .board-wrapper {
-      max-width: 790px;
+      // Wide enough that the content box is exactly $board-max once the
+      // gutters are subtracted, so the board still hits 150px cells.
+      max-width: calc($board-max + 32px);
       margin: 0 auto;
-      padding: 28px 0 44px;
-
-      .bingo-footer {
-        width: 100%;
-        padding-top: 16px;
-
-        > div {
-          flex: 1;
-          font-size: 13px;
-          text-align: center;
-          color: var(--ant-color-text-secondary);
-        }
-      }
+      padding: 28px 16px 44px;
 
       @media only screen and (max-width: $bp-compact) {
+        // Phones drop the gutters and go edge to edge to buy the widest
+        // possible square.
         padding: 20px 0;
         max-width: none;
-
-        .bingo-footer {
-          > div {
-            font-size: 11px;
-          }
-        }
       }
     }
   }
@@ -507,10 +502,11 @@ body {
 
   .bingo {
     display: grid;
-    grid-template-columns: repeat(5, 150px);
-    grid-template-rows: repeat(5, 150px);
-    gap: 8px;
-    justify-content: center;
+    grid-template-columns: repeat(5, 1fr);
+    gap: $board-gap;
+    width: 100%;
+    max-width: $board-max;
+    margin: 0 auto;
 
     .square {
       position: relative;
@@ -518,24 +514,40 @@ body {
       align-items: center;
       justify-content: center;
       text-align: center;
+      // Squares are 1:1 at every width, so the row height follows the column
+      // track rather than a fixed grid-template-rows.
+      aspect-ratio: 1;
+      // A long single word must break and, past that, clip — without these it
+      // renders outside the cell and over its neighbours.
       word-break: normal;
+      overflow-wrap: break-word;
+      overflow: hidden;
       cursor: pointer;
       min-width: 0;
       min-height: 0;
       width: 100%;
-      height: 100%;
       border-radius: 12px;
-      border: medium;
+      border: none;
       background-color: var(--ant-color-bg-base);
       color: var(--ant-color-text-base);
       font-weight: 500;
       box-shadow: rgba(0, 0, 0, 0.1) 0 1px 3px;
       padding: 10px;
+      // font-size / line-height are set per square by the fit-to-width ladder
+      // in CardSquare; these are the fallback before the first measure.
       font-size: 17px;
       line-height: 21px;
 
       &.selected {
         background-color: var(--ant-color-primary);
+        // The daub deepens its own shadow, so the state change is carried by
+        // the square itself rather than by an outline around it.
+        box-shadow: rgba(0, 0, 0, 0.3) 0 2px 8px;
+      }
+
+      .square-label {
+        min-width: 0;
+        width: 100%;
       }
 
       &.free-space {
@@ -543,24 +555,36 @@ body {
       }
 
       &.free-space,
-      &.free-space > div {
+      &.free-space > div,
+      &.free-space .square-label {
         white-space: pre-line;
       }
 
-      &:hover {
-        cursor: pointer;
-        border-color: var(--ant-color-primary-hover);
+      // A lift, not a ring. An accent-coloured outline here reads as the
+      // selected fill arriving in two steps: the ring is `colorPrimaryHover`
+      // (#DB3543) and lands on hover, while the fill is `colorPrimary`
+      // (#CE1126) and only lands on the click that follows — two reds, two
+      // beats. A neutral shadow says "interactive" without competing.
+      &:not(.selected):hover {
+        box-shadow: rgba(0, 0, 0, 0.18) 0 3px 8px;
+      }
+
+      // Keyboard focus keeps a real outline — that is what an outline is for,
+      // and it never coincides with a pointer click.
+      &:focus-visible {
+        outline: 2px solid var(--ant-color-primary);
+        // 1px offset + 2px width fills the 3px phone gutter exactly. At 2px the
+        // ring would reach 4px out and the next square — they are all
+        // `position: relative`, so later siblings paint over it — clips it.
+        outline-offset: 1px;
+        z-index: 1;
       }
     }
 
     @media only screen and (max-width: $bp-compact) {
-      grid-template-columns: repeat(5, 1fr);
-      grid-template-rows: none;
-      gap: 3px;
-      width: 100%;
+      gap: $board-gap-mobile;
 
       .square {
-        aspect-ratio: 1;
         border-radius: 8px;
         padding: 5px 4px;
         font-size: 14px;
@@ -578,8 +602,15 @@ body {
     .bingo {
       @extend .bingo;
       font-size: 14px;
+      max-width: none;
+
+      // html2canvas resolves `aspect-ratio` unreliably, so the offscreen
+      // render gets explicit square rows instead.
+      grid-template-rows: repeat(5, calc(($card-size - ($board-gap * 4)) / 5));
 
       .square {
+        aspect-ratio: auto;
+        height: 100%;
         border: 1px solid var(--ant-color-text-base);
       }
     }

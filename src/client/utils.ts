@@ -152,6 +152,101 @@ export function getSquareStyle(size?: number) {
   return { width: `${s}px`, height: `${s}px` };
 }
 
+/**
+ * Board square text fitting.
+ *
+ * Square labels are author-supplied and unbounded, while the cell is a fixed
+ * 1:1 box, so a single long word ("ANDERSEN!") overflows at one fixed font
+ * size — measurably so below ~430px, where 5 of 25 squares spilled outside
+ * their cell. Rather than clip, step the size down until the longest word
+ * fits, the way the redesign's `fitToWidth` does.
+ *
+ * Measuring is done on a shared 2D canvas context: it needs no layout pass, so
+ * all 25 squares can be sized during render instead of after a reflow.
+ */
+let measureCtx: CanvasRenderingContext2D | null = null;
+
+function measureWord(
+  word: string,
+  fontSize: number,
+  weight: string,
+  family: string
+): number {
+  measureCtx ??= document.createElement('canvas').getContext('2d');
+  if (!measureCtx) return 0;
+  measureCtx.font = `${weight} ${fontSize}px ${family}`;
+  return measureCtx.measureText(word).width;
+}
+
+export const SQUARE_FONT_FAMILY = "Inter, Arial, sans-serif";
+
+/** Largest cell size that still gets the desktop type ladder. */
+const COMPACT_CELL_MAX = 110;
+const SIZES_REGULAR = [17, 16, 15, 14, 13, 12, 11, 10];
+const SIZES_COMPACT = [14, 13, 12, 11, 10];
+
+export type SquareFontFit = {
+  fontSize: number;
+  lineHeight: number;
+};
+
+/**
+ * Pick a font size for `text` in a square `cellSize` px wide whose horizontal
+ * padding totals `cellPadding`.
+ *
+ * `cellSize` of 0 means the board has not been measured yet — callers should
+ * fall back to the stylesheet rather than guessing.
+ */
+export function fitSquareFont(
+  text: string,
+  cellSize: number,
+  cellPadding: number,
+  weight = '500'
+): SquareFontFit | undefined {
+  if (!cellSize) return undefined;
+
+  const sizes = cellSize > COMPACT_CELL_MAX ? SIZES_REGULAR : SIZES_COMPACT;
+  // `cellPadding` is the square's real computed padding, read from the DOM —
+  // the stylesheet changes it at the breakpoint, so inferring it here would be
+  // a second source of truth that silently drifts. The extra 6px keeps a
+  // descender or a quote mark off the edge.
+  const innerWidth = cellSize - cellPadding - 6;
+  const innerHeight = cellSize - cellPadding - 6;
+
+  const words = text.split(/\s+/).filter(Boolean);
+  const longestWord = words.reduce((a, b) => (a.length > b.length ? a : b), '');
+
+  const fits = sizes.find((size) => {
+    if (measureWord(longestWord, size, weight, SQUARE_FONT_FAMILY) > innerWidth) {
+      return false;
+    }
+    // A word that fits can still wrap to more lines than the cell is tall.
+    // Dividing total text width by the line width would under-count: the
+    // browser wraps greedily and leaves the tail of each line empty, so
+    // "Two players drop gloves" takes four lines in a width that two would
+    // fit if the text could be packed. Walk the same greedy wrap instead.
+    const lineHeight = size + 4;
+    const spaceWidth = measureWord(' ', size, weight, SQUARE_FONT_FAMILY);
+    let lines = 1;
+    let used = 0;
+    for (const word of words) {
+      const wordWidth = measureWord(word, size, weight, SQUARE_FONT_FAMILY);
+      if (used === 0) {
+        used = wordWidth;
+      } else if (used + spaceWidth + wordWidth <= innerWidth) {
+        used += spaceWidth + wordWidth;
+      } else {
+        lines += 1;
+        used = wordWidth;
+      }
+    }
+    return lines * lineHeight <= innerHeight;
+  });
+
+  const fontSize = fits ?? sizes[sizes.length - 1];
+  return { fontSize, lineHeight: fontSize + 4 };
+}
+
 // The center of the 5x5 board is a free space: it counts as covered without
 // ever being selected. createBoard does not mark it, so the rule lives here.
 const FREE_SQUARE_ROW = 2;

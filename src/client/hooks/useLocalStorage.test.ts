@@ -2,10 +2,13 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 
-import { useLocalStorage } from './useLocalStorage';
+import { flushStorageWrites, useLocalStorage } from './useLocalStorage';
 
 describe('useLocalStorage', () => {
   beforeEach(() => {
+    // Drain any write the previous test left pending before clearing, so no
+    // pending value survives into the next test's reads.
+    flushStorageWrites();
     localStorage.clear();
   });
 
@@ -18,7 +21,53 @@ describe('useLocalStorage', () => {
     const { result } = renderHook(() => useLocalStorage('test-key', ''));
     act(() => result.current[1]('new-value'));
     expect(result.current[0]).toBe('new-value');
+    flushStorageWrites();
     expect(localStorage.getItem('test-key')).toBe('"new-value"');
+  });
+
+  // Writes are write-behind: the value has to be readable at once, because the
+  // board renders from it on the same click, while the serialization is
+  // deferred off the critical path.
+  it('exposes a new value before it has been persisted', () => {
+    const { result } = renderHook(() => useLocalStorage('deferred-key', 'old'));
+
+    act(() => result.current[1]('fresh'));
+
+    expect(result.current[0]).toBe('fresh');
+    expect(localStorage.getItem('deferred-key')).toBeNull();
+
+    flushStorageWrites();
+    expect(localStorage.getItem('deferred-key')).toBe('"fresh"');
+  });
+
+  it('coalesces repeated writes to the same key into one store write', () => {
+    const { result } = renderHook(() => useLocalStorage('busy-key', 0));
+
+    act(() => {
+      result.current[1](1);
+      result.current[1](2);
+      result.current[1](3);
+    });
+
+    expect(result.current[0]).toBe(3);
+    flushStorageWrites();
+    expect(localStorage.getItem('busy-key')).toBe('3');
+  });
+
+  // Regression: the snapshot identity has to survive the flush. If the cache
+  // were seeded with a re-parsed copy, the value would change reference the
+  // moment the deferred write landed and re-render every reader.
+  it('keeps the same object reference across a flush', () => {
+    const { result } = renderHook(() =>
+      useLocalStorage<{ a: number }>('identity-key', { a: 0 })
+    );
+
+    act(() => result.current[1]({ a: 1 }));
+    const beforeFlush = result.current[0];
+
+    flushStorageWrites();
+
+    expect(result.current[0]).toBe(beforeFlush);
   });
 
   it('reads an existing value from localStorage on mount', () => {
@@ -45,6 +94,7 @@ describe('useLocalStorage', () => {
     const { result } = renderHook(() => useLocalStorage<{ a: number }>('obj-key', { a: 0 }));
     act(() => result.current[1]({ a: 99 }));
     expect(result.current[0]).toEqual({ a: 99 });
+    flushStorageWrites();
     expect(JSON.parse(localStorage.getItem('obj-key')!)).toEqual({ a: 99 });
   });
 
