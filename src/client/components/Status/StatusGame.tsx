@@ -22,7 +22,7 @@ export function StatusGame() {
     }
     const homeScore = activeGame.homeTeam?.score || 0;
     const awayScore = activeGame.awayTeam?.score || 0;
-    return `${homeScore} - ${awayScore}`;
+    return `${awayScore} - ${homeScore}`;
   }, [activeGame, gameState]);
 
   const time = useMemo(() => {
@@ -82,9 +82,9 @@ export function StatusGame() {
           <div className="next">Next</div>
         )}
         <Flex gap={6} className="teams">
-          <div className="home">{home}</div>
-          <div className="score">{score}</div>
           <div className="away">{away}</div>
+          <div className="score">{score}</div>
+          <div className="home">{home}</div>
         </Flex>
       </Flex>
       <Flex className="details" align="center">

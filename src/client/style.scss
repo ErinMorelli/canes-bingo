@@ -197,6 +197,27 @@ body {
     position: relative;
     clip-path: polygon(0 0, 100% 0, 100% 84%, 0 100%);
     z-index: 98;
+    line-height: normal;
+
+    @media only screen and (max-width: $bp-compact) {
+      height: 76px;
+      line-height: normal;
+
+      .header {
+        max-width: none;
+        padding: 0 16px 14px;
+      }
+
+      .header-title { font-size: 22px; }
+
+      .header-right {
+        gap: 6px;
+
+        .generate .anticon + span,   // or however you label it
+        .generate > span { display: none; }
+        .generate { padding-inline: 12px; }
+      }
+    }
 
     .header-title {
       font-family: 'Anton', Arial, sans-serif;
@@ -213,6 +234,8 @@ body {
       margin: 0 auto;
       inset: 0;
       padding: 0 0 16px;
+      height: 100px;
+      line-height: normal;
     }
 
     .header-right {
