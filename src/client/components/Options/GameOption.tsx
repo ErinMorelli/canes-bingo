@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'react';
-import { Flex, Segmented, Switch } from 'antd';
+import { Flex, Switch } from 'antd';
 
 import { Game } from '@app/types';
 
@@ -22,23 +22,25 @@ export default function GameOption() {
   }, [setSelectedGame]);
 
   const options = useMemo(() => {
-    return games.map(game => ({
-      value: game,
-      label: (
-        <Flex orientation="vertical" align="center">
+    return games.map(game => {
+      const isSelected = selectedGame?.id === game.id;
+      return (
+        <button
+          className={'game-option' + (isSelected ? ' selected' : '')}
+          onClick={() => handleChange(game)}>
           <PatternGame game={game} size={7} />
-          <div className="game-pattern-select-name">{game.name}</div>
-        </Flex>
-      ),
-    }))
-  }, [games]);
+          <div className="game-option-name">{game.name}</div>
+        </button>
+      );
+    });
+  }, [games, handleChange, selectedGame?.id]);
 
   return gamesLoaded ? (
     <Flex orientation="vertical" gap={8}>
       <Flex align="center" justify="space-between">
         <Flex orientation="vertical">
           <div className="group-title">Game Pattern</div>
-          <div>{selectedGame?.name}</div>
+          <div className="game-title">{selectedGame?.name}</div>
         </Flex>
         <Switch
           value={isEnabled}
@@ -47,15 +49,10 @@ export default function GameOption() {
       </Flex>
       {isEnabled && selectedGame && (
         <>
-          <Flex>
-            <Segmented<Game>
-              block
-              options={options}
-              value={selectedGame}
-              onChange={handleChange}
-            />
+          <Flex gap={4}>{options}</Flex>
+          <Flex className="game-option-description">
+            {selectedGame.description}
           </Flex>
-          <Flex></Flex>
         </>
       )}
     </Flex>

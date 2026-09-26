@@ -216,8 +216,6 @@ body {
         font-weight: 500;
       }
     }
-
-
   }
 
   main {
@@ -616,11 +614,63 @@ body {
     color: var(--ant-color-text-secondary);
   }
 
-  .game-pattern-select-name {
+  .game-title {
+    font-size: 13px;
+    color: var(--ant-color-text);
+  }
+
+  .game-option {
+    cursor: pointer;
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 4px 6px;
+    border-radius: 10px;
+    border: 2px solid transparent;
+    background-color: var(--ant-color-fill-tertiary);
+    width: calc(20% - 4px);
+    transition: background-color 0.2s ease-in-out;
+
+    &.selected {
+      border-color: var(--ant-color-primary);
+    }
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.06);
+    }
+
+    &:not(.selected) {
+      .pattern-field .table .row .square.selected,
+      .pattern-input .table .row .square.selected {
+        background-color: var(--ant-color-text-secondary);
+      }
+    }
+  }
+
+  .game-option-description {
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: var(--ant-color-fill-tertiary);
+    font-size: 12px;
+    line-height: 16px;
+    color: var(--ant-color-text);
+  }
+
+  .game-option-name {
     font-size: 10px;
     font-weight: 700;
     color: var(--ant-color-text);
     white-space: nowrap;
+  }
+
+  .game-pattern-select-option {
+    cursor: pointer;
+  }
+
+  .pattern-animated {
+    cursor: pointer;
   }
 
   .select-option-icon.anticon {

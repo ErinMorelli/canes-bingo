@@ -8,7 +8,7 @@ import OptionRadio from './OptionRadio';
 import OtherOptions from './OtherOptions';
 
 export function Options() {
-  const radioOptions = Group.SingleGroups.map((groupName, idx) => (
+  const radioOptions = Group.SingleGroups.map((groupName) => (
     <OptionRadio groupName={groupName} key={groupName} />
   ));
 
