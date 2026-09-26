@@ -3,11 +3,12 @@ import { Flex, Switch } from 'antd';
 
 import { Game } from '@app/types';
 
-import { useGames } from '@hooks';
+import { useConfig, useGames } from '@hooks';
 
 import { PatternGame } from '@components/Pattern';
 
 export default function GameOption() {
+  const { theme } = useConfig();
   const {
     games,
     gamesLoaded,
@@ -23,17 +24,18 @@ export default function GameOption() {
 
   const options = useMemo(() => {
     return games.map(game => {
-      const isSelected = selectedGame?.id === game.id;
+      const classes = ['game-option', theme.name];
+      if (selectedGame?.id === game.id) classes.push('selected');
       return (
         <button
-          className={'game-option' + (isSelected ? ' selected' : '')}
+          className={classes.join(' ')}
           onClick={() => handleChange(game)}>
           <PatternGame game={game} size={7} />
           <div className="game-option-name">{game.name}</div>
         </button>
       );
     });
-  }, [games, handleChange, selectedGame?.id]);
+  }, [games, handleChange, selectedGame?.id, theme.name]);
 
   return gamesLoaded ? (
     <Flex orientation="vertical" gap={8}>

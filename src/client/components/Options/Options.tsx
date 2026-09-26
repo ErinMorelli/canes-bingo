@@ -1,4 +1,4 @@
-import { Flex, Form } from 'antd';
+import { Flex } from 'antd';
 
 import { Group } from '@app/constants.ts';
 
@@ -21,7 +21,7 @@ export function Options() {
   // ));
 
   return (
-    <Form className="options" layout="vertical">
+    <Flex className="options" orientation="vertical" gap={16}>
       <Flex className="options-header" align="center">
         <span>This Game</span>
       </Flex>
@@ -35,6 +35,6 @@ export function Options() {
       </Flex>
       {/* Theme & Tooltips */}
       <OtherOptions />
-    </Form>
+    </Flex>
   );
 }

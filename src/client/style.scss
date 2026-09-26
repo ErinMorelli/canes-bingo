@@ -52,6 +52,11 @@ body {
     .ant-drawer-body {
       padding: 16px 24px 0;
     }
+
+    .ant-drawer-footer {
+      border-color: var(--ant-color-fill-tertiary);
+      padding: 14px 24px 16px;
+    }
   }
 
   .dark {
@@ -568,9 +573,6 @@ body {
 }
 
 .options {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
   overflow: hidden;
 
   .options-header {
@@ -629,12 +631,17 @@ body {
     padding: 8px 4px 6px;
     border-radius: 10px;
     border: 2px solid transparent;
-    background-color: var(--ant-color-fill-tertiary);
+    background-color: transparent;
     width: calc(20% - 4px);
     transition: background-color 0.2s ease-in-out;
 
+    .pattern-field .table {
+      border-color: transparent;
+    }
+
     &.selected {
       border-color: var(--ant-color-primary);
+      background-color: var(--ant-color-fill-tertiary);
     }
 
     &:hover {
@@ -642,9 +649,17 @@ body {
     }
 
     &:not(.selected) {
-      .pattern-field .table .row .square.selected,
-      .pattern-input .table .row .square.selected {
+      .pattern-field .table .row .square.selected {
         background-color: var(--ant-color-text-secondary);
+      }
+    }
+
+    &.dark {
+      .pattern-field .table .row .square:not(.selected):not(.square-2-2) {
+        background-color: #4b565f;
+      }
+      .pattern-field .table .row .square.square-2-2 {
+        background-color: var(--ant-color-white);
       }
     }
   }
@@ -708,6 +723,37 @@ body {
         flex: unset;
       }
     }
+  }
+}
+
+.drawer-footer {
+  .drawer-footer-notice {
+    background: var(--ant-color-fill-tertiary);
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 12px;
+    line-height: 16px;
+    color: var(--ant-color-text);
+
+    .anticon {
+      color: var(--ant-color-primary);
+      font-size: 16px;
+    }
+  }
+
+  .drawer-footer-button {
+    font-family: "Anton", sans-serif;
+    font-size: 16px;
+    letter-spacing: 0.03em;
+    font-weight: normal;
+    text-transform: uppercase;
+  }
+
+  .drawer-footer-sub {
+    font-size: 12px;
+    color: var(--ant-color-text-secondary);
+    text-align: center;
+    padding-top: 10px;
   }
 }
 
