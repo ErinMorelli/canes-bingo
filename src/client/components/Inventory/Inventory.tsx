@@ -165,7 +165,7 @@ export function Inventory() {
                 <div className="db-intro-copy">
                   <h1 className="db-title">Squares Database</h1>
                   <p className="db-subtitle">
-                    Every square the generator can draw, and what it means.
+                    Every possible bingo square, and what it means.
                     Check here before you submit an idea.
                   </p>
                 </div>

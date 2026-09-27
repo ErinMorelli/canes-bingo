@@ -186,12 +186,9 @@ function CardSquareImpl({ square, rowId, colId, cellSize = 0, cellPadding = 0, c
 
   useEffect(() => {
     if (isFreeSpace) {
-      fetchConfigValue(ConfigKey.FreeSpace)
-        .then((freeSpaceValue) => {
-          const value = decode(freeSpaceValue);
-          setSquareValue(value);
-          setSquareText(value);
-        });
+      const value = 'FREE';
+      setSquareValue(value);
+      setSquareText(value);
     } else {
       setSquareValue(value.value);
       setSquareText(String(value.value));

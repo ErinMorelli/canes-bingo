@@ -64,6 +64,28 @@ body,
   text-transform: lowercase !important;
 }
 
+// iOS Safari zooms the whole page when a form field smaller than 16px takes
+// focus, and the theme sets 15px. Bumping text entry to 16px on phones is the
+// only way to stop it; the controls have fixed heights, so nothing reflows.
+// Global rather than scoped to `.app`, because modals and drawers portal out
+// to the body.
+// An antd Input with a prefix or a clear button wraps the real input in an
+// affix wrapper and sets the inner field to `font-size: inherit`, so the size
+// has to be set on the wrapper as well — a rule on `.ant-input` alone loses
+// to that `inherit` and the field keeps the wrapper's 15px.
+@media only screen and (max-width: $bp-compact) {
+  input,
+  textarea,
+  select,
+  .ant-input,
+  .ant-input-affix-wrapper,
+  .ant-input-number,
+  .ant-select-selector,
+  .ant-select-selection-search-input {
+    font-size: 16px;
+  }
+}
+
 // Visible to assistive tech, not to the eye. Clipped rather than hidden:
 // `display: none` and `visibility: hidden` drop the node from the
 // accessibility tree, which would break any aria-describedby pointing at it.
@@ -111,13 +133,8 @@ body {
       color: var(--ant-color-text);
     }
 
-    .ant-drawer-body {
-      padding: 16px 24px 0;
-    }
-
     .ant-drawer-footer {
       border-color: var(--ant-color-fill-tertiary);
-      padding: 14px 24px 20px;
     }
   }
 
@@ -125,6 +142,17 @@ body {
   // affordance and the paddings change — the content is identical, which is
   // the point of not building a second component.
   .options-drawer {
+    // Body and footer padding belong to this drawer, not to every drawer:
+    // nested under `body` they are (0,3,0), which silently beat the submit
+    // sheet's own (0,2,0) rules and gave it the options drawer's gutters.
+    .ant-drawer-body {
+      padding: 16px 24px 0;
+    }
+
+    .ant-drawer-footer {
+      padding: 14px 24px 20px;
+    }
+
     @media only screen and (max-width: $bp-compact) {
       // antd v6 renamed the panel element: `.ant-drawer-content` is gone and
       // the visible panel is `.ant-drawer-section`.
@@ -735,6 +763,7 @@ body {
     }
 
     header .header-right {
+      display: flex;
       gap: 8px;
     }
 
@@ -1756,7 +1785,121 @@ body {
 
 // Submit a Square. Desktop treatment only for now — the design also has a
 // mobile bottom sheet, which is deliberately not built yet.
+.submit-modal,
+.submit-sheet {
+  .submit-title-main {
+    font-family: "Anton", sans-serif;
+    font-weight: normal;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+    color: var(--ant-color-text);
+  }
+
+  .submit-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: left;
+
+    .ant-input {
+      height: 46px;
+      border-radius: 11px;
+    }
+  }
+
+  .submit-help {
+    color: var(--ant-color-text-secondary);
+  }
+
+}
+
+// Phones get a bottom sheet instead, so the keyboard has somewhere to push it.
+// Same Drawer mechanism as the options sheet.
+.submit-sheet {
+  .ant-drawer-section {
+    border-radius: 22px 22px 0 0;
+    max-height: 92vh;
+  }
+
+  // Grab handle, as on the options sheet — an affordance only, since antd's
+  // Drawer has no drag gesture.
+  .ant-drawer-section::before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--sheet-handle);
+    z-index: 1;
+  }
+
+  // 10px handle + 4px bar + 14px clearance, then the design's 20px gutters.
+  .ant-drawer-header {
+    padding: 28px 20px 14px;
+    border-bottom: 2px solid var(--ant-color-primary);
+  }
+
+  .submit-title-main {
+    font-size: 22px;
+  }
+
+  .ant-drawer-close {
+    width: 32px;
+    height: 32px;
+    border-radius: 16px;
+    background: var(--ant-color-fill-tertiary);
+    color: var(--ant-color-text);
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: -6px;
+    }
+  }
+
+  .ant-drawer-body {
+    padding: 18px 20px;
+  }
+
+  .submit-help {
+    font-size: 12px;
+    line-height: 16px;
+  }
+
+  .ant-drawer-footer {
+    padding: 14px 20px 30px;
+    border-top: 1px solid var(--ant-color-fill-tertiary);
+  }
+
+  // One full-width primary rather than the dialog's button pair.
+  .submit-actions .submit-confirm {
+    width: 100%;
+    height: 50px;
+    border-radius: 14px;
+    font-size: 16px;
+  }
+
+  // Lifted clear of the keyboard; see the visualViewport effect in
+  // SubmitSquare. Sits on `bottom` rather than a transform so it cannot
+  // fight antd's slide-in animation.
+  .ant-drawer-content-wrapper {
+    bottom: var(--keyboard-inset, 0px);
+  }
+}
+
 .submit-modal {
+  .submit-title-main {
+    font-size: 26px;
+  }
+
+  .submit-help {
+    font-size: 13px;
+    line-height: 18px;
+  }
+
   // antd v6 renamed the panel element: `.ant-modal-content` is gone and the
   // visible panel is `.ant-modal-container`.
   .ant-modal-container {
@@ -1778,22 +1921,6 @@ body {
     gap: 3px;
   }
 
-  .submit-title-main {
-    font-family: "Anton", sans-serif;
-    font-size: 26px;
-    font-weight: normal;
-    letter-spacing: .02em;
-    text-transform: uppercase;
-    color: var(--ant-color-text);
-  }
-
-  .submit-title-sub {
-    font-size: 13px;
-    font-weight: 400;
-    color: var(--ant-color-text-secondary);
-  }
-
-  // The design's close control is a filled pill rather than a bare glyph.
   .ant-modal-close {
     top: 22px;
     inset-inline-end: 26px;
@@ -1802,17 +1929,19 @@ body {
     border-radius: 16px;
     background: var(--ant-color-fill-tertiary);
     color: var(--ant-color-text);
+
+    // The pill stays 32px, but 32px is under the 44px minimum touch target.
+    // 6px of bleed on each side makes the hit area exactly 44px without
+    // moving anything on screen.
+    &::after {
+      content: '';
+      position: absolute;
+      inset: -6px;
+    }
   }
 
   .ant-modal-body {
     padding: 22px 26px 18px;
-  }
-
-  .submit-field {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    text-align: left;
   }
 
   .submit-label {
@@ -1823,33 +1952,17 @@ body {
     color: var(--ant-color-text-secondary);
   }
 
-  .submit-field .ant-input {
-    height: 46px;
-    border-radius: 11px;
-  }
-
-  .submit-help {
-    font-size: 13px;
-    line-height: 18px;
-    color: var(--ant-color-text-secondary);
-  }
-
   // Built in the body rather than antd's footer slot: the design pairs the
   // buttons with a sentence, which the ok/cancel pair cannot express.
   .submit-actions {
     display: flex;
     align-items: center;
+    justify-content: flex-end;
     gap: 12px;
     margin: 18px -26px -18px;
     padding: 16px 26px 20px;
     border-top: 1px solid var(--ant-color-fill-tertiary);
     text-align: left;
-  }
-
-  .submit-note {
-    flex: 1;
-    font-size: 12px;
-    color: var(--ant-color-text-secondary);
   }
 
   .submit-cancel,

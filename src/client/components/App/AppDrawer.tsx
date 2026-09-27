@@ -51,10 +51,11 @@ export default function AppDrawer({ customClass = '' }: AppDrawerProps) {
       title="Game Options"
       rootClassName={['options-drawer', customClass].filter(Boolean).join(' ')}
       placement={isSheet ? 'bottom' : 'right'}
-      // The sheet is sized by its content and capped in CSS, so a short set of
-      // options does not leave a half-empty panel; the panel is a fixed column.
-      height={isSheet ? 'auto' : undefined}
-      width={isSheet ? undefined : 400}
+      // One prop for both placements: antd maps `size` to height for a bottom
+      // sheet and width for a side panel (`width`/`height` are deprecated in
+      // v6). `auto` lets the sheet size to its content, capped in CSS, so a
+      // short set of options does not leave a half-empty panel.
+      size={isSheet ? 'auto' : 400}
       styles={{
         section: { '--sheet-handle': sheetHandle[theme.name] } as CSSProperties,
       }}
