@@ -62,19 +62,34 @@ export function GameBoardProvider({ children }: Readonly<{ children: React.React
     }
   }, [squares, seed, setBoard]);
 
+  /**
+   * Whether the options have moved on from the card currently on screen.
+   *
+   * Location and broadcast change which squares are *eligible*, so they cannot
+   * apply to a board that has already been dealt — the drawer has always said
+   * "Generate a new card to apply them", but the old behaviour regenerated
+   * immediately, which both contradicted that copy and threw away a card
+   * mid-game on a stray tap. Changing an option now stages it and marks the
+   * card stale; only Generate or Reset deals a new one.
+   */
+  const [cardDirty, setCardDirty] = useState(false);
+
   const updateBoardArg = useCallback(
     (args: UpdateBoardArg) => {
       setBoardArgs((prev) => ({ ...prev, [args.groupName]: args.value }));
-      setSeed((s) => s + 1);
+      setCardDirty(true);
     },
-    [setBoardArgs, setSeed]
+    [setBoardArgs]
   );
 
   const loadBoard = useCallback(
     (force = false) => {
       if (Object.keys(defaultArgs).length) {
         setBoardArgs(defaultArgs);
-        if (force) setSeed((s) => s + 1);
+        if (force) {
+          setSeed((s) => s + 1);
+          setCardDirty(false);
+        }
       }
     },
     [defaultArgs, setBoardArgs]
@@ -82,6 +97,7 @@ export function GameBoardProvider({ children }: Readonly<{ children: React.React
 
   const generateBoard = useCallback(() => {
     setSeed((s) => s + 1);
+    setCardDirty(false);
   }, []);
 
   const selectSquare = useCallback(
@@ -131,6 +147,7 @@ export function GameBoardProvider({ children }: Readonly<{ children: React.React
       board,
       boardArgs,
       boardReady,
+      cardDirty,
       squaresLoading,
       squaresError,
       squaresRemaining,
@@ -140,7 +157,7 @@ export function GameBoardProvider({ children }: Readonly<{ children: React.React
       updateBoardArg,
       validateGameBoard,
     }),
-    [board, boardArgs, boardReady, squaresLoading, squaresError, squaresRemaining, loadBoard, generateBoard, selectSquare, updateBoardArg, validateGameBoard]
+    [board, boardArgs, boardReady, cardDirty, squaresLoading, squaresError, squaresRemaining, loadBoard, generateBoard, selectSquare, updateBoardArg, validateGameBoard]
   );
 
   return (

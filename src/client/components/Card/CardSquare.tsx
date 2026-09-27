@@ -7,7 +7,6 @@ import React, {
 } from 'react';
 import type {
   ComponentPropsWithoutRef,
-  FocusEvent,
   ReactNode,
   KeyboardEvent
 } from 'react';
@@ -213,26 +212,6 @@ function CardSquareImpl({ square, rowId, colId, cellSize = 0, cellPadding = 0, c
     onClick(rowId, colId);
   }, [isFreeSpace, onClick]);
 
-  /**
-   * The hint under the board promises the tooltip on hover *or* focus, but
-   * antd's own `focus` trigger fires for pointer focus too, so adding it would
-   * pop a tooltip open on every square you marked.
-   *
-   * Hence a controlled `open` with `trigger` left on hover: antd still drives
-   * the hover delay, the enter/leave motion and the alignment, and focus is
-   * the only thing layered on top.
-   */
-  const [tooltipOpen, setTooltipOpen] = useState(false);
-
-  const handleFocus = useCallback((event: FocusEvent<HTMLButtonElement>) => {
-    if (!explainable) return;
-    // Arrow-key navigation moves focus programmatically; `:focus-visible` still
-    // matches there, and still does not match a plain click.
-    if (event.currentTarget.matches(':focus-visible')) setTooltipOpen(true);
-  }, [explainable]);
-
-  const handleBlur = useCallback(() => setTooltipOpen(false), []);
-
   const squareEl = (
     <SquareButton
       type="button"
@@ -241,8 +220,6 @@ function CardSquareImpl({ square, rowId, colId, cellSize = 0, cellPadding = 0, c
       id={squareId}
       onClick={() => handleClick(rowId, colId)}
       onKeyDown={handleKeyDown}
-      onFocus={handleFocus}
-      onBlur={handleBlur}
       aria-pressed={selected}
       aria-label={squareAriaLabel}
       describedById={describedById}>
@@ -272,18 +249,19 @@ function CardSquareImpl({ square, rowId, colId, cellSize = 0, cellPadding = 0, c
     unmount while it was open — `squareDescription` changes on every
     regenerated card — which abandoned its portal: a bubble left on screen
     with no trigger left to close it. It would also remount the button,
-    dropping focus mid keyboard navigation. So `explainable` gates `open`
-    rather than the wrapper, and a square with nothing to explain simply
-    never opens.
+    dropping focus mid keyboard navigation. So `explainable` decides the
+    `content` instead, and antd declines to open an empty one.
+
+    `open` is deliberately NOT controlled. Driving it from state left the
+    popup mounted and aligned but stuck at opacity 0 — the enter motion never
+    completed — so a tooltip only became visible once some later render forced
+    a repaint, which read as "appears on click, not on hover".
   */
   return (
     <Popover
       rootClassName={popoverClassNames}
-      trigger={['hover']}
       mouseEnterDelay={TOOLTIP_HOVER_DELAY_SECONDS}
-      open={explainable && tooltipOpen}
-      onOpenChange={setTooltipOpen}
-      content={squareDescription}>
+      content={explainable ? squareDescription : null}>
       {squareEl}
     </Popover>
   );

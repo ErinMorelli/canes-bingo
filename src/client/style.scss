@@ -74,13 +74,85 @@ body {
       font-weight: normal;
     }
 
+    .ant-drawer-title {
+      text-transform: uppercase;
+      letter-spacing: .02em;
+    }
+
+    // Reset is a hairline pill in the design, not a filled button.
+    .ant-drawer-extra .ant-btn {
+      height: 30px;
+      padding-inline: 13px;
+      border-radius: 15px;
+      border: 1px solid var(--ant-color-border);
+      background: none;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ant-color-text);
+    }
+
     .ant-drawer-body {
       padding: 16px 24px 0;
     }
 
     .ant-drawer-footer {
       border-color: var(--ant-color-fill-tertiary);
-      padding: 14px 24px 16px;
+      padding: 14px 24px 20px;
+    }
+  }
+
+  // The same Drawer, presented as a bottom sheet. Only the shape, the grab
+  // affordance and the paddings change — the content is identical, which is
+  // the point of not building a second component.
+  .options-drawer {
+    @media only screen and (max-width: $bp-compact) {
+      // antd v6 renamed the panel element: `.ant-drawer-content` is gone and
+      // the visible panel is `.ant-drawer-section`.
+      .ant-drawer-content-wrapper,
+      .ant-drawer-section {
+        // `height="auto"` lets the sheet size to its content; this stops a
+        // long options list from covering the board entirely.
+        max-height: 92vh;
+      }
+
+      .ant-drawer-section {
+        border-radius: 22px 22px 0 0;
+      }
+
+      // Grab handle. A visual affordance only: antd's Drawer has no drag
+      // gesture, so the sheet still closes via the scrim or the CTA.
+      .ant-drawer-section::before {
+        content: '';
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 40px;
+        height: 4px;
+        border-radius: 2px;
+        background: var(--sheet-handle);
+        z-index: 1;
+      }
+
+      // 10px handle + 4px bar + 16px clearance before the title row.
+      .ant-drawer-header {
+        padding: 30px 22px 16px;
+      }
+
+      .ant-drawer-body {
+        padding: 18px 22px 0;
+      }
+
+      .ant-drawer-footer {
+        padding: 16px 22px 30px;
+        border-top: none;
+      }
+
+      .ant-drawer-extra .ant-btn {
+        height: 32px;
+        padding-inline: 14px;
+        border-radius: 16px;
+      }
     }
   }
 
@@ -479,10 +551,25 @@ body {
       display: flex;
       justify-content: center;
       gap: 10px;
+
+      .ant-btn {
+        height: 40px;
+        padding-inline: 18px;
+        font-size: 14px;
+        white-space: nowrap;
+        // The chip's fill, radius and colours come from `footerButtonTheme`;
+        // only the metrics are here, because no antd size step is 40px.
+        gap: 7px;
+
+        .ant-btn-icon {
+          margin-inline-end: 0;
+        }
+      }
     }
 
     .anticon-heart {
       color: var(--ant-color-primary);
+      font-size: 13px;
     }
 
     .disclaimer {
@@ -491,6 +578,70 @@ body {
       line-height: 18px;
       text-align: center;
       max-width: 640px;
+
+      .full {
+        display: inline;
+      }
+
+      .short {
+        display: none;
+      }
+    }
+
+    @media only screen and (max-width: $bp-compact) {
+      // Each row carries its own padding here, the way the design spaces them,
+      // so the footer itself has none.
+      padding: 0;
+
+      .footer {
+        gap: 0;
+        // Desktop centres each row at its content width; on phones the button
+        // row has to span the full width for the two halves to divide it, so
+        // the rows stretch and the text centres itself instead.
+        align-items: stretch;
+      }
+
+      .credits,
+      .disclaimer {
+        text-align: center;
+      }
+
+      .footer-buttons {
+        gap: 8px;
+        padding: 12px 16px 8px;
+
+        .ant-btn {
+          // Two equal halves spanning the full width, rather than two chips
+          // centred with dead space either side.
+          flex: 1;
+          height: 38px;
+          padding-inline: 8px;
+          font-size: 13px;
+        }
+      }
+
+      .credits {
+        padding: 0 16px 6px;
+        font-size: 12px;
+      }
+
+      .anticon-heart {
+        font-size: 12px;
+      }
+
+      .disclaimer {
+        padding: 0 16px 12px;
+        font-size: 10px;
+        line-height: 14px;
+
+        .full {
+          display: none;
+        }
+
+        .short {
+          display: inline;
+        }
+      }
     }
 
     a {
@@ -749,6 +900,27 @@ body {
 
 .options {
   overflow: hidden;
+  // Set here rather than as a `gap` prop on the Flex, so it can vary by
+  // breakpoint — an inline style could not.
+  gap: 12px;
+
+  // Segmented tracks: the theme's 44px control height is too tall for a panel
+  // this dense, and the design tightens it further on desktop than on phones.
+  .ant-segmented-item,
+  .ant-segmented-thumb {
+    height: 36px;
+    line-height: 36px;
+  }
+
+  @media only screen and (max-width: $bp-compact) {
+    gap: 16px;
+
+    .ant-segmented-item,
+    .ant-segmented-thumb {
+      height: 42px;
+      line-height: 42px;
+    }
+  }
 
   .options-header {
     span {
@@ -929,6 +1101,8 @@ body {
     letter-spacing: 0.03em;
     font-weight: normal;
     text-transform: uppercase;
+    height: 50px;
+    border-radius: 14px;
   }
 
   .drawer-footer-sub {

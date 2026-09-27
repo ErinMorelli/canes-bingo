@@ -4,3 +4,4 @@ export * from './useGameBoard';
 export * from './useGroups';
 export * from './useGames';
 export * from './useLocalStorage';
+export * from './useMediaQuery';

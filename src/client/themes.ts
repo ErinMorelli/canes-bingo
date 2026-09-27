@@ -291,6 +291,19 @@ export const footerMuted: Record<string, string> = {
 };
 
 /**
+ * The bottom sheet's grab handle. This is the redesign's `trackOff` — the same
+ * value the Switch's OFF track uses — but antd has no token for a drag
+ * affordance, so style.scss consumes it as a CSS variable:
+ *
+ *   .ant-drawer-section::before { background: var(--sheet-handle) }
+ */
+export const sheetHandle: Record<string, string> = {
+  default: '#C6CACC',
+  whalers: '#C4C9CA',
+  dark: '#5A666F',
+};
+
+/**
  * Footer buttons sit on the dark footer ground, not on `colorBgContainer`, so a plain
  * `<Button>` inherits the page-surface colours and comes out white-on-white. antd has no
  * "inverted region" concept — the fix is a second ConfigProvider scoped to the footer:

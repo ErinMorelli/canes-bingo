@@ -20,8 +20,10 @@ export function Options() {
   //   />
   // ));
 
+  // No `gap` prop: the spacing differs between the panel and the sheet, and an
+  // inline style cannot carry a breakpoint. It is set on `.options` instead.
   return (
-    <Flex className="options" orientation="vertical" gap={16}>
+    <Flex className="options" orientation="vertical">
       <Flex className="options-header" align="center">
         <span>This Game</span>
       </Flex>

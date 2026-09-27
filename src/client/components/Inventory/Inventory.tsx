@@ -154,7 +154,7 @@ export function Inventory() {
             </Content>
           </Layout>
           <Footer>
-            <AppFooter />
+            <AppFooter themeName={theme.name} />
           </Footer>
         </Layout>
       </Space>

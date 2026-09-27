@@ -3,6 +3,13 @@ export const IMGUR_CLIENT_ID = import.meta.env.VITE_IMGUR_CLIENT_ID;
 
 export const MIN_SQUARE_COUNT = 25;
 
+/**
+ * The compact breakpoint, in px. Must stay in step with `$bp-compact` in
+ * style.scss — the stylesheet owns every responsive rule except the handful
+ * that decide a React prop rather than a style.
+ */
+export const BP_COMPACT = 720;
+
 export const DEFAULT_PATTERN_SIZE = 50;
 export const PATTERN_COLUMNS = [...new Array(5).keys()];
 export const PATTERN_ROWS = [...new Array(5).keys()];

@@ -25,6 +25,8 @@ export type GameBoardContextValue = {
   board: Board;
   boardArgs: BoardArgs;
   boardReady: boolean;
+  /** Options have changed since the card on screen was dealt. */
+  cardDirty: boolean;
   squaresLoading: boolean;
   squaresError: boolean;
   squaresRemaining: number;
