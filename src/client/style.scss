@@ -40,6 +40,26 @@ $light-off-opacity: 0.4;
   }
 }
 
+// The shell fills the viewport: header pinned to the top, footer to the
+// bottom, and the board region absorbing whatever is left over. That needs an
+// unbroken height chain from the document down to `.app`, because a percentage
+// height resolves against the parent and stops dead at the first `auto` link.
+//
+// `height: 100%` rather than `100vh` on purpose — mobile browsers report a
+// `100vh` taller than the visible area while their chrome is showing, which
+// pushes the footer below the fold on exactly the devices this is built for.
+// `.app-root` is antd's own App wrapper: an element in the middle of the
+// chain with no height of its own is enough to break every percentage below
+// it, and that one is easy to miss because nothing in this codebase renders it
+// directly.
+html,
+body,
+#root,
+.app-root,
+.app-shell {
+  height: 100%;
+}
+
 .no-caps * {
   text-transform: lowercase !important;
 }
@@ -288,6 +308,32 @@ body {
 .app {
   text-align: center;
 
+  // antd's Layout is already a flex column; this only says how tall it is and
+  // which of its three bands may grow.
+  min-height: 100%;
+
+  // `min-height`, not `height`: the middle band absorbs any spare space so the
+  // footer sits at the bottom of a short page, and a board too tall to fit
+  // simply scrolls, the way the desktop mock does.
+
+  > header,
+  > footer,
+  .app-lights {
+    flex: 0 0 auto;
+  }
+
+  > main {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+
+    // The inner Layout holding the status bar and the board has to pass the
+    // growth along rather than absorbing it.
+    > .ant-layout {
+      flex: 1 1 auto;
+    }
+  }
+
   header {
     padding: 0;
     position: relative;
@@ -384,6 +430,7 @@ body {
     z-index: 99;
 
     .status-bar {
+      flex: 0 0 auto;
       width: 100%;
       height: 76px;
       background: var(--ant-color-bg-container);
@@ -506,11 +553,27 @@ body {
     }
 
     .board-wrapper {
+      // Takes every pixel the header, status bar and footer do not, and
+      // centres the board in it. The default `min-height: auto` on a column
+      // flex item is deliberate: the wrapper grows into spare space but never
+      // shrinks under the board, so a tall board scrolls instead of spilling
+      // over the status bar.
+      flex: 1 1 auto;
+
       // Wide enough that the content box is exactly $board-max once the
       // gutters are subtracted, so the board still hits 150px cells.
       max-width: calc($board-max + 32px);
+      // Explicit, because auto cross-axis margins on a flex item make it
+      // shrink to fit. That would size the wrapper from the board while the
+      // board is being sized from the wrapper, and the two collapse together.
+      width: 100%;
       margin: 0 auto;
       padding: 28px 16px 44px;
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
 
       .board-hint {
         padding-top: 16px;
@@ -659,22 +722,453 @@ body {
     }
   }
 
+  // Squares database. Shares the board's shell — same diagonal header, same
+  // 2px rule, same footer — and swaps the grid for a scannable list.
   &.squares-db {
-    input.ant-input {
-      color: black;
+    $db-column: 1020px;
+
+    // The board's header column is 790px; this page's content column is
+    // 1020px, and the two have to line up or the wordmark sits inboard of
+    // everything beneath it.
+    header .header {
+      max-width: $db-column;
     }
 
-    h2 {
-      color: var(--ant-color-text-base);
+    header .header-right {
+      gap: 8px;
     }
 
-    table {
+    .db-back,
+    .db-submit {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      height: 44px;
+      padding: 0 18px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      white-space: nowrap;
+      text-decoration: none;
+    }
+
+    .db-back {
       border: 1px solid var(--ant-color-border);
+      color: var(--ant-color-text);
+    }
 
-      .ant-table-tbody {
-        tr:nth-child(even) {
-          background-color: rgba(0, 0, 0, 0.02);
-        }
+    .db-submit {
+      padding: 0 20px;
+      border: none;
+      cursor: pointer;
+      background: var(--ant-color-primary);
+      color: #fff;
+      font-family: "Anton", sans-serif;
+      font-weight: normal;
+      letter-spacing: .03em;
+      text-transform: uppercase;
+    }
+
+    // The band under the rule: title, standfirst, and the search on desktop.
+    .db-intro {
+      background: var(--ant-color-bg-container);
+      border-bottom: 1px solid var(--ant-color-split);
+    }
+
+    .db-intro-inner {
+      max-width: $db-column;
+      margin: 0 auto;
+      padding: 26px 18px 22px;
+      // `.app` centres everything; this page reads as a document.
+      text-align: left;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 28px;
+    }
+
+    .db-intro-copy {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .db-title {
+      margin: 0;
+      font-family: "Anton", sans-serif;
+      font-size: 40px;
+      line-height: 1;
+      letter-spacing: .02em;
+      font-weight: normal;
+      text-transform: uppercase;
+      color: var(--ant-color-text);
+    }
+
+    .db-subtitle {
+      margin: 0;
+      font-size: 14px;
+      color: var(--ant-color-text-secondary);
+    }
+
+    .db-search {
+      width: 320px;
+      flex: 0 0 auto;
+      height: 44px;
+      border-radius: 12px;
+    }
+
+    .db-body {
+      max-width: $db-column;
+      // Explicit: `main` is a flex column, and auto cross-axis margins on a
+      // flex item make it shrink to fit its content rather than the viewport.
+      width: 100%;
+      margin: 0 auto;
+      padding: 22px 18px 44px;
+    }
+
+    .db-filters {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding-bottom: 16px;
+    }
+
+    .db-chips {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      flex: 1 1 auto;
+    }
+
+    .db-chip {
+      flex: 0 0 auto;
+      height: 34px;
+      padding: 0 15px;
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--ant-color-border);
+      border-radius: 17px;
+      background: none;
+      color: var(--ant-color-text);
+      font-size: 13px;
+      font-weight: 500;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: background-color 150ms ease, border-color 150ms ease;
+
+      &.selected {
+        border-color: var(--ant-color-primary);
+        background: var(--ant-color-primary);
+        color: #fff;
+        font-weight: 700;
+      }
+    }
+
+    .db-count {
+      flex: 0 0 auto;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--ant-color-text-secondary);
+    }
+
+    // Shared by the table's first column and the cards.
+    .db-value {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--ant-color-text);
+    }
+
+    .db-meaning {
+      font-size: 14px;
+      line-height: 19px;
+      color: var(--ant-color-text-secondary);
+    }
+
+    .db-cat {
+      display: inline-flex;
+      align-items: center;
+      height: 24px;
+      padding: 0 10px;
+      border-radius: 12px;
+      background: var(--ant-color-fill-tertiary);
+      color: var(--ant-color-text);
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .db-tags {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    .db-tag {
+      display: inline-flex;
+      align-items: center;
+      height: 22px;
+      padding: 0 8px;
+      border-radius: 11px;
+      border: 1px solid var(--ant-color-border);
+      color: var(--ant-color-text-secondary);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .04em;
+      white-space: nowrap;
+    }
+
+    $db-grid: 280px 1fr 130px;
+
+    .db-table {
+      border: 1px solid var(--ant-color-split);
+      border-radius: 14px;
+      overflow: hidden;
+      text-align: left;
+    }
+
+    .db-table-head {
+      display: grid;
+      grid-template-columns: $db-grid;
+      gap: 24px;
+      padding: 11px 20px;
+      background: var(--ant-color-fill-tertiary);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--ant-color-text-secondary);
+    }
+
+    .db-row {
+      display: grid;
+      grid-template-columns: $db-grid;
+      align-items: center;
+      gap: 24px;
+      padding: 15px 20px;
+      background: var(--ant-color-bg-container);
+
+      &:not(:last-child) {
+        border-bottom: 1px solid var(--ant-color-split);
+      }
+    }
+
+    .db-row-name {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .db-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      text-align: left;
+    }
+
+    .db-card {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      padding: 13px 14px;
+      border-radius: 12px;
+      background: var(--ant-color-bg-container);
+      box-shadow: rgba(0, 0, 0, .1) 0 1px 3px;
+
+      .db-meaning {
+        font-size: 13px;
+        line-height: 18px;
+      }
+    }
+
+    .db-card-labels {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      padding-top: 2px;
+    }
+
+    // This page does not use the site footer: the design gives it a submit
+    // prompt instead of the board's buttons and credits.
+    // Footer padding lives on the Layout footer; this page's differs from the
+    // board's on phones.
+    > footer {
+      padding: 26px 32px;
+    }
+
+    .db-footer {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+    }
+
+    .db-footer-link {
+      padding: 0;
+      border: none;
+      background: none;
+      color: #fff;
+      font-size: inherit;
+      font-weight: 600;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    .db-footer-disclaimer {
+      max-width: 640px;
+      font-size: 13px;
+      line-height: 18px;
+      opacity: .75;
+      text-align: center;
+    }
+
+    .db-footer-cta {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      width: 100%;
+      height: 44px;
+      border: none;
+      border-radius: 10px;
+      background: var(--ant-color-primary);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .db-footer-note {
+      text-align: center;
+      font-size: 11px;
+    }
+
+    .db-empty {
+      padding: 32px 0;
+      text-align: center;
+      color: var(--ant-color-text-secondary);
+    }
+
+    @media only screen and (max-width: $bp-compact) {
+      // Phones are a fixed shell: the list scrolls inside itself and the
+      // submit CTA stays pinned to the bottom. Desktop deliberately flows
+      // instead — the design's desktop mock has no height or overflow, only
+      // the phone one does.
+      &.app {
+        height: 100%;
+      }
+
+      > main {
+        min-height: 0;
+      }
+
+      .db-body {
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 auto;
+        min-height: 0;
+      }
+
+      // Spin sits between the body and the list, so it has to pass the
+      // available height down for the list to be the thing that scrolls.
+      .db-body > .ant-spin,
+      .db-body .ant-spin-container {
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 auto;
+        min-height: 0;
+      }
+
+      .db-cards {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-y: auto;
+      }
+
+      > footer {
+        padding: 12px 16px 16px;
+      }
+
+      .db-footer {
+        gap: 8px;
+      }
+
+      // Back arrow leads, wordmark follows — the design reads left to right
+      // here rather than pinning the two to opposite edges.
+      header .header {
+        max-width: none;
+        justify-content: flex-start;
+        gap: 10px;
+      }
+
+      .header-title {
+        order: 2;
+      }
+
+      header .header-right {
+        order: 1;
+        flex: 0 0 auto;
+      }
+
+      .db-body {
+        max-width: none;
+        padding: 0 16px 16px;
+      }
+
+      .db-search-row {
+        padding: 14px 0 10px;
+      }
+
+      .db-search {
+        width: 100%;
+      }
+
+      // The chip row scrolls sideways rather than wrapping to three lines.
+      // `stretch`, not `flex-start`: a shrink-to-fit chip row is as wide as
+      // all six chips, so `overflow-x` has nothing to clip and the whole page
+      // scrolls sideways instead.
+      .db-filters {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        padding-bottom: 12px;
+      }
+
+      .db-chips {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 2px;
+        width: 100%;
+        min-width: 0;
+      }
+
+      .db-count {
+        text-align: left;
+      }
+
+      .db-count {
+        font-size: 12px;
+        letter-spacing: .1em;
+      }
+
+      .db-back {
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        margin-left: -8px;
+        border: none;
+        font-size: 18px;
+      }
+
+      .db-submit-block {
+        width: 100%;
+        margin-top: 16px;
       }
     }
   }
@@ -693,7 +1187,7 @@ body {
       align-items: center;
       justify-content: center;
       text-align: center;
-      // Squares are 1:1 at every width, so the row height follows the column
+      // Cells are 1:1 at every width, so the row height follows the column
       // track rather than a fixed grid-template-rows.
       aspect-ratio: 1;
       // A long single word must break and, past that, clip — without these it
@@ -906,19 +1400,28 @@ body {
 
   // Segmented tracks: the theme's 44px control height is too tall for a panel
   // this dense, and the design tightens it further on desktop than on phones.
+  //
+  // The label has to be resized alongside the item. antd derives its height
+  // from `controlHeight - 2 * trackPadding` and pins a matching `min-height`,
+  // so leaving it out keeps the text in a short box at the top of a taller
+  // item and the slack all collects underneath it.
   .ant-segmented-item,
+  .ant-segmented-item-label,
   .ant-segmented-thumb {
     height: 36px;
     line-height: 36px;
+    min-height: 36px;
   }
 
   @media only screen and (max-width: $bp-compact) {
     gap: 16px;
 
     .ant-segmented-item,
+    .ant-segmented-item-label,
     .ant-segmented-thumb {
       height: 42px;
       line-height: 42px;
+      min-height: 42px;
     }
   }
 
@@ -1249,4 +1752,125 @@ body {
     box-shadow: 0 calc($globe-height/6) calc($globe-width*2) $globe-spread $light-color-3;}
     50% { background: color.change($light-color-3, $alpha: $light-off-opacity);
     box-shadow: 0 calc($globe-height/6) calc($globe-width*2) $globe-spread color.change($light-color-3, $alpha: 0.2);}
+}
+
+// Submit a Square. Desktop treatment only for now — the design also has a
+// mobile bottom sheet, which is deliberately not built yet.
+.submit-modal {
+  // antd v6 renamed the panel element: `.ant-modal-content` is gone and the
+  // visible panel is `.ant-modal-container`.
+  .ant-modal-container {
+    border-radius: 18px;
+    overflow: hidden;
+    padding: 0;
+  }
+
+  .ant-modal-header {
+    margin: 0;
+    padding: 22px 26px 16px;
+    border-bottom: 2px solid var(--ant-color-primary);
+    border-radius: 0;
+  }
+
+  .submit-title {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .submit-title-main {
+    font-family: "Anton", sans-serif;
+    font-size: 26px;
+    font-weight: normal;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+    color: var(--ant-color-text);
+  }
+
+  .submit-title-sub {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--ant-color-text-secondary);
+  }
+
+  // The design's close control is a filled pill rather than a bare glyph.
+  .ant-modal-close {
+    top: 22px;
+    inset-inline-end: 26px;
+    width: 32px;
+    height: 32px;
+    border-radius: 16px;
+    background: var(--ant-color-fill-tertiary);
+    color: var(--ant-color-text);
+  }
+
+  .ant-modal-body {
+    padding: 22px 26px 18px;
+  }
+
+  .submit-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: left;
+  }
+
+  .submit-label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--ant-color-text-secondary);
+  }
+
+  .submit-field .ant-input {
+    height: 46px;
+    border-radius: 11px;
+  }
+
+  .submit-help {
+    font-size: 13px;
+    line-height: 18px;
+    color: var(--ant-color-text-secondary);
+  }
+
+  // Built in the body rather than antd's footer slot: the design pairs the
+  // buttons with a sentence, which the ok/cancel pair cannot express.
+  .submit-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 18px -26px -18px;
+    padding: 16px 26px 20px;
+    border-top: 1px solid var(--ant-color-fill-tertiary);
+    text-align: left;
+  }
+
+  .submit-note {
+    flex: 1;
+    font-size: 12px;
+    color: var(--ant-color-text-secondary);
+  }
+
+  .submit-cancel,
+  .submit-confirm {
+    height: 46px;
+    border-radius: 12px;
+    flex: 0 0 auto;
+  }
+
+  .submit-cancel {
+    padding-inline: 18px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .submit-confirm {
+    padding-inline: 22px;
+    font-family: "Anton", sans-serif;
+    font-size: 15px;
+    font-weight: normal;
+    letter-spacing: .03em;
+    text-transform: uppercase;
+  }
 }

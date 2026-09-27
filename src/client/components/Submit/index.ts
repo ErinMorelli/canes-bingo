@@ -1,0 +1,1 @@
+export { SubmitSquare } from './SubmitSquare';

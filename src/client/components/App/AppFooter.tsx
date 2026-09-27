@@ -8,12 +8,15 @@ import { Button, ConfigProvider } from 'antd';
 
 import { footerButtonTheme, footerMuted } from '@app/themes';
 
+import { useSubmit } from '@hooks';
+
 type AppFooterProps = {
   readonly themeName: string;
 }
 
 export default function AppFooter({ themeName }: AppFooterProps) {
   const navigate = useNavigate();
+  const { open: openSubmit } = useSubmit();
 
   const color = footerMuted[themeName];
 
@@ -28,7 +31,7 @@ export default function AppFooter({ themeName }: AppFooterProps) {
             icon={<AppstoreFilled />}>
             Squares Database
           </Button>
-          <Button icon={<PlusCircleOutlined />}>
+          <Button icon={<PlusCircleOutlined />} onClick={openSubmit}>
             Submit a Square
           </Button>
         </div>

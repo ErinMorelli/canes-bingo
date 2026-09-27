@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Layout, notification, Space, Spin, Typography } from 'antd';
+import { Layout, notification, Spin, Typography } from 'antd';
 
 import { useConfig, useGameBoard, useGroups } from '@hooks';
 
 import { Card } from '@components/Card';
+import { SubmitSquare } from '@components/Submit';
 import { Status } from '@components/Status';
 
 import { DrawerProvider } from '@context/DrawerContext';
@@ -72,7 +73,7 @@ export function AppLayout({ themeClass, themeName }: AppLayoutProps) {
 
   return (
     <DrawerProvider>
-      <Space orientation="vertical" style={{ width: '100%' }} className={customClass}>
+      <div className={['app-shell', customClass].filter(Boolean).join(' ')}>
         {contextHolder}
         <Layout className={`app app-${themeName}`}>
           {festiveLights && <AppLights />}
@@ -110,7 +111,8 @@ export function AppLayout({ themeClass, themeName }: AppLayoutProps) {
             <AppFooter themeName={themeName} />
           </Footer>
         </Layout>
-      </Space>
+        <SubmitSquare />
+      </div>
     </DrawerProvider>
   );
 }

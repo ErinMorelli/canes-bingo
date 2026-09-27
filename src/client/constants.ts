@@ -10,6 +10,12 @@ export const MIN_SQUARE_COUNT = 25;
  */
 export const BP_COMPACT = 720;
 
+/**
+ * The wide breakpoint, in px — where the squares database swaps its stacked
+ * cards for a table. Must stay in step with `$bp-wide` in style.scss.
+ */
+export const BP_WIDE = 1040;
+
 export const DEFAULT_PATTERN_SIZE = 50;
 export const PATTERN_COLUMNS = [...new Array(5).keys()];
 export const PATTERN_ROWS = [...new Array(5).keys()];

@@ -48,6 +48,14 @@ export type DrawerContextValue = {
 
 export const DrawerContext = createContext<DrawerContextValue | null>(null);
 
+export type SubmitContextValue = {
+  isOpen: boolean;
+  open: () => void;
+  close: () => void;
+};
+
+export const SubmitContext = createContext<SubmitContextValue | null>(null);
+
 export type ActiveGameContextValue = {
   activeGame: NHLActiveGame;
   refreshGame: () => void;

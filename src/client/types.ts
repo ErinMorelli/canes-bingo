@@ -20,7 +20,14 @@ export type Patterns = Array<Pattern>;
 
 export type Category = Omit<z.infer<typeof categoryOutputSchema>, 'groupId'>;
 
-export type Square = Omit<z.infer<typeof squareOutputSchema>, 'categories'>;
+/**
+ * `categories` is optional rather than required: the API always sends it (a
+ * comma-separated list of category ids) but the board never looks at it, and
+ * plenty of fixtures build squares without it.
+ */
+export type Square = Omit<z.infer<typeof squareOutputSchema>, 'categories'> & {
+  categories?: string | null;
+};
 export type Squares = Array<Square>;
 
 export type Game = z.infer<typeof gameOutputSchema>;

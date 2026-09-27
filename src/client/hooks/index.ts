@@ -5,3 +5,5 @@ export * from './useGroups';
 export * from './useGames';
 export * from './useLocalStorage';
 export * from './useMediaQuery';
+export * from './useSquareCategories';
+export * from './useSubmit';
