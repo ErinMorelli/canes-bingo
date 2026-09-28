@@ -103,9 +103,6 @@ body {
       color: var(--ant-color-text);
       font-size: 22px;
       font-weight: normal;
-    }
-
-    .ant-drawer-title {
       text-transform: uppercase;
       letter-spacing: .02em;
     }
@@ -1523,6 +1520,8 @@ body {
         flex-direction: column;
         flex: 1 1 auto;
         min-height: 0;
+        max-width: none;
+        padding: 0 16px 16px;
       }
 
       // Spin sits between the body and the list, so it has to pass the
@@ -1566,11 +1565,6 @@ body {
         flex: 0 0 auto;
       }
 
-      .db-body {
-        max-width: none;
-        padding: 0 16px 16px;
-      }
-
       .db-search-row {
         padding: 14px 0 10px;
       }
@@ -1600,9 +1594,6 @@ body {
 
       .db-count {
         text-align: left;
-      }
-
-      .db-count {
         font-size: 12px;
         letter-spacing: .1em;
       }
