@@ -19,7 +19,31 @@ if (!SECRET_KEY) {
 const port = process.env.PORT || 3000;
 const app = express();
 
-const MySQLStore = MySQLSession(session);
+/**
+ * One runtime object, two type identities.
+ *
+ * `@types/express-session` ships `"types": "index.d.ts"` alongside an empty
+ * `"main": ""`. Under bundler resolution that one file ends up with two
+ * identities — `…/express-session/index` for our import, and
+ * `…/express-session/index.d.ts` for the one inside
+ * `@types/express-mysql-session` — and TypeScript will not unify them.
+ *
+ * On top of that the factory declares its parameter as a *namespace* import,
+ * which `esModuleInterop` gives a synthetic `default`. The value we have is
+ * the *default* import, which the middleware call below needs and which has
+ * no such property. So the two disagree twice over, about the same object.
+ *
+ * Asserted through `unknown` because a direct assertion is refused — the two
+ * identities are held not to overlap. `Parameters<>` keeps the target tied to
+ * the declaration rather than restating a type that could drift from it, so
+ * the call is still checked against whatever the package actually declares.
+ *
+ * Nothing in this repo causes it and nothing here can fix it; it goes away
+ * when the upstream types are packaged correctly.
+ */
+const MySQLStore = MySQLSession(
+  session as unknown as Parameters<typeof MySQLSession>[0]
+);
 
 /**
  * `express-mysql-session` sweeps expired sessions on its own timer:

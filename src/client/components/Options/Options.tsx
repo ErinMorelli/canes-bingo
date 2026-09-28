@@ -1,6 +1,6 @@
 import { Flex } from 'antd';
 
-import { Group } from '@app/constants.ts';
+import { Group } from '@app/constants';
 
 import GameOption from './GameOption';
 import OptionRadio from './OptionRadio';

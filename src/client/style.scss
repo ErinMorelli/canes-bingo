@@ -538,6 +538,13 @@ body {
           font-size: 26px;
           line-height: 1;
           color: var(--ant-color-link);
+
+          // Two words rather than two digits, so it comes down a step to sit
+          // in the same column without crowding the pattern name under it.
+          &.free-play {
+            font-size: 24px;
+            letter-spacing: 0.01em;
+          }
         }
 
         .togo {
@@ -648,6 +655,10 @@ body {
         .pattern-status {
           .remaining {
             font-size: 20px;
+
+            &.free-play {
+              font-size: 18px;
+            }
           }
 
           .pattern-animated .pattern-field .table .row .square {

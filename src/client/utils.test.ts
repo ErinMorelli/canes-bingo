@@ -11,8 +11,8 @@ import {
   validateBoardPattern,
   getWinningSquareKeys,
   createBoard,
-} from './utils.ts';
-import type { Board, Pattern, Square, Squares } from './types.ts';
+} from './utils';
+import type { Board, Pattern, Square, Squares } from './types';
 
 // --- helpers ---
 

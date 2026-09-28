@@ -1,6 +1,6 @@
 import { useContext} from 'react';
 
-import { DrawerContext, DrawerContextValue } from '@context/contexts.ts';
+import { DrawerContext, DrawerContextValue } from '@context/contexts';
 
 export function useDrawer(): DrawerContextValue {
   const ctx = useContext(DrawerContext);

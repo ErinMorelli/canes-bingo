@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { Patterns } from '@app/types.ts';
+import { Patterns } from '@app/types';
 
 import { Pattern } from '@components/Pattern';
 

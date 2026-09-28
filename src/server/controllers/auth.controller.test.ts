@@ -6,8 +6,8 @@ vi.mock('./users.controller.ts', () => ({
   getUserByUsername: vi.fn(),
 }));
 
-import { authenticateUser } from './auth.controller.ts';
-import { getUserByUsername } from './users.controller.ts';
+import { authenticateUser } from './auth.controller';
+import { getUserByUsername } from './users.controller';
 
 const mockGetUserByUsername = vi.mocked(getUserByUsername);
 

@@ -1,6 +1,6 @@
 import { useContext} from 'react';
 
-import { ActiveGameContext, ActiveGameContextValue } from '@context/contexts.ts';
+import { ActiveGameContext, ActiveGameContextValue } from '@context/contexts';
 
 export function useActiveGame(): ActiveGameContextValue {
   const ctx = useContext(ActiveGameContext);

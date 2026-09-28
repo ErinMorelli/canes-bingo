@@ -14,7 +14,7 @@ type StatusProps = {
 }
 
 export function Status({ themeName }: Readonly<StatusProps>) {
-  const { selectedGame } = useGames();
+  const { selectedGame, isEnabled } = useGames();
   const { squaresRemaining, hasWon, winningPattern } = useGameBoard();
 
   const borderColor = headerRule[themeName];
@@ -42,7 +42,23 @@ export function Status({ themeName }: Readonly<StatusProps>) {
         <ActiveGameProvider>
           <StatusGame />
         </ActiveGameProvider>
-        {selectedGame && (
+        {/*
+          With patterns switched off there is no win condition, so a count
+          would be describing a race nobody is running — the strip said
+          "04 To Go" for a game that could not be won. The design replaces the
+          whole group, mini-grid included: with no pattern there is nothing to
+          draw one of.
+        */}
+        {!isEnabled ? (
+          <Flex
+            className="pattern-status"
+            orientation="vertical"
+            align="flex-end"
+            gap={2}>
+            <div className="remaining free-play">FREE PLAY</div>
+            <div className="pattern-name">No pattern</div>
+          </Flex>
+        ) : selectedGame && (
           <Flex
             className="pattern-status"
             orientation="vertical"

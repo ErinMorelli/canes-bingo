@@ -11,9 +11,9 @@ import {
   isPeriodActive,
   pollInterval,
   selectTodaysGame,
-} from './nhl.ts';
-import { NHLGameState } from './types.ts';
-import type { NHLActiveGame, NHLScheduleGame, NHLScheduleResult } from './types.ts';
+} from './nhl';
+import { NHLGameState } from './types';
+import type { NHLActiveGame, NHLScheduleGame, NHLScheduleResult } from './types';
 
 // --- helpers ---
 

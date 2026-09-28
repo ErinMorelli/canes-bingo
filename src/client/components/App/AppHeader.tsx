@@ -3,7 +3,7 @@ import { Button, ConfigProvider, Flex } from 'antd';
 import { useConfig, useDrawer, useGameBoard } from '@hooks';
 
 import { SaveImage } from '@components/SaveImage';
-import { headerButtonTheme } from '@app/themes.ts';
+import { headerButtonTheme } from '@app/themes';
 import { ReloadOutlined, SettingOutlined } from '@ant-design/icons';
 
 type AppHeaderProps = {
