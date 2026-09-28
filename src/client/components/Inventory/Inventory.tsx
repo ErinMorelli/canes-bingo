@@ -110,7 +110,22 @@ export function Inventory() {
   );
 
   const chipRow = (
-    <div className="db-chips" role="group" aria-label="Filter by category">
+    /*
+      A real <fieldset> rather than role="group": the native element carries
+      that role, and its <legend> is the accessible name, so the grouping is
+      announced even where the ARIA attribute is not honoured. The legend is
+      visually hidden because the design has no heading here.
+
+      The fieldset wraps the row rather than being it. `.db-chips` is a flex
+      container that scrolls horizontally on phones, and fieldset is a
+      long-standing problem case for exactly those two properties — it has
+      its own anonymous rendering box. Keeping it a plain block wrapper and
+      leaving the flex and the overflow on an ordinary div means the layout
+      is byte-for-byte what it was, and only the semantics changed.
+    */
+    <fieldset className="db-chips-group">
+      <legend className="sr-only">Filter by category</legend>
+      <div className="db-chips">
       {chips.map((c) => (
         <button
           type="button"
@@ -121,7 +136,8 @@ export function Inventory() {
           {c.label}
         </button>
       ))}
-    </div>
+      </div>
+    </fieldset>
   );
 
   return (

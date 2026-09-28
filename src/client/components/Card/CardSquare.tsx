@@ -139,18 +139,15 @@ function CardSquareImpl({ square, rowId, colId, cellSize = 0, cellPadding = 0, i
   }, [customClass]);
 
   const classNames = useMemo(() => {
-    const classes = ['square'];
-    if (selected) {
-      classes.push('selected');
-    }
-    if (isFreeSpace) {
-      classes.push('free-space');
-      classes.push(theme.name);
-    }
-    if (isWinning) {
-      classes.push('winning');
-    }
-    return classes.join(' ');
+    return [
+      'square',
+      selected && 'selected',
+      // The theme name rides along with free-space: the centre square is the
+      // one cell whose fill inverts per theme.
+      isFreeSpace && 'free-space',
+      isFreeSpace && theme.name,
+      isWinning && 'winning',
+    ].filter(Boolean).join(' ');
   }, [isFreeSpace, isWinning, selected, theme.name]);
 
   const styles = useMemo(() => {

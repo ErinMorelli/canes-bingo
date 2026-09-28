@@ -95,7 +95,7 @@ function readValue<T>(key: string, initialValue: T): T {
   }
 
   const cached = cache.get(key);
-  if (cached && cached.raw === raw) return cached.value as T;
+  if (cached?.raw === raw) return cached.value as T;
 
   let value = initialValue;
   if (raw !== null) {

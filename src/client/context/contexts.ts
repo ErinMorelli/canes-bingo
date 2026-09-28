@@ -61,7 +61,6 @@ export const GameBoardContext = createContext<GameBoardContextValue | null>(null
 
 export type DrawerContextValue = {
   isOpen: boolean;
-  toggle: (val: boolean) => void;
   open: () => void;
   close: () => void;
 };

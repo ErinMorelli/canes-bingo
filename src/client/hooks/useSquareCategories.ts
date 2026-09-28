@@ -20,7 +20,7 @@ export type CategoryChip = {
 };
 
 /** Groups whose categories are listed one chip each. */
-const ITEMISED_GROUPS: readonly string[] = [Group.LOCATION, Group.BROADCAST];
+const ITEMISED_GROUPS: ReadonlySet<string> = new Set([Group.LOCATION, Group.BROADCAST]);
 
 /** Groups collapsed to a single chip, because they hold a long tail. */
 const COLLAPSED_GROUPS: ReadonlyArray<{ group: string; label: string }> = [
@@ -85,7 +85,7 @@ export function useSquareCategories(squares: Squares) {
     });
 
     const itemised = [...byId.values()]
-      .filter((category) => ITEMISED_GROUPS.includes(category.group) && used.has(category.id))
+      .filter((category) => ITEMISED_GROUPS.has(category.group) && used.has(category.id))
       .map<CategoryChip>((category) => ({
         key: `cat-${category.id}`,
         label: category.label,

@@ -69,7 +69,13 @@ export function WinBar() {
   if (!hasWon) return null;
 
   return (
-    <div className="win-bar" role="status">
+    /*
+      `<output>` rather than a div with role="status" — it carries that role
+      implicitly, and a native element is announced consistently where the
+      ARIA attribute is not. `display` is set in the stylesheet, since output
+      is inline by default.
+    */
+    <output className="win-bar">
       <div className="win-bar-inner">
         <div className="win-bar-title">
           <span className="win-bar-shout">BINGO!</span>
@@ -101,6 +107,6 @@ export function WinBar() {
           &#10005;
         </button>
       </div>
-    </div>
+    </output>
   );
 }

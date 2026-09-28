@@ -187,7 +187,7 @@ describe('GameBoardProvider win state', () => {
     act(() => result.current.keepPlaying());
 
     expect(setSelectedGame).toHaveBeenCalledWith(BLACKOUT);
-    expect(result.current.board.flat().filter((s) => s.selected).length).toBe(marked);
+    expect(result.current.board.flat().filter((s) => s.selected)).toHaveLength(marked);
   });
 
   it('has nothing to escalate to once blackout is the game being played', () => {

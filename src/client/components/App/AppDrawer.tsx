@@ -13,7 +13,7 @@ type AppDrawerProps = {
   customClass?: string;
 }
 
-export default function AppDrawer({ customClass = '' }: AppDrawerProps) {
+export default function AppDrawer({ customClass = '' }: Readonly<AppDrawerProps>) {
   const { isOpen, close } = useDrawer();
   const { cardDirty, generateBoard, loadBoard, squaresError } = useGameBoard();
   const { isLoading: groupsLoading } = useGroups();

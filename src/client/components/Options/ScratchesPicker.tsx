@@ -23,7 +23,7 @@ type ScratchesPickerProps = {
  * Stacked over the options drawer instead of replacing its contents, so
  * closing it returns to the options exactly as they were left.
  */
-export function ScratchesPicker({ open, onClose }: ScratchesPickerProps) {
+export function ScratchesPicker({ open, onClose }: Readonly<ScratchesPickerProps>) {
   const { rosters, isScratched, toggle, count } = useScratches();
   const { theme } = useConfig();
 
@@ -87,20 +87,30 @@ export function ScratchesPicker({ open, onClose }: ScratchesPickerProps) {
           {roster.categories.map((category) => {
             const checked = isScratched(roster.group, category.name);
             return (
-              <button
-                type="button"
+              /*
+                A real <input type="checkbox">, visually hidden inside the
+                label, rather than a button carrying role="checkbox". The
+                role was the right *semantics* but the wrong mechanism: a
+                native checkbox is announced and operated consistently
+                everywhere, comes with its own keyboard handling, and the
+                wrapping label makes the whole row the hit target for free.
+                The square tick is still ours — the input is only hidden,
+                never replaced.
+              */
+              <label
                 key={category.name}
-                className={`scratch-row${checked ? ' checked' : ''}`}
-                // A real checkbox role, not `aria-pressed`: this is a set
-                // being built, and screen readers should say "checked".
-                role="checkbox"
-                aria-checked={checked}
-                onClick={() => toggle(roster.group, category)}>
+                className={`scratch-row${checked ? ' checked' : ''}`}>
+                <input
+                  type="checkbox"
+                  className="sr-only"
+                  checked={checked}
+                  onChange={() => toggle(roster.group, category)}
+                />
                 <span className="scratch-box" aria-hidden="true">
                   {checked ? '✓' : ''}
                 </span>
                 <span className="scratch-name">{category.label}</span>
-              </button>
+              </label>
             );
           })}
         </div>

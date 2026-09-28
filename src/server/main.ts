@@ -112,6 +112,18 @@ app.set('trust proxy', parseTrustProxy(rawTrustProxy));
 const isDev = process.env.NODE_ENV !== 'production';
 
 app.use(helmet({
+  /*
+    HSTS off in dev, on in production.
+    
+    Helmet's default is a year of `includeSubDomains`, and a browser keys that
+    to the *hostname* — so a dev server on localhost tells the browser to force
+    HTTPS on localhost for every port, for every project, for a year. Chrome
+    then refuses to load http://localhost:3000 with no request made and no
+    useful error, and clearing the entry does not help because the next
+    response re-arms it.
+  */
+  strictTransportSecurity: isDev ? false : undefined,
+
   // CSP disabled in dev: Vite's HMR injects inline scripts that can't satisfy a strict policy.
   // In production, we enumerate exactly what the app needs.
   contentSecurityPolicy: isDev ? false : {

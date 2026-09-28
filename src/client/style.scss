@@ -258,10 +258,17 @@ body {
         border-bottom: none;
       }
 
-      &:focus-visible {
-        outline: 2px solid var(--ant-color-primary);
-        outline-offset: -2px;
-      }
+    }
+
+    /*
+      Focus lands on the hidden input, so the ring is drawn on the tick box
+      beside it. A sibling selector rather than `:has()` on the row — this
+      works in every browser and puts the indicator exactly where the
+      control is.
+    */
+    .scratch-row input:focus-visible + .scratch-box {
+      outline: 2px solid var(--ant-color-primary);
+      outline-offset: 2px;
     }
 
     .scratch-box {
@@ -972,6 +979,8 @@ body {
     of the mock, not in it.
   */
   .win-bar {
+    // `<output>` is inline by default; the band needs to be a block.
+    display: block;
     flex: 0 0 auto;
 
     /*
@@ -1272,11 +1281,23 @@ body {
       padding-bottom: 16px;
     }
 
+    // The <fieldset> exists for the grouping semantics only: a plain block
+    // that takes the flex slot the row used to hold, stripped of the
+    // browser's default chrome. No flex and no overflow on it — see the note
+    // in Inventory.tsx.
+    .db-chips-group {
+      flex: 1 1 auto;
+      min-width: 0;
+      margin: 0;
+      padding: 0;
+      border: none;
+    }
+
     .db-chips {
       display: flex;
       gap: 6px;
       flex-wrap: wrap;
-      flex: 1 1 auto;
+      min-width: 0;
     }
 
     .db-chip {
@@ -1582,6 +1603,10 @@ body {
         align-items: stretch;
         gap: 10px;
         padding-bottom: 12px;
+      }
+
+      .db-chips-group {
+        width: 100%;
       }
 
       .db-chips {
