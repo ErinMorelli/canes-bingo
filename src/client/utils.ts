@@ -4,7 +4,6 @@ import {
   BoardSquare,
   Category,
   GroupsStateGroups,
-  ImgurUploadResult,
   MultiGroup,
   Pattern,
   PatternSquare,
@@ -15,7 +14,6 @@ import {
 import {
   ConfigKey, DEFAULT_PATTERN_SIZE,
   Group,
-  IMGUR_CLIENT_ID,
   StorageKey
 } from './constants';
 import { apiClient, getData } from './api';
@@ -103,24 +101,6 @@ export function initStorageValue<T>(key: StorageKey, defaultValue: T): T {
     setStorageValue(key, value);
   }
   return value;
-}
-
-export async function uploadImageToImgur(image: Blob): Promise<ImgurUploadResult | null> {
-  const form = new FormData();
-  form.append('image', image);
-
-  try {
-    const response = await fetch('https://api.imgur.com/3/image', {
-      method: 'POST',
-      headers: { Authorization: `Client-ID ${IMGUR_CLIENT_ID}` },
-      body: form,
-    });
-    const result = await response.json() as ImgurUploadResult;
-    return result.success ? result : null;
-  } catch (err) {
-    console.error(err);
-    return null;
-  }
 }
 
 export function parsePatternValue(value: string | PatternSquare[]): PatternSquare[] {
@@ -221,30 +201,58 @@ export function fitSquareFont(
       return false;
     }
     // A word that fits can still wrap to more lines than the cell is tall.
-    // Dividing total text width by the line width would under-count: the
-    // browser wraps greedily and leaves the tail of each line empty, so
-    // "Two players drop gloves" takes four lines in a width that two would
-    // fit if the text could be packed. Walk the same greedy wrap instead.
-    const lineHeight = size + 4;
-    const spaceWidth = measureWord(' ', size, weight, SQUARE_FONT_FAMILY);
-    let lines = 1;
-    let used = 0;
-    for (const word of words) {
-      const wordWidth = measureWord(word, size, weight, SQUARE_FONT_FAMILY);
-      if (used === 0) {
-        used = wordWidth;
-      } else if (used + spaceWidth + wordWidth <= innerWidth) {
-        used += spaceWidth + wordWidth;
-      } else {
-        lines += 1;
-        used = wordWidth;
-      }
-    }
-    return lines * lineHeight <= innerHeight;
+    const lines = wrapSquareText(text, size, weight, innerWidth).length;
+    return lines * (size + 4) <= innerHeight;
   });
 
   const fontSize = fits ?? sizes[sizes.length - 1];
   return { fontSize, lineHeight: fontSize + 4 };
+}
+
+/**
+ * Break `text` into the lines a square would show at this size.
+ *
+ * Greedy, one word at a time, because that is what the browser does when it
+ * wraps the live board — and the count has to agree with it. Dividing total
+ * text width by the line width would under-count: greedy wrapping leaves the
+ * tail of each line empty, so "Two players drop gloves" takes four lines in a
+ * width that two would fit if the text could be packed.
+ *
+ * Shared with the canvas renderer, which needs the lines themselves rather
+ * than just how many. Having both walk the same function is the only way the
+ * shared image and the board on screen stay in agreement.
+ */
+export function wrapSquareText(
+  text: string,
+  fontSize: number,
+  weight: string,
+  maxWidth: number
+): string[] {
+  const words = text.split(/\s+/).filter(Boolean);
+  if (words.length === 0) return [];
+
+  const spaceWidth = measureWord(' ', fontSize, weight, SQUARE_FONT_FAMILY);
+  const lines: string[] = [];
+  let current = '';
+  let used = 0;
+
+  for (const word of words) {
+    const wordWidth = measureWord(word, fontSize, weight, SQUARE_FONT_FAMILY);
+    if (current === '') {
+      current = word;
+      used = wordWidth;
+    } else if (used + spaceWidth + wordWidth <= maxWidth) {
+      current += ` ${word}`;
+      used += spaceWidth + wordWidth;
+    } else {
+      lines.push(current);
+      current = word;
+      used = wordWidth;
+    }
+  }
+  lines.push(current);
+
+  return lines;
 }
 
 // The center of the 5x5 board is a free space: it counts as covered without

@@ -68,6 +68,9 @@ export function GameBoardProvider({ children }: Readonly<{ children: React.React
     if (squares.length >= MIN_SQUARE_COUNT && seed !== lastBuiltSeedRef.current) {
       lastBuiltSeedRef.current = seed;
       setBoard(createBoard(squares));
+      // Cleared here rather than when `seed` changed — see the note on
+      // `dismissedPatternId` below.
+      setDismissedPatternId(null);
     }
   }, [squares, seed, setBoard]);
 
@@ -187,12 +190,22 @@ export function GameBoardProvider({ children }: Readonly<{ children: React.React
    */
   const [dismissedPatternId, setDismissedPatternId] = useState<number | null>(null);
 
-  // A new deal or a change of game starts a fresh game, so a previous dismissal
-  // no longer applies. Deliberately not keyed on `board`: that is the mistake
-  // the derived win above exists to avoid.
+  /*
+    A change of game starts a fresh contest, so a previous dismissal no longer
+    applies. Deliberately not keyed on `board`: that is the mistake the derived
+    win above exists to avoid.
+
+    Nor on `seed`. Dealing a new card bumps the seed immediately, but the board
+    is only replaced once the refetch it triggers comes back — the query key
+    holds the seed, so `squares` empties and the build effect waits. Clearing
+    the dismissal on the seed therefore un-dismissed a win while the board that
+    won it was still on screen, which brought the bar back and fired the
+    cannons a second time before the new card arrived. The clear belongs with
+    the board swap, so it happens in the build effect above instead.
+  */
   useEffect(() => {
     setDismissedPatternId(null);
-  }, [seed, isEnabled, selectedGame?.id]);
+  }, [isEnabled, selectedGame?.id]);
 
   const hasWon = winningPattern !== null && winningPattern.id !== dismissedPatternId;
 

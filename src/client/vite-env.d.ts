@@ -1,9 +1,5 @@
 /// <reference types="vite/client" />
 
-interface ImportMetaEnv {
-  readonly VITE_IMGUR_CLIENT_ID: string;
-}
-
-interface ImportMeta {
-  readonly env: ImportMetaEnv
-}
+// The app declares no custom `VITE_*` variables. The Imgur client id was the
+// only one, and it went with the upload — the card is rendered and shared
+// locally now, so nothing about sharing reaches a third party.

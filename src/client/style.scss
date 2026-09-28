@@ -463,6 +463,12 @@ body {
       height: 76px;
       background: var(--ant-color-bg-container);
       border-bottom: 1px solid var(--ant-color-split);
+      // Short enough to read as the band lighting up rather than a repaint.
+      transition: background-color 0.25s ease-out, border-color 0.25s ease-out;
+
+      @media (prefers-reduced-motion: reduce) {
+        transition: none;
+      }
 
       > div {
         max-width: 790px;
@@ -532,13 +538,6 @@ body {
           font-size: 26px;
           line-height: 1;
           color: var(--ant-color-link);
-
-          // A five-letter word, not a two-digit count — 26px would crowd the
-          // pattern name beneath it. The design sets 20px here.
-          &.won {
-            font-size: 20px;
-            letter-spacing: 0.02em;
-          }
         }
 
         .togo {
@@ -559,6 +558,78 @@ body {
         .pattern-animated .pattern-field .table .row .square {
           width: 8px !important;
           height: 8px !important;
+        }
+      }
+
+      /*
+        The win, announced where the player is already looking.
+
+        The bar that carries the celebration sits below the board, and on a
+        desktop viewport that puts it past the fold — the board alone is 782px
+        of an 813px window. This strip is the one part of the win that is
+        guaranteed to be on screen at any scroll position, so on a win it stops
+        being chrome and becomes the announcement: the whole band takes the
+        accent and everything on it inverts.
+      */
+      &.won {
+        background: var(--ant-color-primary);
+        border-bottom-color: var(--ant-color-primary);
+        color: #fff;
+
+        .game-status {
+          .next,
+          .time {
+            color: rgba(255, 255, 255, 0.8);
+          }
+
+          /*
+            The dot's colour is an inline style taken from a theme token that
+            *is* the accent while the game is live — invisible against an
+            accent band. An inline style can only be outranked with
+            `!important`, and this is the one rule that has to do it.
+          */
+          .live-dot {
+            background: rgba(255, 255, 255, 0.9) !important;
+          }
+        }
+
+        a {
+          color: #fff;
+          text-decoration: underline;
+        }
+
+        .pattern-name {
+          color: rgba(255, 255, 255, 0.85);
+        }
+
+        .remaining.won {
+          // Room to shout, now that the band behind it carries the colour
+          // rather than the word having to.
+          font-size: 30px;
+          letter-spacing: 0.02em;
+          color: #fff;
+        }
+
+        // The mini-grid inverts with everything else, so the completed pattern
+        // reads white-on-accent instead of accent-on-grey.
+        .pattern-field .table {
+          border-color: var(--ant-color-primary);
+
+          .row .square {
+            background-color: rgba(255, 255, 255, 0.35);
+            border-color: var(--ant-color-primary);
+
+            &.selected,
+            &.square-2-2 {
+              background-color: #fff;
+            }
+          }
+        }
+
+        @media only screen and (max-width: $bp-compact) {
+          .remaining.won {
+            font-size: 24px;
+          }
         }
       }
 
@@ -769,12 +840,33 @@ body {
   */
   .win-bar {
     flex: 0 0 auto;
-    position: relative;
+
+    /*
+      Sticky rather than fixed.
+
+      The bar's natural home is above the footer, which on a desktop viewport
+      is past the fold — the board alone is 782px of an 813px window — so left
+      in normal flow the celebration happened off screen. `fixed` would solve
+      the visibility but stop reserving space, permanently covering the footer
+      and needing a matching bottom padding somewhere to compensate, kept in
+      sync by hand with a bar whose height changes at the breakpoint.
+
+      Sticky gives both halves for free: it stays in flow, so it still reserves
+      its own room and nothing is ever permanently hidden, and it pins to the
+      bottom of the viewport for as long as its natural position is below it.
+      Scroll to the end and it settles into place above the footer on its own.
+      Requires no clipping ancestor, which the chain up to `html` satisfies.
+    */
+    position: sticky;
+    bottom: 0;
     // Above the board and the status strip, below antd's overlays.
     z-index: 100;
     background: var(--ant-color-primary);
     color: #fff;
     text-align: left;
+    // Reads as lifted over the board while pinned, and as a soft edge against
+    // the footer once it settles.
+    box-shadow: 0 -6px 18px rgba(0, 0, 0, 0.18);
     // Slides up out of the footer, a beat after the cannons fire — the delay
     // is the beat, so the confetti is always first.
     animation: win-bar-in 0.34s cubic-bezier(0.2, 0.8, 0.3, 1) 0.3s both;
@@ -1484,43 +1576,6 @@ body {
     }
   }
 
-  .card-image {
-    width: $card-size + 20px;
-    background-color: var(--ant-color-text-base);
-    text-align: center;
-    font-family: Arial, Helvetica, sans-serif;
-
-    .bingo {
-      @extend .bingo;
-      font-size: 14px;
-      max-width: none;
-
-      // html2canvas resolves `aspect-ratio` unreliably, so the offscreen
-      // render gets explicit square rows instead.
-      grid-template-rows: repeat(5, calc(($card-size - ($board-gap * 4)) / 5));
-
-      .square {
-        aspect-ratio: auto;
-        height: 100%;
-        border: 1px solid var(--ant-color-text-base);
-      }
-    }
-
-    @media only screen and (max-width: $bp-compact) {
-      width: $mobile-card-size + 10px;
-    }
-
-    h3 {
-      color: var(--ant-color-bg-base);
-      padding: 10px 0 5px;
-    }
-
-    small {
-      display: block;
-      color: #888;
-      padding: 5px 0 10px;
-    }
-  }
 
   .app-lights {
     background-color: var(--ant-layout-header-bg);
@@ -2174,6 +2229,52 @@ body {
     font-weight: normal;
     letter-spacing: .03em;
     text-transform: uppercase;
+  }
+}
+
+/*
+  The desktop share dialog: the finished card, then what to do with it.
+
+  Desktop does not get the OS share sheet — it lists AirDrop and Mail and
+  knows nothing about the sites people actually post to — so it gets the
+  picture plus copy and download instead. Showing the card is the point: the
+  player sees what they are about to post before they post it.
+*/
+.share-modal {
+  .share-preview {
+    display: block;
+    // Capped by height, not width: the card is taller than it is wide, so a
+    // full-width image pushed the buttons off a laptop screen. This keeps it
+    // as large as the viewport allows and the dialog always whole.
+    max-width: 100%;
+    max-height: 56vh;
+    width: auto;
+    height: auto;
+    margin: 0 auto;
+    border-radius: 12px;
+    // The card's own ground can match the dialog's, so it needs an edge to
+    // sit against rather than bleeding into the surface behind it.
+    border: 1px solid var(--ant-color-border);
+  }
+
+  .share-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 18px;
+
+    .ant-btn {
+      flex: 1;
+      height: 44px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+  }
+
+  .share-hint {
+    margin: 10px 0 0;
+    text-align: center;
+    font-size: 13px;
+    color: var(--ant-color-text-secondary);
   }
 }
 

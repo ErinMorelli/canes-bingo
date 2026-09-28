@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Layout, notification, Spin, Typography } from 'antd';
 
 import { useConfig, useGameBoard, useGroups } from '@hooks';
@@ -34,8 +34,6 @@ export function AppLayout({ themeClass, themeName }: AppLayoutProps) {
   const { isLoading: groupsLoading } = useGroups();
   const { boardReady, squaresError } = useGameBoard();
   const { customClass: serverCustomClass, festiveLights, showTooltips } = useConfig();
-
-  const cardRef = useRef<HTMLDivElement>(null);
 
   const isBoardReady = useMemo(
     () => boardReady && !squaresError,
@@ -75,7 +73,7 @@ export function AppLayout({ themeClass, themeName }: AppLayoutProps) {
 
   return (
     <DrawerProvider>
-      <ShareProvider cardRef={cardRef}>
+      <ShareProvider>
       <div className={['app-shell', customClass].filter(Boolean).join(' ')}>
         {contextHolder}
         <Layout className={`app app-${themeName}`}>
@@ -90,10 +88,7 @@ export function AppLayout({ themeClass, themeName }: AppLayoutProps) {
               <div className="board-wrapper">
                 <Spin size="large" spinning={groupsLoading || !isBoardReady}>
                   {boardReady && (
-                    <Card
-                      ref={cardRef}
-                      customClass={customClass}
-                    />
+                    <Card customClass={customClass} />
                   )}
                 </Spin>
                 {/*

@@ -36,7 +36,6 @@
     "express-zod-api": "^27.2.4",
     "he": "^1.2.0",
     "helmet": "^8.1.0",
-    "html2canvas": "^1.4.1",
     "http-errors": "^2.0.1",
     "mysql2": "^3.23.1",
     "react": "^18.3.1",

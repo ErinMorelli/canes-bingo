@@ -33,7 +33,7 @@ export function Status({ themeName }: Readonly<StatusProps>) {
   );
 
   return (
-    <div className="status-bar" style={{
+    <div className={`status-bar${hasWon ? ' won' : ''}`} style={{
       borderTopColor: borderColor,
       borderTopWidth: "2px",
       borderTopStyle: "solid",
