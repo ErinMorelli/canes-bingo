@@ -111,15 +111,26 @@ export function ShareProvider({ children }: Readonly<{ children: React.ReactNode
 
         const file = new File([blob], FILE_NAME, { type: 'image/png' });
         if (isTouch && navigator.canShare?.({ files: [file] })) {
-          await navigator.share({ files: [file], title: 'My Carolina Hurricanes bingo card' });
-          return;
+          try {
+            await navigator.share({ files: [file], title: 'My Carolina Hurricanes bingo card' });
+            return;
+          } catch (error) {
+            // Dismissing the sheet rejects with AbortError: the player
+            // changed their mind, and there is nothing to report or retry.
+            if (error instanceof DOMException && error.name === 'AbortError') return;
+            /*
+              Anything else — the sheet refused, the platform declined the
+              file — is the *delivery* failing, not the card. The image is
+              already in hand, so fall through to the preview rather than
+              reporting that we could not create it and leaving the player
+              with nothing.
+            */
+            console.error('share sheet unavailable, falling back to preview:', error);
+          }
         }
 
         setPreview({ url: URL.createObjectURL(blob), blob });
       } catch (error) {
-        // Dismissing the share sheet rejects with AbortError. That is the
-        // player changing their mind, not a failure to report back to them.
-        if (error instanceof DOMException && error.name === 'AbortError') return;
         console.error(error);
         void messageApi.error('Could not create the card image. Please try again.');
       } finally {

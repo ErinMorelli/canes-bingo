@@ -89,7 +89,7 @@ export function WinBar() {
             className="win-bar-share"
             disabled={isSharing}
             onClick={share}>
-            {isSharing ? 'Getting link…' : 'Share card'}
+            {isSharing ? 'Preparing card…' : 'Share card'}
           </button>
           {/* Nothing to escalate to once blackout is the pattern being played. */}
           {canKeepPlaying && (

@@ -139,6 +139,11 @@ export function pollInterval(
     return isPeriodActive(game) ? POLL_ACTIVE : POLL_INTERMISSION;
   }
 
+  // Postponed or suspended: the scheduled start is now meaningless, and
+  // falling through to the maths below reads a start time in the past as
+  // "about to drop" and polls every minute indefinitely.
+  if (state === 'PPD' || state === 'SUSP') return POLL_IDLE;
+
   // PRE / FUT — tighten up as puck drop approaches.
   const msToStart = new Date(game.startTimeUTC).getTime() - now.getTime();
   return msToStart > 60 * 60_000 ? POLL_IDLE : POLL_PREGAME;

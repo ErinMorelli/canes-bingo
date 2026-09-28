@@ -53,13 +53,14 @@ export default function OtherOptions() {
       </Flex>
       <Flex align="center" justify="space-between">
         <Flex orientation="vertical">
-          <div className="tooltip-title">Square Tooltips</div>
+          <div className="tooltip-title" id="square-tooltips-label">Square Tooltips</div>
           <div className="tooltip-sub">Show or hide the square tooltips</div>
         </Flex>
+        {/* Named from the visible heading — see the note in GameOption. */}
         <Switch
-          defaultChecked
           checked={showTooltips}
-          onChange={handleTooltipChange} />
+          onChange={handleTooltipChange}
+          aria-labelledby="square-tooltips-label" />
       </Flex>
     </>
   )

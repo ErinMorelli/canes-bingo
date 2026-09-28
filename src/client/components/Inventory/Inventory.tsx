@@ -27,6 +27,7 @@ export function Inventory() {
 
   const [squares, setSquares] = useState<Array<Square>>([]);
   const [loading, setLoading] = useState(true);
+  const [loadFailed, setLoadFailed] = useState(false);
   const [query, setQuery] = useState<string>('');
   const [activeChip, setActiveChip] = useState<string>('all');
   const [headerText, setHeaderText] = useState<string>();
@@ -44,6 +45,13 @@ export function Inventory() {
   useEffect(() => {
     fetchAllSquares()
       .then(setSquares)
+      .catch((error: unknown) => {
+        // Unhandled before this, which meant a failed request showed the
+        // empty-search message — telling the reader their filter matched
+        // nothing when in fact nothing had loaded.
+        console.error(error);
+        setLoadFailed(true);
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -238,7 +246,13 @@ export function Inventory() {
                   </div>
                 )}
 
-                {!loading && results.length === 0 && (
+                {!loading && loadFailed && (
+                  <p className="db-empty">
+                    Could not load the squares. Please refresh to try again.
+                  </p>
+                )}
+
+                {!loading && !loadFailed && results.length === 0 && (
                   <p className="db-empty">
                     No squares match that. Try a different search or category.
                   </p>

@@ -239,9 +239,10 @@ const FREE_SQUARE_COL = 2;
 
 function isSquareCovered(board: Board, { row, col }: PatternSquare): boolean {
   if (row === FREE_SQUARE_ROW && col === FREE_SQUARE_COL) return true;
-  // Out-of-bounds squares read as undefined, so they stay uncovered and the
-  // pattern can never complete.
-  return board[row]?.[col]?.selected;
+  // Out-of-bounds squares read as undefined at runtime — the index signature
+  // does not admit that, so the `=== true` is what makes the declared
+  // `boolean` honest rather than relying on the caller's falsiness check.
+  return board[row]?.[col]?.selected === true;
 }
 
 /**

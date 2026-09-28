@@ -28,6 +28,8 @@ const BOARD_KEY = `${LOCAL_STORAGE_PREFIX}:board`;
 
 /** Shared so "no win" is a stable reference and cannot re-render the board. */
 const EMPTY_KEYS: ReadonlySet<string> = new Set<string>();
+const NO_DISMISSALS: ReadonlySet<number> = new Set<number>();
+const NO_PATTERNS: Pattern[] = [];
 
 export function GameBoardProvider({ children }: Readonly<{ children: React.ReactNode }>) {
   const { groups, defaultArgs, isLoading: groupsLoading } = useGroups();
@@ -70,7 +72,7 @@ export function GameBoardProvider({ children }: Readonly<{ children: React.React
       setBoard(createBoard(squares));
       // Cleared here rather than when `seed` changed — see the note on
       // `dismissedPatternId` below.
-      setDismissedPatternId(null);
+      setDismissedPatternIds(NO_DISMISSALS);
     }
   }, [squares, seed, setBoard]);
 
@@ -177,18 +179,29 @@ export function GameBoardProvider({ children }: Readonly<{ children: React.React
    * 25th square cannot resurrect a win that is already on screen, and the
    * celebration keys off the transition rather than the flag.
    */
-  const winningPattern = useMemo(() => {
-    if (!isEnabled) return null;
+  /** Every pattern the board currently satisfies, in the game's own order. */
+  const completedPatterns = useMemo(() => {
+    if (!isEnabled) return NO_PATTERNS;
     const patterns = (selectedGame?.patterns ?? []) as Pattern[];
-    return patterns.find((pattern) => validateBoardPattern(board, pattern).valid) ?? null;
+    return patterns.filter((pattern) => validateBoardPattern(board, pattern).valid);
   }, [board, isEnabled, selectedGame]);
 
   /**
-   * Which win the player has waved off, by pattern id. Storing the pattern
-   * rather than a bare boolean means dismissing one line does not suppress the
-   * celebration for a different line completed later.
+   * Which wins the player has waved off, by pattern id.
+   *
+   * A *set*, not a single id. With one id — and a `find` that returned the
+   * first completed pattern regardless — dismissing a line and then
+   * completing a second one never celebrated the second: the first was still
+   * what `find` returned, and it was still the dismissed one. Any Five has
+   * twelve patterns and they overlap, so completing a second is ordinary.
    */
-  const [dismissedPatternId, setDismissedPatternId] = useState<number | null>(null);
+  const [dismissedPatternIds, setDismissedPatternIds] = useState<ReadonlySet<number>>(NO_DISMISSALS);
+
+  /** The completed pattern still worth celebrating, if there is one. */
+  const winningPattern = useMemo(
+    () => completedPatterns.find((pattern) => !dismissedPatternIds.has(pattern.id)) ?? null,
+    [completedPatterns, dismissedPatternIds]
+  );
 
   /*
     A change of game starts a fresh contest, so a previous dismissal no longer
@@ -204,17 +217,19 @@ export function GameBoardProvider({ children }: Readonly<{ children: React.React
     the board swap, so it happens in the build effect above instead.
   */
   useEffect(() => {
-    setDismissedPatternId(null);
+    setDismissedPatternIds(NO_DISMISSALS);
   }, [isEnabled, selectedGame?.id]);
 
-  const hasWon = winningPattern !== null && winningPattern.id !== dismissedPatternId;
+  // `winningPattern` is already the *undismissed* one, so there is nothing
+  // further to subtract here.
+  const hasWon = winningPattern !== null;
 
-  // Gated on `hasWon`, not just on the pattern: the rings belong to the win
-  // being celebrated, so waving the bar away takes them with it rather than
-  // leaving a decorated board behind while the blackout is chased.
+  // The rings belong to the win being celebrated, so waving the bar away
+  // takes them with it rather than leaving a decorated board behind while
+  // the blackout is chased.
   const winningSquares = useMemo(
-    () => (hasWon && winningPattern ? getWinningSquareKeys(winningPattern) : EMPTY_KEYS),
-    [hasWon, winningPattern]
+    () => (winningPattern ? getWinningSquareKeys(winningPattern) : EMPTY_KEYS),
+    [winningPattern]
   );
 
   const blackoutGame = useMemo(
@@ -225,7 +240,8 @@ export function GameBoardProvider({ children }: Readonly<{ children: React.React
   const canKeepPlaying = Boolean(blackoutGame) && selectedGame?.id !== blackoutGame?.id;
 
   const dismissWin = useCallback(() => {
-    if (winningPattern) setDismissedPatternId(winningPattern.id);
+    if (!winningPattern) return;
+    setDismissedPatternIds((prev) => new Set(prev).add(winningPattern.id));
   }, [winningPattern]);
 
   /**

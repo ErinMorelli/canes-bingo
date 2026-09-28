@@ -35,14 +35,29 @@ export function ActiveGameProvider({ children }: Readonly<{ children: React.Reac
     refetchInterval: (query) => pollInterval(query.state.data),
   });
 
+  /*
+    Computed on every render rather than inside the memo.
+
+    `getGameState` compares the game's date against *now*, so its answer can
+    change while `activeGame` does not — and react-query's structural sharing
+    means a refetch returning identical data keeps the very same object
+    reference. Keyed on that reference alone, a game stayed FUTURE after
+    midnight had made it PREGAME.
+
+    Both are pure and cheap, and both return primitives, so the memo below is
+    still stable whenever the answers are.
+  */
+  const gameState = getGameState(activeGame);
+  const periodActive = isPeriodActive(activeGame);
+
   const value = useMemo<ActiveGameContextValue>(
     () => ({
       activeGame,
       refreshGame: refetch,
-      gameState: getGameState(activeGame),
-      isPeriodActive: isPeriodActive(activeGame),
+      gameState,
+      isPeriodActive: periodActive,
     }),
-    [activeGame, refetch]
+    [activeGame, refetch, gameState, periodActive]
   );
 
   return (

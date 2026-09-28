@@ -10,6 +10,9 @@ const TEAM = 'CAR';
 // Every connected board polls on the same cadence, so without a short cache a
 // roomful of clients multiplies straight through to the NHL API.
 const CACHE_TTL_MS = 10_000;
+
+/** Past this the NHL API is not going to answer in time to be useful. */
+const UPSTREAM_TIMEOUT_MS = 5_000;
 const cache = new Map<string, { expires: number; body: unknown }>();
 
 async function fetchNhl(path: string): Promise<unknown> {
@@ -17,7 +20,11 @@ async function fetchNhl(path: string): Promise<unknown> {
   if (cached && cached.expires > Date.now()) return cached.body;
 
   // The `/now` URLs answer 307 with a dated Location; fetch follows by default.
-  const response = await fetch(`${NHL_API_ROOT}${path}`);
+  // Bounded: without a signal a hung upstream holds our own request open with
+  // no ceiling, and every polling board is waiting on it.
+  const response = await fetch(`${NHL_API_ROOT}${path}`, {
+    signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
+  });
   if (!response.ok) {
     throw new Error(`NHL API ${path} failed: ${response.status}`);
   }

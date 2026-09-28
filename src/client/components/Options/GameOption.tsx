@@ -31,6 +31,13 @@ export default function GameOption() {
           key={game.id}
           type="button"
           className={classes.join(' ')}
+          /*
+            The selected pattern was carried by a class alone, so assistive
+            tech had no way to tell which of the five was active. Matches the
+            database's own filter chips, which are the same single-select
+            shape and already do this.
+          */
+          aria-pressed={selectedGame?.id === game.id}
           onClick={() => handleChange(game)}>
           <PatternGame game={game} size={7} />
           <div className="game-option-name">{game.name}</div>
@@ -43,7 +50,7 @@ export default function GameOption() {
     <Flex orientation="vertical" gap={8}>
       <Flex align="center" justify="space-between">
         <Flex orientation="vertical">
-          <div className="group-title">Game Pattern</div>
+          <div className="group-title" id="game-pattern-label">Game Pattern</div>
           {/*
             Says there is no pattern while the switch is off, matching the
             status strip word for word.
@@ -56,9 +63,15 @@ export default function GameOption() {
             {isEnabled ? selectedGame?.name : 'No pattern'}
           </div>
         </Flex>
+        {/*
+          antd renders a bare role="switch" button, so without this it is
+          announced with no name at all — "switch, on" and nothing else.
+          Pointed at the visible heading rather than duplicating it.
+        */}
         <Switch
           value={isEnabled}
           onChange={(e) => setIsEnabled(e)}
+          aria-labelledby="game-pattern-label"
         />
       </Flex>
       {isEnabled && selectedGame && (

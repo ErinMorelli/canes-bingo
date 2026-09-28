@@ -60,6 +60,24 @@ export function flushStorageWrites(): void {
       cache.set(key, { raw, value });
     } catch (e) {
       console.error('Failed to write to localStorage:', key, e);
+      /*
+        The write failed — quota, private mode — but the value is still what
+        the session should read. `pending` is cleared below either way, so
+        without seeding the cache the next read falls back to whatever is
+        still in storage and the change visibly reverts: a daub would come
+        back off the board.
+
+        Seeded against the raw string *currently stored*, so the cache stays
+        valid by its own rule (cached.raw === the raw in storage) and keeps
+        returning the newer in-memory value.
+      */
+      let storedRaw: string | null = null;
+      try {
+        storedRaw = globalThis.localStorage.getItem(key);
+      } catch {
+        // Storage is unreachable entirely; a null raw still keys the cache.
+      }
+      cache.set(key, { raw: storedRaw, value });
     }
   });
 

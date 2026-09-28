@@ -54,7 +54,26 @@ const MIDDLE_ROW: Pattern = {
   ],
 };
 
-const ANY_FIVE = { id: 1, name: 'Any Five', isDefault: true, patterns: [MIDDLE_ROW] } as unknown as Game;
+/**
+ * A second pattern that the middle row does not complete, so a test can
+ * finish one line, dismiss it, and then finish another. Any Five really does
+ * ship twelve overlapping patterns; one fixture pattern could never surface
+ * the ordering bug between them.
+ */
+const MIDDLE_COLUMN: Pattern = {
+  id: 9,
+  name: 'Vertical Line 3',
+  squares: [
+    { row: 0, col: 2 }, { row: 1, col: 2 }, { row: 3, col: 2 }, { row: 4, col: 2 },
+  ],
+};
+
+const ANY_FIVE = {
+  id: 1,
+  name: 'Any Five',
+  isDefault: true,
+  patterns: [MIDDLE_ROW, MIDDLE_COLUMN],
+} as unknown as Game;
 const BLACKOUT = { id: 2, name: 'Blackout', patterns: [] } as unknown as Game;
 
 const setSelectedGame = vi.fn();
@@ -135,8 +154,14 @@ describe('GameBoardProvider win state', () => {
 
     expect(result.current.hasWon).toBe(false);
     expect(result.current.winningSquares.size).toBe(0);
-    // The pattern is still covered; only the celebration was waved off.
-    expect(result.current.winningPattern?.id).toBe(MIDDLE_ROW.id);
+    /*
+      `winningPattern` is the win *being celebrated*, not merely a pattern the
+      board satisfies — so once the only completed line is dismissed there is
+      nothing to name. The board still covers it; `squaresRemaining` is where
+      that shows.
+    */
+    expect(result.current.winningPattern).toBeNull();
+    expect(result.current.squaresRemaining).toBe(0);
   });
 
   /**
@@ -176,6 +201,53 @@ describe('GameBoardProvider win state', () => {
 
     winMiddleRow(result);
     expect(result.current.hasWon).toBe(true);
+  });
+
+  /**
+   * Dismissing one completed line must not silence a different one completed
+   * afterwards. The old code kept a single dismissed id and picked the first
+   * completed pattern regardless, so the dismissed line stayed the "winner"
+   * and the second went uncelebrated.
+   */
+  it('celebrates a second pattern completed after the first was dismissed', () => {
+    const { result } = mount();
+
+    winMiddleRow(result);
+    expect(result.current.winningPattern?.id).toBe(MIDDLE_ROW.id);
+
+    act(() => result.current.dismissWin());
+    expect(result.current.hasWon).toBe(false);
+
+    // Now finish the middle column as well.
+    act(() => {
+      result.current.selectSquare(0, 2);
+      result.current.selectSquare(1, 2);
+      result.current.selectSquare(3, 2);
+      result.current.selectSquare(4, 2);
+    });
+
+    expect(result.current.hasWon).toBe(true);
+    expect(result.current.winningPattern?.id).toBe(MIDDLE_COLUMN.id);
+    expect([...result.current.winningSquares].sort())
+      .toEqual(['0-2', '1-2', '2-2', '3-2', '4-2']);
+  });
+
+  it('goes quiet again once every completed pattern has been dismissed', () => {
+    const { result } = mount();
+
+    winMiddleRow(result);
+    act(() => result.current.dismissWin());
+    act(() => {
+      result.current.selectSquare(0, 2);
+      result.current.selectSquare(1, 2);
+      result.current.selectSquare(3, 2);
+      result.current.selectSquare(4, 2);
+    });
+    act(() => result.current.dismissWin());
+
+    expect(result.current.hasWon).toBe(false);
+    expect(result.current.winningPattern).toBeNull();
+    expect(result.current.winningSquares.size).toBe(0);
   });
 
   it('offers the blackout escalation, and moves to it keeping every daub', () => {
