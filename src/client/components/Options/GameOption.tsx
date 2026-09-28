@@ -42,7 +42,16 @@ export default function GameOption() {
       <Flex align="center" justify="space-between">
         <Flex orientation="vertical">
           <div className="group-title">Game Pattern</div>
-          <div className="game-title">{selectedGame?.name}</div>
+          {/*
+            Names the mode rather than the pattern while the switch is off.
+            The design leaves the selected game's name here either way, but
+            that put the drawer and the status strip in contradiction — the
+            panel read "Any Five" while the strip read "No pattern" — and the
+            pattern it named was not being played.
+          */}
+          <div className="game-title">
+            {isEnabled ? selectedGame?.name : 'No pattern'}
+          </div>
         </Flex>
         <Switch
           value={isEnabled}
