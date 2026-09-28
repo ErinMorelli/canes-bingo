@@ -7,6 +7,7 @@ import { listCategoriesEndpoint, getCategoryEndpoint, createCategoryEndpoint, up
 import { listConfigEndpoint, getConfigEndpoint, createConfigEndpoint, updateConfigEndpoint, deleteConfigEndpoint } from './endpoints/config';
 import { listPatternsEndpoint, getPatternEndpoint, createPatternEndpoint, updatePatternEndpoint, deletePatternEndpoint } from './endpoints/patterns';
 import { listGamesEndpoint, getGameEndpoint, createGameEndpoint, updateGameEndpoint, deleteGameEndpoint } from './endpoints/games';
+import { createSubmissionEndpoint } from './endpoints/submissions';
 import { listSquaresEndpoint, getSquareEndpoint, createSquareEndpoint, updateSquareEndpoint, deleteSquareEndpoint } from './endpoints/squares';
 
 export const routing: Routing = {
@@ -14,6 +15,7 @@ export const routing: Routing = {
     v1: {
       login: { post: loginEndpoint },
       logout: { post: logoutEndpoint },
+      submissions: { post: createSubmissionEndpoint },
       session: { get: sessionEndpoint },
       users: {
         get: listUsersEndpoint,

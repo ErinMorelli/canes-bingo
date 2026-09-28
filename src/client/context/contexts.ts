@@ -15,6 +15,8 @@ export type ConfigContextValue = {
   showTooltips: boolean;
   setTooltips: (value: boolean) => void;
   headerText: string | undefined;
+  /** Label for the centre square, already defaulted — never empty. */
+  freeSpace: string;
   customClass: string | undefined;
   festiveLights: boolean;
   isLoading: boolean;

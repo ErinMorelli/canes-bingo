@@ -138,6 +138,15 @@ app.use(express.json({ limit: '1mb' }));
 const loginLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20 });
 app.use('/api/v1/login', loginLimiter);
 
+/**
+ * Square submissions are the only write anyone can make without logging in,
+ * so the path gets its own bucket. Ten an hour is generous for a person with
+ * an idea during a game and useless to anything bulk — and the ceiling is on
+ * this route alone, so tripping it cannot lock someone out of the board.
+ */
+const submissionLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 10 });
+app.use('/api/v1/submissions', submissionLimiter);
+
 app.use(session({
   secret: SECRET_KEY,
   cookie: {

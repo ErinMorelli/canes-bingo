@@ -2,7 +2,7 @@ import { useCallback, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
 import { Theme } from '@app/types';
-import { ConfigKey, LOCAL_STORAGE_PREFIX } from '@app/constants';
+import { ConfigKey, DEFAULT_FREE_SPACE, LOCAL_STORAGE_PREFIX } from '@app/constants';
 import { themes } from '@app/themes';
 import { apiClient, getData } from '@app/api';
 import { Api } from '@app/api-endpoints';
@@ -44,6 +44,9 @@ export function ConfigProvider({ children }: Readonly<{ children: React.ReactNod
   const showTooltips = localTooltips === null ? true : localTooltips === 'true';
 
   const headerText = serverConfig[ConfigKey.HeaderText];
+  // Trimmed before the fallback, so a value of whitespace counts as unset
+  // rather than rendering a blank centre square.
+  const freeSpace = serverConfig[ConfigKey.FreeSpace]?.trim() || DEFAULT_FREE_SPACE;
   const customClass = serverConfig[ConfigKey.CustomClass];
   const festiveLights =
     serverConfig[ConfigKey.FestiveLights]?.toLowerCase().trim() === 'on';
@@ -60,11 +63,12 @@ export function ConfigProvider({ children }: Readonly<{ children: React.ReactNod
       showTooltips,
       setTooltips,
       headerText,
+      freeSpace,
       customClass,
       festiveLights,
       isLoading,
     }),
-    [theme, setLocalTheme, showTooltips, setTooltips, headerText, customClass, festiveLights, isLoading]
+    [theme, setLocalTheme, showTooltips, setTooltips, headerText, freeSpace, customClass, festiveLights, isLoading]
   );
 
   return (

@@ -4,6 +4,9 @@ export const Api = {
     login:    'post /api/v1/login',
     logout:   'post /api/v1/logout',
   },
+  submissions: {
+    create: 'post /api/v1/submissions',
+  },
   config: {
     list:   'get /api/v1/config',
     get:    'get /api/v1/config/:configId',

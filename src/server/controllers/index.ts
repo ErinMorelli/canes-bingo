@@ -5,4 +5,5 @@ export * from './games.controller';
 export * from './groups.controller';
 export * from './patterns.controller';
 export * from './squares.controller';
+export * from './submissions.controller';
 export * from './users.controller';

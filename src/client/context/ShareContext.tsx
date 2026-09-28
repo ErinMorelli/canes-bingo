@@ -71,7 +71,7 @@ function readCardTheme(themeName: string): CardImageTheme {
 export function ShareProvider({ children }: Readonly<{ children: React.ReactNode }>) {
   const { board, winningSquares, hasWon } = useGameBoard();
   const { selectedGame } = useGames();
-  const { theme, headerText } = useConfig();
+  const { theme, headerText, freeSpace } = useConfig();
 
   const isTouch = useMediaQuery('(pointer: coarse)');
 
@@ -102,6 +102,7 @@ export function ShareProvider({ children }: Readonly<{ children: React.ReactNode
           theme: readCardTheme(theme.name),
           headerText: headerText ?? 'Carolina Hurricanes',
           gameName: selectedGame?.name,
+          freeSpaceLabel: freeSpace,
           winningSquares,
           hasWon,
         });
@@ -125,7 +126,7 @@ export function ShareProvider({ children }: Readonly<{ children: React.ReactNode
         setIsSharing(false);
       }
     })();
-  }, [board, theme, headerText, selectedGame, winningSquares, hasWon, isTouch, messageApi]);
+  }, [board, theme, headerText, freeSpace, selectedGame, winningSquares, hasWon, isTouch, messageApi]);
 
   const copyImage = useCallback(() => {
     if (!preview) return;

@@ -3,6 +3,14 @@ export const LOCAL_STORAGE_PREFIX = 'CanesBingo';
 export const MIN_SQUARE_COUNT = 25;
 
 /**
+ * What the centre square reads when the operator has not set anything. The
+ * `freeSpace` config value overrides it; blank or absent falls back here, so
+ * clearing the field in admin restores the default rather than emptying the
+ * square.
+ */
+export const DEFAULT_FREE_SPACE = 'FREE';
+
+/**
  * The coverall game, which "keep playing" moves a winner on to. Matched by name
  * because the game list is data: ids differ between environments, but every one
  * of them carries a Blackout.

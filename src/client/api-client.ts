@@ -61,6 +61,37 @@ interface PostApiV1LogoutNegativeResponseVariants {
     400: PostApiV1LogoutNegativeVariant1;
 }
 
+/** post /api/v1/submissions */
+type PostApiV1SubmissionsInput = {
+    idea: string;
+};
+
+/** post /api/v1/submissions */
+type PostApiV1SubmissionsPositiveVariant1 = {
+    status: "success";
+    data: {
+        received: true;
+    };
+};
+
+/** post /api/v1/submissions */
+interface PostApiV1SubmissionsPositiveResponseVariants {
+    200: PostApiV1SubmissionsPositiveVariant1;
+}
+
+/** post /api/v1/submissions */
+type PostApiV1SubmissionsNegativeVariant1 = {
+    status: "error";
+    error: {
+        message: string;
+    };
+};
+
+/** post /api/v1/submissions */
+interface PostApiV1SubmissionsNegativeResponseVariants {
+    400: PostApiV1SubmissionsNegativeVariant1;
+}
+
 /** get /api/v1/session */
 type GetApiV1SessionInput = {};
 
@@ -1720,13 +1751,14 @@ interface DeleteApiV1ConfigConfigIdNegativeResponseVariants {
     400: DeleteApiV1ConfigConfigIdNegativeVariant1;
 }
 
-export type Path = "/api/v1/login" | "/api/v1/logout" | "/api/v1/session" | "/api/v1/users" | "/api/v1/users/:userId" | "/api/v1/games" | "/api/v1/games/:gameId" | "/api/v1/groups" | "/api/v1/groups/:groupId" | "/api/v1/categories" | "/api/v1/categories/:categoryId" | "/api/v1/patterns" | "/api/v1/patterns/:patternId" | "/api/v1/squares" | "/api/v1/squares/:squareId" | "/api/v1/config" | "/api/v1/config/:configId";
+export type Path = "/api/v1/login" | "/api/v1/logout" | "/api/v1/submissions" | "/api/v1/session" | "/api/v1/users" | "/api/v1/users/:userId" | "/api/v1/games" | "/api/v1/games/:gameId" | "/api/v1/groups" | "/api/v1/groups/:groupId" | "/api/v1/categories" | "/api/v1/categories/:categoryId" | "/api/v1/patterns" | "/api/v1/patterns/:patternId" | "/api/v1/squares" | "/api/v1/squares/:squareId" | "/api/v1/config" | "/api/v1/config/:configId";
 
 export type Method = "get" | "post" | "put" | "delete" | "patch" | "head";
 
 export interface Input {
     "post /api/v1/login": PostApiV1LoginInput;
     "post /api/v1/logout": PostApiV1LogoutInput;
+    "post /api/v1/submissions": PostApiV1SubmissionsInput;
     "get /api/v1/session": GetApiV1SessionInput;
     "head /api/v1/session": HeadApiV1SessionInput;
     "get /api/v1/users": GetApiV1UsersInput;
@@ -1783,6 +1815,7 @@ export interface Input {
 export interface PositiveResponse {
     "post /api/v1/login": SomeOf<PostApiV1LoginPositiveResponseVariants>;
     "post /api/v1/logout": SomeOf<PostApiV1LogoutPositiveResponseVariants>;
+    "post /api/v1/submissions": SomeOf<PostApiV1SubmissionsPositiveResponseVariants>;
     "get /api/v1/session": SomeOf<GetApiV1SessionPositiveResponseVariants>;
     "head /api/v1/session": SomeOf<HeadApiV1SessionPositiveResponseVariants>;
     "get /api/v1/users": SomeOf<GetApiV1UsersPositiveResponseVariants>;
@@ -1839,6 +1872,7 @@ export interface PositiveResponse {
 export interface NegativeResponse {
     "post /api/v1/login": SomeOf<PostApiV1LoginNegativeResponseVariants>;
     "post /api/v1/logout": SomeOf<PostApiV1LogoutNegativeResponseVariants>;
+    "post /api/v1/submissions": SomeOf<PostApiV1SubmissionsNegativeResponseVariants>;
     "get /api/v1/session": SomeOf<GetApiV1SessionNegativeResponseVariants>;
     "head /api/v1/session": SomeOf<HeadApiV1SessionNegativeResponseVariants>;
     "get /api/v1/users": SomeOf<GetApiV1UsersNegativeResponseVariants>;
@@ -1895,6 +1929,7 @@ export interface NegativeResponse {
 export interface EncodedResponse {
     "post /api/v1/login": PostApiV1LoginPositiveResponseVariants & PostApiV1LoginNegativeResponseVariants;
     "post /api/v1/logout": PostApiV1LogoutPositiveResponseVariants & PostApiV1LogoutNegativeResponseVariants;
+    "post /api/v1/submissions": PostApiV1SubmissionsPositiveResponseVariants & PostApiV1SubmissionsNegativeResponseVariants;
     "get /api/v1/session": GetApiV1SessionPositiveResponseVariants & GetApiV1SessionNegativeResponseVariants;
     "head /api/v1/session": HeadApiV1SessionPositiveResponseVariants & HeadApiV1SessionNegativeResponseVariants;
     "get /api/v1/users": GetApiV1UsersPositiveResponseVariants & GetApiV1UsersNegativeResponseVariants;
@@ -1951,6 +1986,7 @@ export interface EncodedResponse {
 export interface Response {
     "post /api/v1/login": PositiveResponse["post /api/v1/login"] | NegativeResponse["post /api/v1/login"];
     "post /api/v1/logout": PositiveResponse["post /api/v1/logout"] | NegativeResponse["post /api/v1/logout"];
+    "post /api/v1/submissions": PositiveResponse["post /api/v1/submissions"] | NegativeResponse["post /api/v1/submissions"];
     "get /api/v1/session": PositiveResponse["get /api/v1/session"] | NegativeResponse["get /api/v1/session"];
     "head /api/v1/session": PositiveResponse["head /api/v1/session"] | NegativeResponse["head /api/v1/session"];
     "get /api/v1/users": PositiveResponse["get /api/v1/users"] | NegativeResponse["get /api/v1/users"];
@@ -2006,7 +2042,7 @@ export interface Response {
 
 export type Request = keyof Input;
 
-export const endpointTags = { "post /api/v1/login": [], "post /api/v1/logout": [], "get /api/v1/session": [], "head /api/v1/session": [], "get /api/v1/users": [], "head /api/v1/users": [], "post /api/v1/users": [], "get /api/v1/users/:userId": [], "head /api/v1/users/:userId": [], "put /api/v1/users/:userId": [], "delete /api/v1/users/:userId": [], "get /api/v1/games": [], "head /api/v1/games": [], "post /api/v1/games": [], "get /api/v1/games/:gameId": [], "head /api/v1/games/:gameId": [], "put /api/v1/games/:gameId": [], "delete /api/v1/games/:gameId": [], "get /api/v1/groups": [], "head /api/v1/groups": [], "post /api/v1/groups": [], "get /api/v1/groups/:groupId": [], "head /api/v1/groups/:groupId": [], "put /api/v1/groups/:groupId": [], "delete /api/v1/groups/:groupId": [], "get /api/v1/categories": [], "head /api/v1/categories": [], "post /api/v1/categories": [], "get /api/v1/categories/:categoryId": [], "head /api/v1/categories/:categoryId": [], "put /api/v1/categories/:categoryId": [], "delete /api/v1/categories/:categoryId": [], "get /api/v1/patterns": [], "head /api/v1/patterns": [], "post /api/v1/patterns": [], "get /api/v1/patterns/:patternId": [], "head /api/v1/patterns/:patternId": [], "put /api/v1/patterns/:patternId": [], "delete /api/v1/patterns/:patternId": [], "get /api/v1/squares": [], "head /api/v1/squares": [], "post /api/v1/squares": [], "get /api/v1/squares/:squareId": [], "head /api/v1/squares/:squareId": [], "put /api/v1/squares/:squareId": [], "delete /api/v1/squares/:squareId": [], "get /api/v1/config": [], "head /api/v1/config": [], "post /api/v1/config": [], "get /api/v1/config/:configId": [], "head /api/v1/config/:configId": [], "put /api/v1/config/:configId": [], "delete /api/v1/config/:configId": [] };
+export const endpointTags = { "post /api/v1/login": [], "post /api/v1/logout": [], "post /api/v1/submissions": [], "get /api/v1/session": [], "head /api/v1/session": [], "get /api/v1/users": [], "head /api/v1/users": [], "post /api/v1/users": [], "get /api/v1/users/:userId": [], "head /api/v1/users/:userId": [], "put /api/v1/users/:userId": [], "delete /api/v1/users/:userId": [], "get /api/v1/games": [], "head /api/v1/games": [], "post /api/v1/games": [], "get /api/v1/games/:gameId": [], "head /api/v1/games/:gameId": [], "put /api/v1/games/:gameId": [], "delete /api/v1/games/:gameId": [], "get /api/v1/groups": [], "head /api/v1/groups": [], "post /api/v1/groups": [], "get /api/v1/groups/:groupId": [], "head /api/v1/groups/:groupId": [], "put /api/v1/groups/:groupId": [], "delete /api/v1/groups/:groupId": [], "get /api/v1/categories": [], "head /api/v1/categories": [], "post /api/v1/categories": [], "get /api/v1/categories/:categoryId": [], "head /api/v1/categories/:categoryId": [], "put /api/v1/categories/:categoryId": [], "delete /api/v1/categories/:categoryId": [], "get /api/v1/patterns": [], "head /api/v1/patterns": [], "post /api/v1/patterns": [], "get /api/v1/patterns/:patternId": [], "head /api/v1/patterns/:patternId": [], "put /api/v1/patterns/:patternId": [], "delete /api/v1/patterns/:patternId": [], "get /api/v1/squares": [], "head /api/v1/squares": [], "post /api/v1/squares": [], "get /api/v1/squares/:squareId": [], "head /api/v1/squares/:squareId": [], "put /api/v1/squares/:squareId": [], "delete /api/v1/squares/:squareId": [], "get /api/v1/config": [], "head /api/v1/config": [], "post /api/v1/config": [], "get /api/v1/config/:configId": [], "head /api/v1/config/:configId": [], "put /api/v1/config/:configId": [], "delete /api/v1/config/:configId": [] };
 
 const parseRequest = (request: string) => request.split(/ (.+)/, 2) as [
     Method,

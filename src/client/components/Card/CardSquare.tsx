@@ -12,6 +12,7 @@ import type {
 } from 'react';
 import { Popover, Spin } from 'antd';
 
+import { DEFAULT_FREE_SPACE } from '@app/constants';
 import { BoardSquare } from '@app/types';
 import { fitSquareFont } from '@app/utils';
 
@@ -70,7 +71,7 @@ function getSquareId(rowId: number, colId: number) {
 function CardSquareImpl({ square, rowId, colId, cellSize = 0, cellPadding = 0, isWinning = false, customClass, onClick }: Readonly<SquareProps>) {
   const { selected, value } = square;
 
-  const { showTooltips, theme } = useConfig();
+  const { freeSpace, showTooltips, theme } = useConfig();
 
   const squareId = getSquareId(rowId, colId);
 
@@ -88,14 +89,24 @@ function CardSquareImpl({ square, rowId, colId, cellSize = 0, cellPadding = 0, i
 
   const squareDescription = useMemo(
     () => isFreeSpace
-        ? 'FREE'
+        ? freeSpace
         : value.description,
-    [isFreeSpace, value.description]
+    [isFreeSpace, freeSpace, value.description]
   );
 
   const squareAriaLabel = useMemo(() => {
-    return isFreeSpace ? 'Free space' : `${String(value.value)}`;
-  }, [isFreeSpace, value.value]);
+    if (!isFreeSpace) return String(value.value);
+    /*
+      The centre's label is the operator's to change, so announce what it
+      actually says — but keep "free space" in there, because that is the
+      part telling a screen reader user the square is already covered and
+      cannot be tapped. Left off when the label is still the default, where
+      it would only produce "FREE, free space".
+    */
+    return freeSpace.toUpperCase() === DEFAULT_FREE_SPACE
+      ? 'Free space'
+      : `${freeSpace}, free space`;
+  }, [isFreeSpace, freeSpace, value.value]);
 
   /**
    * A Popover's content never reaches assistive tech, so the description — the
@@ -189,14 +200,13 @@ function CardSquareImpl({ square, rowId, colId, cellSize = 0, cellPadding = 0, i
 
   useEffect(() => {
     if (isFreeSpace) {
-      const value = 'FREE';
-      setSquareValue(value);
-      setSquareText(value);
+      setSquareValue(freeSpace);
+      setSquareText(freeSpace);
     } else {
       setSquareValue(value.value);
       setSquareText(String(value.value));
     }
-  }, [isFreeSpace, value.value]);
+  }, [isFreeSpace, freeSpace, value.value]);
 
   const handleKeyDown = useCallback((event: KeyboardEvent<HTMLButtonElement>) => {
     const key = event.code.toLowerCase();

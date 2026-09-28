@@ -75,6 +75,8 @@ export type CardImageOptions = {
   headerText: string;
   /** The game being played, e.g. "Any Five". */
   gameName?: string;
+  /** What the centre square reads — the operator can change it. */
+  freeSpaceLabel: string;
   /** Keys of the squares that completed a pattern, if one is complete. */
   winningSquares?: ReadonlySet<string>;
   hasWon?: boolean;
@@ -141,6 +143,7 @@ export function renderCardImage({
   theme,
   headerText,
   gameName,
+  freeSpaceLabel,
   winningSquares,
   hasWon = false,
 }: CardImageOptions): HTMLCanvasElement {
@@ -214,7 +217,7 @@ export function renderCardImage({
         ctx.restore();
       }
 
-      const label = isFree ? 'FREE' : String(square.value.value);
+      const label = isFree ? freeSpaceLabel : String(square.value.value);
       drawSquareText(ctx, label, x + CELL / 2, y + CELL / 2, square.selected || isFree ? '700' : '500', fg);
     });
   });

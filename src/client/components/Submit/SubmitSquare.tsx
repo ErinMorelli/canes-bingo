@@ -1,14 +1,24 @@
 import { CSSProperties, useCallback, useEffect, useState } from 'react';
-import { Button, Drawer, Input, Modal } from 'antd';
+import { Button, Drawer, Input, message, Modal } from 'antd';
+
+import { SUBMISSION_MAX_LENGTH } from '@schema/submission.schema';
 
 import { useConfig, useMediaQuery, useSubmit } from '@hooks';
 
 import { BP_COMPACT } from '@app/constants';
 import { sheetHandle } from '@app/themes';
+import { apiClient, getData } from '@app/api';
+import { Api } from '@app/api-endpoints';
 
 export function SubmitSquare() {
   const { isOpen, close } = useSubmit();
   const { theme } = useConfig();
+  /*
+    Its own holder rather than `App.useApp()`: the app-level <App> sits above
+    each page's themed ConfigProvider, so a toast from there comes out in
+    antd's default blue. Rendered below, inside the theme.
+  */
+  const [messageApi, contextHolder] = message.useMessage();
 
   /**
    * Desktop gets a centred dialog, phones a bottom sheet — the same split the
@@ -19,27 +29,41 @@ export function SubmitSquare() {
   const isCompact = useMediaQuery(`(max-width: ${BP_COMPACT}px)`);
 
   const [idea, setIdea] = useState('');
+  const [sending, setSending] = useState(false);
 
   const handleClose = useCallback(() => {
     setIdea('');
     close();
   }, [close]);
 
+  /**
+   * Posts to our own API, which forwards it on. The client deliberately knows
+   * nothing about where a submission ends up — swapping the destination is a
+   * server change and should never reach this file.
+   */
   const handleSubmit = useCallback(() => {
-    /*
-      TODO: send the submission from here.
+    const text = idea.trim();
+    if (!text || sending) return;
 
-      Nothing is persisted yet — where suggestions should live is still an
-      open question. Whatever it turns out to be (a `square_submissions`
-      table behind a new public endpoint, a form service, an inbox), this is
-      the only place that has to change: post `idea`, keep the sheet open and
-      surface the error if it fails, and only call `handleClose` on success.
-
-      Until then the button just closes, so nothing is silently dropped in a
-      way that looks like it worked.
-    */
-    handleClose();
-  }, [handleClose]);
+    setSending(true);
+    void apiClient
+      .provide(Api.submissions.create, { idea: text })
+      .then((result) => {
+        // `provide` resolves for failures too — the envelope carries the
+        // status and `getData` is what turns an error into a throw. Without
+        // it a rejected submission would close the sheet and read as sent.
+        getData(result);
+        // Only now: closing first would throw the text away on a failure and
+        // look exactly like success.
+        handleClose();
+        void messageApi.success('Thanks — a caniac will read it.');
+      })
+      .catch((error: unknown) => {
+        console.error(error);
+        void messageApi.error('Could not send that. Please try again.');
+      })
+      .finally(() => setSending(false));
+  }, [idea, sending, handleClose, messageApi]);
 
   /**
    * Lifts the sheet clear of the on-screen keyboard.
@@ -90,6 +114,11 @@ export function SubmitSquare() {
         value={idea}
         onChange={({ target }) => setIdea(target.value)}
         placeholder="Something that happens during a Canes game"
+        // Matches the server's own cap, so the limit is felt while typing
+        // rather than reported after pressing the button.
+        maxLength={SUBMISSION_MAX_LENGTH}
+        onPressEnter={handleSubmit}
+        disabled={sending}
       />
       <span className="submit-help">
         Describe it however you like and we&apos;ll write the short version
@@ -102,6 +131,7 @@ export function SubmitSquare() {
     <Button
       className="submit-confirm"
       type="primary"
+      loading={sending}
       disabled={!idea.trim()}
       onClick={handleSubmit}>
       Submit
@@ -110,6 +140,8 @@ export function SubmitSquare() {
 
   if (isCompact) {
     return (
+      <>
+      {contextHolder}
       <Drawer
         rootClassName="submit-sheet"
         placement="bottom"
@@ -129,10 +161,13 @@ export function SubmitSquare() {
         footer={<div className="submit-actions">{submitButton}</div>}>
         {field}
       </Drawer>
+      </>
     );
   }
 
   return (
+    <>
+    {contextHolder}
     <Modal
       rootClassName="submit-modal"
       open={isOpen}
@@ -149,5 +184,6 @@ export function SubmitSquare() {
         {submitButton}
       </div>
     </Modal>
+    </>
   );
 }
