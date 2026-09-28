@@ -6,8 +6,10 @@ import { useConfig, useGameBoard, useGroups } from '@hooks';
 import { Card } from '@components/Card';
 import { SubmitSquare } from '@components/Submit';
 import { Status } from '@components/Status';
+import { WinBar } from '@components/Win';
 
 import { DrawerProvider } from '@context/DrawerContext';
+import { ShareProvider } from '@context/ShareContext';
 
 import AppDrawer from './AppDrawer';
 import AppFooter from './AppFooter';
@@ -73,12 +75,13 @@ export function AppLayout({ themeClass, themeName }: AppLayoutProps) {
 
   return (
     <DrawerProvider>
+      <ShareProvider cardRef={cardRef}>
       <div className={['app-shell', customClass].filter(Boolean).join(' ')}>
         {contextHolder}
         <Layout className={`app app-${themeName}`}>
           {festiveLights && <AppLights />}
           <Header>
-            <AppHeader themeName={themeName} cardRef={cardRef} />
+            <AppHeader themeName={themeName} />
             <AppDrawer customClass={customClass} />
           </Header>
           <Content>
@@ -89,7 +92,6 @@ export function AppLayout({ themeClass, themeName }: AppLayoutProps) {
                   {boardReady && (
                     <Card
                       ref={cardRef}
-                      notify={api}
                       customClass={customClass}
                     />
                   )}
@@ -107,12 +109,17 @@ export function AppLayout({ themeClass, themeName }: AppLayoutProps) {
               </div>
             </Layout>
           </Content>
+          {/* A band between the board and the footer, not an overlay: it takes
+              its own room in the layout so it never covers the card it is
+              celebrating. */}
+          <WinBar />
           <Footer>
             <AppFooter themeName={themeName} />
           </Footer>
         </Layout>
         <SubmitSquare />
       </div>
+      </ShareProvider>
     </DrawerProvider>
   );
 }

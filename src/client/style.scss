@@ -532,6 +532,13 @@ body {
           font-size: 26px;
           line-height: 1;
           color: var(--ant-color-link);
+
+          // A five-letter word, not a two-digit count — 26px would crowd the
+          // pattern name beneath it. The design sets 20px here.
+          &.won {
+            font-size: 20px;
+            letter-spacing: 0.02em;
+          }
         }
 
         .togo {
@@ -750,6 +757,182 @@ body {
     }
   }
 
+  /*
+    The win bar. A band of its own between the board and the footer, so it
+    never covers the card it is celebrating and the board stays tappable —
+    a mis-tap is undone by tapping the square again.
+
+    The design only draws the phone, where the bar stacks into two rows. On
+    desktop there is width to spare, so it becomes a single row inside the same
+    790px column the header and status strip use; that part is an extrapolation
+    of the mock, not in it.
+  */
+  .win-bar {
+    flex: 0 0 auto;
+    position: relative;
+    // Above the board and the status strip, below antd's overlays.
+    z-index: 100;
+    background: var(--ant-color-primary);
+    color: #fff;
+    text-align: left;
+    // Slides up out of the footer, a beat after the cannons fire — the delay
+    // is the beat, so the confetti is always first.
+    animation: win-bar-in 0.34s cubic-bezier(0.2, 0.8, 0.3, 1) 0.3s both;
+
+    /*
+      One flex row that wraps. Desktop gets everything on a line; on phones the
+      actions take a full-width basis and drop to a second row, which is the
+      layout the design draws.
+
+      The dismissal is last in the DOM, so it is last in focus order at both
+      breakpoints — it is the least important control here, and the primary
+      actions should come first. On phones `order` lifts it up beside the title,
+      where a close button is expected. That is the one place visual order and
+      focus order disagree, and it is deliberate.
+    */
+    .win-bar-inner {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px 16px;
+      // Same 790px column as the header and the status strip above it.
+      max-width: 790px;
+      margin: 0 auto;
+      padding: 12px 18px;
+    }
+
+    .win-bar-title {
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      min-width: 0;
+    }
+
+    .win-bar-shout {
+      font-family: 'Anton', Arial, sans-serif;
+      font-size: 24px;
+      line-height: 1;
+      letter-spacing: 0.03em;
+    }
+
+    .win-bar-pattern {
+      font-size: 11px;
+      font-weight: 600;
+      opacity: 0.9;
+      white-space: nowrap;
+    }
+
+    .win-bar-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .win-bar-share,
+    .win-bar-ghost {
+      padding-inline: 16px;
+      height: 38px;
+      border-radius: 10px;
+      font-size: 13px;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .win-bar-share {
+      border: none;
+      background: #fff;
+      color: var(--ant-color-primary);
+      font-weight: 700;
+
+      &:disabled {
+        cursor: default;
+        opacity: 0.7;
+      }
+    }
+
+    .win-bar-ghost {
+      border: 1px solid rgba(255, 255, 255, 0.45);
+      background: none;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .win-bar-close {
+      flex: 0 0 auto;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      border: none;
+      border-radius: 15px;
+      background: rgba(255, 255, 255, 0.18);
+      color: #fff;
+      font-size: 13px;
+      cursor: pointer;
+
+      // 30px is the design's mark, and smaller than a finger. The hit area is
+      // grown to 44px around it without moving anything on screen.
+      &::after {
+        content: '';
+        position: absolute;
+        inset: -7px;
+      }
+    }
+
+    :focus-visible {
+      outline: 2px solid #fff;
+      outline-offset: 2px;
+    }
+
+    @media only screen and (max-width: $bp-compact) {
+      .win-bar-inner {
+        align-items: flex-start;
+        padding: 12px 14px 14px;
+      }
+
+      .win-bar-title {
+        // Leaves the close button on the first row beside it.
+        flex: 1 1 auto;
+      }
+
+      .win-bar-close {
+        order: 1;
+      }
+
+      .win-bar-actions {
+        // A full-width basis is what pushes this onto its own row.
+        flex: 1 0 100%;
+        order: 2;
+      }
+
+      .win-bar-share,
+      .win-bar-ghost {
+        // Two equal halves spanning the width, matching the footer's chips.
+        flex: 1;
+        padding-inline: 8px;
+      }
+    }
+  }
+
+  @keyframes win-bar-in {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  // The bar still appears, it just does not travel. The cannons opt out on
+  // their own, through canvas-confetti's `disableForReducedMotion`.
+  @media (prefers-reduced-motion: reduce) {
+    .win-bar {
+      animation: none;
+    }
+  }
+
   // Squares database. Shares the board's shell — same diagonal header, same
   // 2px rule, same footer — and swaps the grid for a scannable list.
   &.squares-db {
@@ -917,7 +1100,10 @@ body {
       color: var(--ant-color-text-secondary);
     }
 
-    .db-cat {
+    // One filled chip for every label. The design used a filled category plus
+    // outlined tags, but with both in the same column the two treatments read
+    // as a hierarchy that is not really there.
+    .db-label {
       display: inline-flex;
       align-items: center;
       height: 24px;
@@ -930,27 +1116,9 @@ body {
       white-space: nowrap;
     }
 
-    .db-tags {
-      display: flex;
-      gap: 5px;
-      flex-wrap: wrap;
-    }
-
-    .db-tag {
-      display: inline-flex;
-      align-items: center;
-      height: 22px;
-      padding: 0 8px;
-      border-radius: 11px;
-      border: 1px solid var(--ant-color-border);
-      color: var(--ant-color-text-secondary);
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: .04em;
-      white-space: nowrap;
-    }
-
-    $db-grid: 280px 1fr 130px;
+    // Third column holds the category chip *and* the tags now, so it is wider
+    // than the design's 130px; the flexible meaning column absorbs it.
+    $db-grid: 260px 1fr 200px;
 
     .db-table {
       border: 1px solid var(--ant-color-split);
@@ -985,10 +1153,11 @@ body {
       }
     }
 
-    .db-row-name {
+    .db-row-labels {
       display: flex;
-      flex-direction: column;
-      gap: 4px;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
       min-width: 0;
     }
 
@@ -1254,6 +1423,26 @@ body {
 
       &.free-space {
         pointer-events: none;
+      }
+
+      /*
+        The squares that made the win, ringed while the win bar is up.
+
+        `currentColor` rather than the design's literal `#fff`. Every winning
+        square already sets a text colour that reads against its own fill —
+        white on the accent for a daubed square, and the free space's inverse
+        of the ink it is filled with — so the ring inherits a guaranteed
+        contrast instead of assuming a dark ground. That assumption is why the
+        design excluded the centre: on Dark the free space is filled #FFFFFF,
+        and a white ring on it is invisible.
+
+        Ordered after `.selected` so the lift shadow does not overwrite it, and
+        the second shadow layer keeps that lift.
+      */
+      &.winning {
+        box-shadow:
+          inset 0 0 0 2.5px currentColor,
+          rgba(0, 0, 0, 0.32) 0 2px 10px;
       }
 
       &.free-space,
@@ -1986,4 +2175,20 @@ body {
     letter-spacing: .03em;
     text-transform: uppercase;
   }
+}
+
+// Confetti cannons draw here rather than on the library's own canvas, so this
+// element's stacking decides what the pieces pass in front of.
+//
+// 200 sits in the gap between the two scales in play: the app's own chrome tops
+// out at 99 (`header` 98, `main` 99), so pieces fly over the header the way they
+// would over a scoreboard, while antd's overlays start at 1000 (Drawer, Modal),
+// leaving a modal on top of the confetti rather than buried under it.
+.confetti-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 200;
 }

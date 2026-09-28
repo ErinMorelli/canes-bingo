@@ -11,11 +11,9 @@ import type {
   KeyboardEvent
 } from 'react';
 import { Popover, Spin } from 'antd';
-import { decode } from 'he';
 
 import { BoardSquare } from '@app/types';
-import { fetchConfigValue, fitSquareFont } from '@app/utils';
-import { ConfigKey } from '@app/constants';
+import { fitSquareFont } from '@app/utils';
 
 import { useConfig } from '@hooks';
 
@@ -59,6 +57,8 @@ type SquareProps = {
   cellSize?: number;
   /** Total horizontal padding of a cell, measured from the stylesheet. */
   cellPadding?: number;
+  /** This square is part of the pattern the player has just completed. */
+  isWinning?: boolean;
   customClass?: string;
   onClick: (rowId: number, colId: number) => void;
 };
@@ -67,7 +67,7 @@ function getSquareId(rowId: number, colId: number) {
   return `square-${rowId}-${colId}`;
 }
 
-function CardSquareImpl({ square, rowId, colId, cellSize = 0, cellPadding = 0, customClass, onClick }: Readonly<SquareProps>) {
+function CardSquareImpl({ square, rowId, colId, cellSize = 0, cellPadding = 0, isWinning = false, customClass, onClick }: Readonly<SquareProps>) {
   const { selected, value } = square;
 
   const { showTooltips, theme } = useConfig();
@@ -136,8 +136,11 @@ function CardSquareImpl({ square, rowId, colId, cellSize = 0, cellPadding = 0, c
       classes.push('free-space');
       classes.push(theme.name);
     }
+    if (isWinning) {
+      classes.push('winning');
+    }
     return classes.join(' ');
-  }, [isFreeSpace, selected, theme.name]);
+  }, [isFreeSpace, isWinning, selected, theme.name]);
 
   const styles = useMemo(() => {
     const isDark = theme.name === 'dark';

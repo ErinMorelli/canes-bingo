@@ -4,10 +4,16 @@ import { useQuery } from '@tanstack/react-query';
 
 import { Board, BoardArgs, Pattern, UpdateBoardArg } from '@app/types';
 import {
+  BLACKOUT_GAME_NAME,
   LOCAL_STORAGE_PREFIX,
   MIN_SQUARE_COUNT,
 } from '@app/constants';
-import { convertArgsToString, createBoard, validateBoardPattern } from '@app/utils';
+import {
+  convertArgsToString,
+  createBoard,
+  getWinningSquareKeys,
+  validateBoardPattern,
+} from '@app/utils';
 import { apiClient, getData } from '@app/api';
 import { Api } from '@app/api-endpoints';
 
@@ -20,9 +26,12 @@ import { GameBoardContext, GameBoardContextValue } from './contexts';
 const BOARD_ARGS_KEY = `${LOCAL_STORAGE_PREFIX}:boardArgs`;
 const BOARD_KEY = `${LOCAL_STORAGE_PREFIX}:board`;
 
+/** Shared so "no win" is a stable reference and cannot re-render the board. */
+const EMPTY_KEYS: ReadonlySet<string> = new Set<string>();
+
 export function GameBoardProvider({ children }: Readonly<{ children: React.ReactNode }>) {
   const { groups, defaultArgs, isLoading: groupsLoading } = useGroups();
-  const { selectedGame } = useGames();
+  const { games, selectedGame, isEnabled, setSelectedGame } = useGames();
 
   const [boardArgs, setBoardArgs] = useLocalStorage<BoardArgs>(BOARD_ARGS_KEY, {} as BoardArgs);
   const [board, setBoard] = useLocalStorage<Board>(BOARD_KEY, []);
@@ -100,8 +109,21 @@ export function GameBoardProvider({ children }: Readonly<{ children: React.React
     setCardDirty(false);
   }, []);
 
+  /**
+   * How many squares have been marked since the page loaded.
+   *
+   * The board is persisted, so a reload can arrive with a completed pattern
+   * already on it. The win bar belongs on screen for that, but the confetti
+   * should not go off again for a win the player already watched — and "did
+   * this win arrive on a tap" cannot be answered by timing, because the game
+   * list is fetched and the win therefore surfaces a beat after mount. A count
+   * of actual daubs answers it directly.
+   */
+  const [daubCount, setDaubCount] = useState(0);
+
   const selectSquare = useCallback(
     (row: number, col: number) => {
+      setDaubCount((n) => n + 1);
       // Marking a square has to paint on the click that caused it. `setBoard`
       // reaches React through a useSyncExternalStore subscription, and store
       // notifications are scheduled at default priority — unlike a plain
@@ -142,6 +164,67 @@ export function GameBoardProvider({ children }: Readonly<{ children: React.React
     return counts.length ? Math.min(...counts) : -1;
   }, [board, selectedGame]);
 
+  /**
+   * The win is *derived* from the board rather than latched into state.
+   *
+   * It used to be a `hasWon` flag in Card, reset by an effect that listed
+   * `board` as a dependency — so every tap after a win cleared the flag and let
+   * the detection effect fire the whole celebration again. Reading the win off
+   * the board instead means there is no flag to fall out of step: marking a
+   * 25th square cannot resurrect a win that is already on screen, and the
+   * celebration keys off the transition rather than the flag.
+   */
+  const winningPattern = useMemo(() => {
+    if (!isEnabled) return null;
+    const patterns = (selectedGame?.patterns ?? []) as Pattern[];
+    return patterns.find((pattern) => validateBoardPattern(board, pattern).valid) ?? null;
+  }, [board, isEnabled, selectedGame]);
+
+  /**
+   * Which win the player has waved off, by pattern id. Storing the pattern
+   * rather than a bare boolean means dismissing one line does not suppress the
+   * celebration for a different line completed later.
+   */
+  const [dismissedPatternId, setDismissedPatternId] = useState<number | null>(null);
+
+  // A new deal or a change of game starts a fresh game, so a previous dismissal
+  // no longer applies. Deliberately not keyed on `board`: that is the mistake
+  // the derived win above exists to avoid.
+  useEffect(() => {
+    setDismissedPatternId(null);
+  }, [seed, isEnabled, selectedGame?.id]);
+
+  const hasWon = winningPattern !== null && winningPattern.id !== dismissedPatternId;
+
+  // Gated on `hasWon`, not just on the pattern: the rings belong to the win
+  // being celebrated, so waving the bar away takes them with it rather than
+  // leaving a decorated board behind while the blackout is chased.
+  const winningSquares = useMemo(
+    () => (hasWon && winningPattern ? getWinningSquareKeys(winningPattern) : EMPTY_KEYS),
+    [hasWon, winningPattern]
+  );
+
+  const blackoutGame = useMemo(
+    () => games.find((game) => game.name === BLACKOUT_GAME_NAME),
+    [games]
+  );
+
+  const canKeepPlaying = Boolean(blackoutGame) && selectedGame?.id !== blackoutGame?.id;
+
+  const dismissWin = useCallback(() => {
+    if (winningPattern) setDismissedPatternId(winningPattern.id);
+  }, [winningPattern]);
+
+  /**
+   * Raise the bar rather than end the game: the board keeps every daub and only
+   * the target changes, so the squares already marked count towards the
+   * coverall. Switching `selectedGame` re-derives `winningPattern` against
+   * Blackout's 24 squares, which clears the win on its own — no reset needed.
+   */
+  const keepPlaying = useCallback(() => {
+    if (blackoutGame) setSelectedGame(blackoutGame);
+  }, [blackoutGame, setSelectedGame]);
+
   const value = useMemo<GameBoardContextValue>(
     () => ({
       board,
@@ -151,13 +234,20 @@ export function GameBoardProvider({ children }: Readonly<{ children: React.React
       squaresLoading,
       squaresError,
       squaresRemaining,
+      winningPattern,
+      hasWon,
+      winningSquares,
+      canKeepPlaying,
+      daubCount,
       loadBoard,
       generateBoard,
       selectSquare,
       updateBoardArg,
       validateGameBoard,
+      dismissWin,
+      keepPlaying,
     }),
-    [board, boardArgs, boardReady, cardDirty, squaresLoading, squaresError, squaresRemaining, loadBoard, generateBoard, selectSquare, updateBoardArg, validateGameBoard]
+    [board, boardArgs, boardReady, cardDirty, squaresLoading, squaresError, squaresRemaining, winningPattern, hasWon, winningSquares, canKeepPlaying, daubCount, loadBoard, generateBoard, selectSquare, updateBoardArg, validateGameBoard, dismissWin, keepPlaying]
   );
 
   return (

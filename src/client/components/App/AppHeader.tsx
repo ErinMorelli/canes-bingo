@@ -1,4 +1,3 @@
-import { RefObject } from 'react';
 import { Button, ConfigProvider, Flex } from 'antd';
 
 import { useConfig, useDrawer, useGameBoard } from '@hooks';
@@ -8,11 +7,10 @@ import { headerButtonTheme } from '@app/themes.ts';
 import { ReloadOutlined, SettingOutlined } from '@ant-design/icons';
 
 type AppHeaderProps = {
-  cardRef: RefObject<HTMLDivElement>;
   themeName: string;
 }
 
-export default function AppHeader({ cardRef, themeName }: Readonly<AppHeaderProps>) {
+export default function AppHeader({ themeName }: Readonly<AppHeaderProps>) {
   const { headerText } = useConfig();
   const { open } = useDrawer();
   const { generateBoard } = useGameBoard();
@@ -34,7 +32,7 @@ export default function AppHeader({ cardRef, themeName }: Readonly<AppHeaderProp
             Generate Card
           </Button>
         </ConfigProvider>
-        <SaveImage cardRef={cardRef} />
+        <SaveImage />
         <Button
           type="primary"
           className="open-options"

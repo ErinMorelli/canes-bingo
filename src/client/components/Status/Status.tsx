@@ -15,13 +15,22 @@ type StatusProps = {
 
 export function Status({ themeName }: Readonly<StatusProps>) {
   const { selectedGame } = useGames();
-  const { squaresRemaining } = useGameBoard();
+  const { squaresRemaining, hasWon, winningPattern } = useGameBoard();
 
   const borderColor = headerRule[themeName];
 
   const remainingText = useMemo(() => {
     return String(squaresRemaining).padStart(2, '0');
   }, [squaresRemaining]);
+
+  /**
+   * On a win the strip shows the completed pattern rather than cycling the
+   * game's list, so the mini-grid and the bar are describing the same thing.
+   */
+  const shownPatterns = useMemo(
+    () => (hasWon && winningPattern ? [winningPattern] : selectedGame?.patterns ?? []),
+    [hasWon, winningPattern, selectedGame]
+  );
 
   return (
     <div className="status-bar" style={{
@@ -40,9 +49,17 @@ export function Status({ themeName }: Readonly<StatusProps>) {
             align="flex-end"
             gap={2}>
               <Flex align="center" gap={7}>
-                <PatternAnimated patterns={selectedGame?.patterns || []} size={8} />
-                <div className="remaining">{remainingText}</div>
-                <div className="togo">To Go</div>
+                <PatternAnimated patterns={shownPatterns} size={8} />
+                {/* "BINGO" replaces the count outright — there is nothing left
+                    to go, so the label goes with it. */}
+                {hasWon ? (
+                  <div className="remaining won">BINGO</div>
+                ) : (
+                  <>
+                    <div className="remaining">{remainingText}</div>
+                    <div className="togo">To Go</div>
+                  </>
+                )}
               </Flex>
               <div className="pattern-name">{selectedGame.name}</div>
           </Flex>

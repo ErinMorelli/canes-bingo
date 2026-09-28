@@ -4,6 +4,7 @@ import {
   Board,
   BoardArgs,
   NHLActiveGame, NHLGameState,
+  Pattern,
   Theme,
   UpdateBoardArg
 } from '@app/types';
@@ -30,11 +31,28 @@ export type GameBoardContextValue = {
   squaresLoading: boolean;
   squaresError: boolean;
   squaresRemaining: number;
+  /** The pattern the board has completed, or null while none is. */
+  winningPattern: Pattern | null;
+  /** A win is on the board and the player has not dismissed the celebration. */
+  hasWon: boolean;
+  /**
+   * `row-col` keys of the squares that form the win, for the winning ring.
+   * Includes the free space when the pattern runs through the centre.
+   */
+  winningSquares: ReadonlySet<string>;
+  /** Whether "keep playing" has anywhere to go — i.e. Blackout is not current. */
+  canKeepPlaying: boolean;
+  /** Squares marked since the page loaded, so a restored win can skip the confetti. */
+  daubCount: number;
   loadBoard: (force?: boolean) => void;
   generateBoard: () => void;
   selectSquare: (row: number, col: number) => void;
   updateBoardArg: (args: UpdateBoardArg) => void;
   validateGameBoard: () => boolean;
+  /** Stand down the celebration, leaving the board and the game alone. */
+  dismissWin: () => void;
+  /** Move to Blackout with every daub intact, clearing the win. */
+  keepPlaying: () => void;
 };
 
 export const GameBoardContext = createContext<GameBoardContextValue | null>(null);
@@ -55,6 +73,15 @@ export type SubmitContextValue = {
 };
 
 export const SubmitContext = createContext<SubmitContextValue | null>(null);
+
+export type ShareContextValue = {
+  /** Render the card to an image, upload it, and show the link. */
+  share: () => void;
+  /** A capture or upload is in flight. */
+  isSharing: boolean;
+};
+
+export const ShareContext = createContext<ShareContextValue | null>(null);
 
 export type ActiveGameContextValue = {
   activeGame: NHLActiveGame;

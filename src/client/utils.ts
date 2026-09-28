@@ -279,3 +279,49 @@ export function validateBoardPattern(
   const remaining = squares.filter((square) => !isSquareCovered(board, square)).length;
   return { valid: remaining === 0, remaining };
 }
+
+export function squareKey({ row, col }: PatternSquare): string {
+  return `${row}-${col}`;
+}
+
+/**
+ * The four lines that run through the centre, as the pair of squares either
+ * side of it: both diagonals, the middle row and the middle column.
+ */
+const CENTRE_NEIGHBOUR_PAIRS: Array<[PatternSquare, PatternSquare]> = [
+  [{ row: 1, col: 1 }, { row: 3, col: 3 }],
+  [{ row: 1, col: 3 }, { row: 3, col: 1 }],
+  [{ row: 2, col: 1 }, { row: 2, col: 3 }],
+  [{ row: 1, col: 2 }, { row: 3, col: 2 }],
+];
+
+/**
+ * The squares to mark as the winning ones, which is not quite the pattern's own
+ * square list.
+ *
+ * A pattern never lists the centre: it is covered for free, so including it
+ * would be redundant to `validateBoardPattern`. But the free space is still
+ * visibly *part* of a line drawn through the middle — leaving it unringed puts
+ * a gap in the middle of the shape the player just completed.
+ *
+ * So the centre is added back when the pattern runs through it, which is true
+ * exactly when the pattern holds both squares flanking the centre on one of the
+ * four lines that cross it. That distinguishes the patterns that use the free
+ * space (middle row, middle column, both diagonals, Plus, X, Blackout) from the
+ * ones that merely surround it (Four Corners, Outline) — those contain corner
+ * or edge squares but never a flanking pair.
+ *
+ * Checked against every pattern the API serves; see utils.test.ts.
+ */
+export function getWinningSquareKeys(pattern: Pattern): ReadonlySet<string> {
+  const squares = pattern.squares || [];
+  const keys = new Set(squares.map(squareKey));
+
+  const centre = { row: FREE_SQUARE_ROW, col: FREE_SQUARE_COL };
+  const runsThroughCentre = CENTRE_NEIGHBOUR_PAIRS.some(
+    ([a, b]) => keys.has(squareKey(a)) && keys.has(squareKey(b))
+  );
+  if (runsThroughCentre) keys.add(squareKey(centre));
+
+  return keys;
+}

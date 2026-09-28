@@ -4,6 +4,13 @@ export const IMGUR_CLIENT_ID = import.meta.env.VITE_IMGUR_CLIENT_ID;
 export const MIN_SQUARE_COUNT = 25;
 
 /**
+ * The coverall game, which "keep playing" moves a winner on to. Matched by name
+ * because the game list is data: ids differ between environments, but every one
+ * of them carries a Blackout.
+ */
+export const BLACKOUT_GAME_NAME = 'Blackout';
+
+/**
  * The compact breakpoint, in px. Must stay in step with `$bp-compact` in
  * style.scss — the stylesheet owns every responsive rule except the handful
  * that decide a React prop rather than a style.

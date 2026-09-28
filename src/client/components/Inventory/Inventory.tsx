@@ -87,16 +87,14 @@ export function Inventory() {
   }, [results.length]);
 
   /**
-   * The design splits a square's labels in two: the CATEGORY column carries
-   * *when* the square is eligible, and the tags beside its name carry *who* it
-   * is about. Our categories divide the same way — location and broadcast
-   * against players and broadcasters — so the split is real rather than
-   * decorative.
+   * A square's labels, ordered: *when* it is eligible (location, broadcast)
+   * first, then *who* it is about (players, broadcasters). They all render as
+   * the same filled chip, so the split only decides reading order.
    */
   const labelsFor = (square: Square) => {
     const all = categoriesFor(square);
-    const when = all.find((c) => c.group === 'location' || c.group === 'broadcast');
-    return { category: when, tags: all.filter((c) => c !== when) };
+    const when = all.filter((c) => c.group === 'location' || c.group === 'broadcast');
+    return [...when, ...all.filter((c) => !when.includes(c))];
   };
 
   const search = (
@@ -188,41 +186,33 @@ export function Inventory() {
                       <span role="columnheader">What it means</span>
                       <span role="columnheader">Category</span>
                     </div>
-                    {results.map((s) => {
-                      const { category, tags } = labelsFor(s);
-                      return (
-                        <div className="db-row" role="row" key={s.id}>
-                          <div className="db-row-name" role="cell">
-                            <span className="db-value">{s.value}</span>
-                            {tags.length > 0 && (
-                              <div className="db-tags">
-                                {tags.map((t) => (
-                                  <span className="db-tag" key={t.id}>{t.label}</span>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                          <span className="db-meaning" role="cell">{s.description}</span>
-                          <span role="cell">
-                            {category && <span className="db-cat">{category.label}</span>}
-                          </span>
+                    {results.map((s) => (
+                      <div className="db-row" role="row" key={s.id}>
+                        <span className="db-value" role="cell">{s.value}</span>
+                        <span className="db-meaning" role="cell">{s.description}</span>
+                        {/* All of a square's labels share the last column:
+                            under the name they crowded it, and they all answer
+                            the same question about a square. */}
+                        <div className="db-row-labels" role="cell">
+                          {labelsFor(s).map((l) => (
+                            <span className="db-label" key={l.id}>{l.label}</span>
+                          ))}
                         </div>
-                      );
-                    })}
+                      </div>
+                    ))}
                   </div>
                 ) : (
                   <div className="db-cards">
                     {results.map((s) => {
-                      const { category, tags } = labelsFor(s);
+                      const labels = labelsFor(s);
                       return (
                         <div className="db-card" key={s.id}>
                           <span className="db-value">{s.value}</span>
                           <span className="db-meaning">{s.description}</span>
-                          {(category || tags.length > 0) && (
+                          {labels.length > 0 && (
                             <div className="db-card-labels">
-                              {category && <span className="db-cat">{category.label}</span>}
-                              {tags.map((t) => (
-                                <span className="db-tag" key={t.id}>{t.label}</span>
+                              {labels.map((l) => (
+                                <span className="db-label" key={l.id}>{l.label}</span>
                               ))}
                             </div>
                           )}

@@ -20,7 +20,58 @@ const port = process.env.PORT || 3000;
 const app = express();
 
 const MySQLStore = MySQLSession(session);
-const sessionStore = new MySQLStore({ ...dbConfig });
+
+/**
+ * `express-mysql-session` sweeps expired sessions on its own timer:
+ *
+ *   setInterval(this.clearExpiredSessions.bind(this), interval)
+ *
+ * It discards the promise that comes back, and `clearExpiredSessions` re-throws
+ * after logging. So any failure in that sweep — a dropped connection, a revoked
+ * grant, a DNS blip — becomes an unhandled rejection, and Node exits on those by
+ * default. A background housekeeping query should never be able to take the
+ * server down, so the sweep is run here instead, with its errors handled.
+ *
+ * The store's own startup path is already guarded, and it never emits an
+ * `error` event, so `sessionStore.on('error', …)` would do nothing — the timer
+ * really is the only unprotected path.
+ *
+ * Declared as a variable rather than inline because `clearExpired` is honoured
+ * at runtime but missing from `@types/express-mysql-session`; passing an object
+ * literal would trip excess-property checking.
+ */
+const sessionStoreOptions = { ...dbConfig, clearExpired: false };
+const sessionStore = new MySQLStore(sessionStoreOptions);
+
+/** Matches the library's own default of 15 minutes. */
+const SESSION_SWEEP_MS = 15 * 60 * 1000;
+
+/** The same types describe this as callback-based; it returns a promise. */
+type SessionSweeper = { clearExpiredSessions: () => Promise<unknown> };
+
+const sessionSweep = setInterval(() => {
+  (sessionStore as unknown as SessionSweeper)
+    .clearExpiredSessions()
+    .catch((error: unknown) => {
+      console.error('[sessions] failed to clear expired sessions:', error);
+    });
+}, SESSION_SWEEP_MS);
+// Housekeeping should not be the reason the process stays alive.
+sessionSweep.unref();
+
+/**
+ * Last resort. The sweep above was one instance of a general hazard: a rejected
+ * promise nobody awaited will end the process. Logging and carrying on is the
+ * right call for a web server, where a single failed background query should
+ * cost one log line rather than everyone's session.
+ *
+ * `uncaughtException` is deliberately left alone — after one of those the
+ * process state is unknown, and crashing so a supervisor can restart cleanly is
+ * safer than limping on.
+ */
+process.on('unhandledRejection', (reason) => {
+  console.error('[server] unhandled promise rejection:', reason);
+});
 
 function parseTrustProxy(raw: string): boolean | number | string {
   if (raw === 'true') return true;

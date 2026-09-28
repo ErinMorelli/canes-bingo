@@ -1,29 +1,19 @@
 import { forwardRef, useCallback, useEffect, useRef, useState } from 'react';
-import { Typography } from 'antd';
-import type { NotificationInstance } from 'antd/es/notification/interface';
 
-import confetti from 'canvas-confetti';
-
-import { useConfig, useGameBoard, useGames } from '@hooks';
+import { useGameBoard } from '@hooks';
 
 import { BoardSquare } from '@app/types';
+import { squareKey } from '@app/utils';
 
 import { CardSquare } from './CardSquare';
 
-const { Text } = Typography;
-
 type CardProps = {
-  notify: NotificationInstance;
   customClass?: string;
 };
 
 export const Card = forwardRef<HTMLDivElement, CardProps>(
-  ({ customClass, notify }: CardProps, ref) => {
-    const { board, selectSquare, validateGameBoard } = useGameBoard();
-    const { isEnabled, selectedGame } = useGames();
-    const { theme } = useConfig();
-
-    const [hasWon, setHasWon] = useState<boolean>(false);
+  ({ customClass }: CardProps, ref) => {
+    const { board, selectSquare, winningSquares } = useGameBoard();
 
     // The grid is 5 equal fluid columns, so one measurement sizes every
     // square. Measuring the grid rather than a cell keeps this to a single
@@ -70,39 +60,6 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
       return () => observer.disconnect();
     }, []);
 
-    useEffect(() => {
-      setHasWon(false);
-    }, [isEnabled, selectedGame, board]);
-
-    useEffect(() => {
-      if (!isEnabled || hasWon) return;
-      if (validateGameBoard()) {
-        const timeout = setTimeout(() => {
-          setHasWon(true);
-          notify.open({
-            className: 'bingo-win-notice',
-            title: <Text>BINGO!</Text>,
-            closeIcon: false,
-            pauseOnHover: false,
-            duration: 3,
-          });
-          confetti({
-            particleCount: 200,
-            spread: 200,
-            colors: [
-              theme.config.token?.colorPrimary || '',
-              theme.config.token?.colorLink || '',
-              theme.config.components?.Layout?.headerColor || '',
-              theme.config.components?.Layout?.footerBg || '',
-            ].filter(Boolean),
-            origin: { y: 0.4 },
-            shapes: ['star', 'circle', 'square'],
-          });
-        }, 500);
-        return () => clearTimeout(timeout);
-      }
-    }, [board, hasWon, isEnabled, theme, notify, validateGameBoard]);
-
     // Stable, so the 24 squares that did not change can bail out of the
     // re-render that marking the 25th triggers.
     const handleClick = useCallback(
@@ -120,6 +77,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
           colId={colId}
           cellSize={metrics.cellSize}
           cellPadding={metrics.cellPadding}
+          isWinning={winningSquares.has(squareKey({ row: rowId, col: colId }))}
           customClass={customClass}
           onClick={handleClick}
         />

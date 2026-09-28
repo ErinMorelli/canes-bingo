@@ -9,6 +9,7 @@ import {
   getSquareClasses,
   getSquareStyle,
   validateBoardPattern,
+  getWinningSquareKeys,
   createBoard,
 } from './utils.ts';
 import type { Board, Pattern, Square, Squares } from './types.ts';
@@ -138,6 +139,70 @@ describe('validateBoardPattern', () => {
   it('never completes when a pattern square is out of bounds', () => {
     const pattern: Pattern = { id: 1, name: 'oob', squares: [{ row: 9, col: 9 }] };
     expect(validateBoardPattern(board, pattern)).toEqual({ valid: false, remaining: 1 });
+  });
+});
+
+// --- getWinningSquareKeys ---
+
+describe('getWinningSquareKeys', () => {
+  /** Shorthand for a pattern's squares: '0,0 1,1' -> [{row:0,col:0}, …]. */
+  function pattern(name: string, coords: string): Pattern {
+    return {
+      id: 1,
+      name,
+      squares: coords.split(' ').map((pair) => {
+        const [row, col] = pair.split(',').map(Number);
+        return { row, col };
+      }),
+    };
+  }
+
+  it('returns the pattern squares for a line that misses the centre', () => {
+    const keys = getWinningSquareKeys(pattern('row 0', '0,0 0,1 0,2 0,3 0,4'));
+    expect([...keys].sort()).toEqual(['0-0', '0-1', '0-2', '0-3', '0-4']);
+    expect(keys.has('2-2')).toBe(false);
+  });
+
+  // The API never lists the centre — it is covered for free — so these are the
+  // patterns where it has to be added back, or the ring has a hole in it.
+  it.each([
+    ['middle row',     '2,0 2,1 2,3 2,4'],
+    ['middle column',  '0,2 1,2 3,2 4,2'],
+    ['main diagonal',  '0,0 1,1 3,3 4,4'],
+    ['anti diagonal',  '0,4 1,3 3,1 4,0'],
+    ['plus',           '2,0 2,1 2,3 2,4 0,2 1,2 3,2 4,2'],
+  ])('adds the free centre to %s, which runs through it', (name, coords) => {
+    expect(getWinningSquareKeys(pattern(name, coords)).has('2-2')).toBe(true);
+  });
+
+  it('adds the free centre to blackout, which covers everything around it', () => {
+    const coords: string[] = [];
+    for (let row = 0; row < 5; row += 1) {
+      for (let col = 0; col < 5; col += 1) {
+        if (row !== 2 || col !== 2) coords.push(`${row},${col}`);
+      }
+    }
+    const keys = getWinningSquareKeys(pattern('blackout', coords.join(' ')));
+    expect(keys.size).toBe(25);
+    expect(keys.has('2-2')).toBe(true);
+  });
+
+  // These two are the reason the rule tests for a *flanking pair* rather than
+  // just "the centre is missing": both surround the centre without using it,
+  // and Four Corners even holds two squares on the main diagonal.
+  it.each([
+    ['four corners', '0,0 0,4 4,0 4,4'],
+    ['outline',      '0,0 0,1 0,2 0,3 0,4 1,0 1,4 2,0 2,4 3,0 3,4 4,0 4,1 4,2 4,3 4,4'],
+  ])('leaves the centre out of %s, which only surrounds it', (name, coords) => {
+    expect(getWinningSquareKeys(pattern(name, coords)).has('2-2')).toBe(false);
+  });
+
+  it('keeps the centre when a pattern lists it outright', () => {
+    expect(getWinningSquareKeys(pattern('centre only', '2,2')).has('2-2')).toBe(true);
+  });
+
+  it('returns nothing for a pattern with no squares', () => {
+    expect(getWinningSquareKeys({ id: 1, name: 'empty', squares: [] }).size).toBe(0);
   });
 });
 
