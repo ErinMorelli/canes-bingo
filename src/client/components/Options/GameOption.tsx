@@ -28,6 +28,8 @@ export default function GameOption() {
       if (selectedGame?.id === game.id) classes.push('selected');
       return (
         <button
+          key={game.id}
+          type="button"
           className={classes.join(' ')}
           onClick={() => handleChange(game)}>
           <PatternGame game={game} size={7} />

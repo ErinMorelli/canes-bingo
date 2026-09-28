@@ -121,7 +121,13 @@ app.use(helmet({
     scriptSrc:   ["'self'", "'sha256-lix6OnV9laVmvGJmXa4ZU+rBhaioOyWzO28gqlHGBg4='", 'https://www.googletagmanager.com'],
       styleSrc:    ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
       fontSrc:     ["'self'", 'https://fonts.gstatic.com'],
-      imgSrc:      ["'self'", 'data:', 'https://i.imgur.com'],
+      // `blob:` is what the share dialog previews: the card is rendered to a
+      // canvas and shown via createObjectURL, and a blob URL is not covered
+      // by 'self'. Without it the preview is blocked in production only —
+      // CSP is off in dev, so nothing here catches it.
+      // Imgur is gone with the upload it served; the card never leaves the
+      // browser now, and no content in this app references a remote image.
+      imgSrc:      ["'self'", 'data:', 'blob:'],
       connectSrc:  ["'self'", 'https://www.google-analytics.com', 'https://analytics.google.com', 'https://www.googletagmanager.com'],
     },
   },
