@@ -1802,7 +1802,7 @@ body {
   overflow: hidden;
   // Set here rather than as a `gap` prop on the Flex, so it can vary by
   // breakpoint — an inline style could not.
-  gap: 12px;
+  gap: 20px;
 
   // Segmented tracks: the theme's 44px control height is too tall for a panel
   // this dense, and the design tightens it further on desktop than on phones.
@@ -1832,6 +1832,10 @@ body {
   }
 
   .options-header {
+    &.preferences {
+      padding-top: 16px;
+    }
+
     span {
       font-size: 11px;
       font-weight: 700;
@@ -1849,6 +1853,12 @@ body {
         background-color: var(--ant-color-fill-tertiary);
         display: block;
         flex: 1;
+      }
+    }
+
+    @media only screen and (max-width: $bp-compact) {
+      &.preferences {
+        padding-top: 14px;
       }
     }
   }

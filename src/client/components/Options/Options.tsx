@@ -16,7 +16,7 @@ export function Options() {
   // inline style cannot carry a breakpoint. It is set on `.options` instead.
   return (
     <Flex className="options" orientation="vertical">
-      <Flex className="options-header" align="center">
+      <Flex className="options-header this-game" align="center">
         <span>This Game</span>
       </Flex>
       {/* Location & Broadcast */}
@@ -24,7 +24,7 @@ export function Options() {
       <Scratches />
       {/* Game Pattern */}
       <GameOption />
-      <Flex className="options-header" align="center">
+      <Flex className="options-header preferences" align="center">
         <span>Preferences</span>
       </Flex>
       {/* Theme & Tooltips */}
