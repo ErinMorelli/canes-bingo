@@ -43,7 +43,8 @@ export default function GameOption() {
         <Flex orientation="vertical">
           <div className="group-title">Game Pattern</div>
           {/*
-            Names the mode rather than the pattern while the switch is off.
+            Says there is no pattern while the switch is off, matching the
+            status strip word for word.
             The design leaves the selected game's name here either way, but
             that put the drawer and the status strip in contradiction — the
             panel read "Any Five" while the strip read "No pattern" — and the

@@ -141,8 +141,12 @@ body {
   // The same Drawer, presented as a bottom sheet. Only the shape, the grab
   // affordance and the paddings change — the content is identical, which is
   // the point of not building a second component.
-  .options-drawer {
-    // Body and footer padding belong to this drawer, not to every drawer:
+  // The scratches roster stacks on top of the options and shares its shape
+  // exactly — panel on desktop, sheet on phones, same gutters and handle — so
+  // it shares the rules rather than restating them.
+  .options-drawer,
+  .scratches-picker {
+    // Body and footer padding belong to these drawers, not to every drawer:
     // nested under `body` they are (0,3,0), which silently beat the submit
     // sheet's own (0,2,0) rules and gave it the options drawer's gutters.
     .ant-drawer-body {
@@ -201,6 +205,124 @@ body {
         padding-inline: 14px;
         border-radius: 16px;
       }
+    }
+  }
+
+  // The roster itself: a searchable, grouped checklist.
+  .scratches-picker {
+    .ant-drawer-title {
+      // The subtitle underneath needs its own voice, so the Anton heading
+      // styling applies to the name only rather than the whole title slot.
+      line-height: 1.1;
+    }
+
+    .scratches-picker-title {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .scratches-picker-sub {
+      font-family: 'Inter', Arial, sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: normal;
+      // The title slot uppercases everything in it for the Anton heading;
+      // this is a sentence, and reads as shouting without the reset.
+      text-transform: none;
+      color: var(--ant-color-text-secondary);
+    }
+
+    .scratches-search {
+      height: 42px;
+      border-radius: 21px;
+      background: var(--ant-color-fill-tertiary);
+      border-color: transparent;
+      margin-bottom: 6px;
+    }
+
+    .scratch-group {
+      padding-bottom: 14px;
+    }
+
+    .scratch-group-label {
+      padding: 8px 2px 4px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ant-color-text-secondary);
+    }
+
+    // A full-width row, so the whole line is the hit area rather than just
+    // the 22px box — these are picked in a hurry during warmups.
+    .scratch-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      padding: 11px 2px;
+      border: none;
+      border-bottom: 1px solid var(--ant-color-fill-tertiary);
+      background: none;
+      text-align: left;
+      cursor: pointer;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--ant-color-primary);
+        outline-offset: -2px;
+      }
+    }
+
+    .scratch-box {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      border: 2px solid var(--ant-color-text-secondary);
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .scratch-name {
+      flex: 1;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--ant-color-text);
+    }
+
+    // Ticked: the box fills and the name bolds, so a scratched player is
+    // legible from the two-pixel glance this list gets.
+    .scratch-row.checked {
+      .scratch-box {
+        border-color: var(--ant-color-primary);
+        background: var(--ant-color-primary);
+      }
+
+      .scratch-name {
+        font-weight: 700;
+      }
+    }
+
+    .scratch-empty {
+      margin: 0;
+      padding: 18px 2px;
+      font-size: 14px;
+      color: var(--ant-color-text-secondary);
+    }
+
+    .scratches-picker-footer {
+      font-size: 13px;
+      color: var(--ant-color-text-secondary);
+      text-align: center;
     }
   }
 
@@ -1737,6 +1859,58 @@ body {
     color: var(--ant-color-text-secondary);
     letter-spacing: 0.1em;
     text-transform: uppercase;
+  }
+
+  /*
+    Scratches: who is left off tonight's card.
+
+    A chip per name rather than a summary count, because the chips are also
+    the way back — tapping one puts that person straight back on the card,
+    so undoing a scratch never means reopening the roster to hunt for it.
+  */
+  .scratches-hint {
+    font-size: 12px;
+    color: var(--ant-color-text-secondary);
+  }
+
+  .scratches-empty {
+    font-size: 14px;
+    color: var(--ant-color-text);
+  }
+
+  .scratch-chip,
+  .scratch-add {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex: 0 0 auto;
+    height: 34px;
+    padding: 0 12px;
+    border-radius: 17px;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+
+    &:focus-visible {
+      outline: 2px solid var(--ant-color-primary);
+      outline-offset: 2px;
+    }
+  }
+
+  .scratch-chip {
+    border: none;
+    background: var(--ant-color-primary);
+    color: #fff;
+  }
+
+  // Dashed and unfilled: this one adds to the set rather than being part of
+  // it, so it should not read as another scratched name.
+  .scratch-add {
+    padding: 0 14px;
+    border: 1px dashed var(--ant-color-text-secondary);
+    background: none;
+    color: var(--ant-color-text);
   }
 
   .tooltip-title {
