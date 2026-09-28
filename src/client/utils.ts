@@ -14,7 +14,6 @@ import {
 import {
   ConfigKey, DEFAULT_PATTERN_SIZE,
   Group,
-  StorageKey
 } from './constants';
 import { apiClient, getData } from './api';
 import { Api } from './api-endpoints';
@@ -79,28 +78,6 @@ export async function fetchConfigValue(key: ConfigKey): Promise<string> {
 export async function fetchAllSquares(): Promise<Squares> {
   const result = await apiClient.provide(Api.squares.list, {});
   return getData(result).items;
-}
-
-function getStorageValue<T>(key: StorageKey): T | null {
-  try {
-    const value = localStorage.getItem(key);
-    return value ? JSON.parse(value) : null;
-  } catch {
-    return null;
-  }
-}
-
-export function setStorageValue<T>(key: StorageKey, value: T) {
-  return localStorage.setItem(key, JSON.stringify(value));
-}
-
-export function initStorageValue<T>(key: StorageKey, defaultValue: T): T {
-  let value = getStorageValue<T>(key);
-  if (value === null) {
-    value = defaultValue;
-    setStorageValue(key, value);
-  }
-  return value;
 }
 
 export function parsePatternValue(value: string | PatternSquare[]): PatternSquare[] {

@@ -4,7 +4,6 @@ import { ThemeConfig } from 'antd';
 import { categoryOutputSchema } from '@schema/category.schema';
 import { gameOutputSchema } from '@schema/game.schema';
 import {
-  groupCategoryItemSchema,
   groupOutputSchema
 } from '@schema/group.schema';
 import { patternSquareSchema, patternOutputSchema } from '@schema/pattern.schema';
@@ -33,7 +32,6 @@ export type Squares = Array<Square>;
 export type Game = z.infer<typeof gameOutputSchema>;
 export type Games = Array<Game>;
 
-export type GroupOption = z.infer<typeof groupCategoryItemSchema>;
 export type GroupResult = Required<z.infer<typeof groupOutputSchema>>;
 
 // --- Client-only types ---

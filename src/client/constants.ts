@@ -18,7 +18,8 @@ export const BP_COMPACT = 720;
 
 /**
  * The wide breakpoint, in px — where the squares database swaps its stacked
- * cards for a table. Must stay in step with `$bp-wide` in style.scss.
+ * cards for a table. Lives here rather than in style.scss because it decides
+ * a React prop (table vs cards) rather than a style.
  */
 export const BP_WIDE = 1040;
 
@@ -33,13 +34,6 @@ export enum ConfigKey {
   CustomClass = 'customClass',
   FestiveLights = 'festiveLights',
 }
-
-export const StorageKey = {
-  ShowOptionsOnLoad: `${LOCAL_STORAGE_PREFIX}:ShowOptionsOnLoad`,
-  TourSeen: `${LOCAL_STORAGE_PREFIX}:TourSeen`,
-  App: `${LOCAL_STORAGE_PREFIX}:App`,
-} as const;
-export type StorageKey = typeof StorageKey[keyof typeof StorageKey];
 
 export class Group {
   public static readonly GENERAL = 'general' as const;

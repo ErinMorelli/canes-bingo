@@ -5,7 +5,7 @@ import { useConfig, useGameBoard, useGroups } from '@hooks';
 
 import { Card } from '@components/Card';
 import { SubmitSquare } from '@components/Submit';
-import { Status } from '@components/Status';
+import { Status, StatusPlayoffs } from '@components/Status';
 import { WinBar } from '@components/Win';
 
 import { DrawerProvider } from '@context/DrawerContext';
@@ -85,6 +85,9 @@ export function AppLayout({ themeClass, themeName }: AppLayoutProps) {
           <Content>
             <Layout>
               <Status themeName={themeName} />
+              {/* Season context, under tonight's. Renders nothing outside
+                  the playoffs, so it costs the regular season no space. */}
+              <StatusPlayoffs />
               <div className="board-wrapper">
                 <Spin size="large" spinning={groupsLoading || !isBoardReady}>
                   {boardReady && (

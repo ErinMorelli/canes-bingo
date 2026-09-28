@@ -1,9 +1,5 @@
 @use 'sass:color';
 
-$square-size: 115px;
-$gap: 6px;
-$card-size: calc(($square-size * 5) + ($gap * 4));
-
 // Board grid. Cells are 1:1 at every width — one grid rule for the whole PWA —
 // so the board is capped rather than fixed: at >= $board-max you get exactly
 // $board-square cells, and below that the same grid shrinks fluidly. A fixed
@@ -13,13 +9,10 @@ $board-gap: 8px;
 $board-gap-mobile: 3px;
 $board-max: calc(($board-square * 5) + ($board-gap * 4)); // 782px
 
-$mobile-scale: .63;
-$mobile-square-size: $square-size * $mobile-scale;
-$mobile-gap: 4px;
-$mobile-card-size: $mobile-square-size * 5;
-
-$bp-compact: 720px;   // existing — sheet vs panel, board sizing
-$bp-wide:    1040px;  // new — database table vs cards
+// Sheet vs panel, and board sizing. The database's table/cards switch is the
+// one breakpoint the stylesheet does not own — it decides a React prop, so it
+// lives in constants.ts as BP_WIDE.
+$bp-compact: 720px;
 
 $globe-width: 12px;
 $globe-height: 18px;
@@ -58,10 +51,6 @@ body,
 .app-root,
 .app-shell {
   height: 100%;
-}
-
-.no-caps * {
-  text-transform: lowercase !important;
 }
 
 // iOS Safari zooms the whole page when a form field smaller than 16px takes
@@ -109,7 +98,7 @@ body {
       border-bottom: 2px solid var(--ant-color-primary);
     }
 
-    .ant-drawer-title, .ant-checkbox-wrapper {
+    .ant-drawer-title {
       font-family: "Anton", sans-serif;
       color: var(--ant-color-text);
       font-size: 22px;
@@ -326,32 +315,8 @@ body {
     }
   }
 
-  .dark {
-    .app main .bottom-message {
-      color: #A4A9AD;
-
-      a:hover {
-        color: #333F48;
-      }
-    }
-
-    .squares-db main {
-      h2 {
-        color: #A2AAAD;
-      }
-
-      .back-link {
-        color: #CE1126;
-
-        &:hover {
-          color: #333F48;
-        }
-      }
-    }
-  }
-
   .playoffs {
-    .bingo .row #square-2-2 {
+    .bingo #square-2-2 {
       position: relative;
       font-size: 14px;
 
@@ -378,7 +343,7 @@ body {
     }
 
     @media only screen and (max-width: $bp-compact) {
-      .bingo .row #square-2-2 {
+      .bingo #square-2-2 {
         font-size: 12px;
 
         &::after {
@@ -388,63 +353,103 @@ body {
       }
     }
 
-    main {
-      padding-top: 0;
+    /*
+      The playoff run: sixteen wins to the Cup.
 
-      .playoff-wins {
-        $flag-size: 24px;
-        $mobile-flag-size: 16px;
+      Sits below the status strip rather than above it. The header's 2px
+      accent rule belongs to the strip beneath it, and slipping a band in
+      between breaks that pairing; underneath it reads as a third tier —
+      tonight's game, then the season — that is easy to skim past.
 
+      Deliberately slim. On a laptop the board already runs past the fold
+      with only the header and strip above it, so a fourth band has to cost
+      as little height as it can: 10px pips against the old 24px squares
+      take the whole thing from about 54px to about 28px.
+
+      On the footer's ground, so it echoes a surface the page already has
+      instead of introducing a third one.
+    */
+    .playoff-wins {
+      /*
+        Each win is a hurricane warning flag — a red square with a black
+        square at its centre, two of which flown together are the warning
+        itself, and the team's own emblem. So a win is a flag, not a dot:
+        the inner square is the entire point of the mark and the reason
+        these are drawn rather than bulleted.
+
+        14px against the original 24px. Small enough to keep the band at
+        30px — a fourth band above a board that already runs past the fold
+        has to stay cheap — and large enough that the centre still reads.
+        Below about 12px the black square closes up and the flag turns
+        back into a dot, which is the mistake this replaces.
+      */
+      $flag: 14px;
+      $flag-centre: 6px;
+      $flag-mobile: 11px;
+      $flag-centre-mobile: 5px;
+
+      flex: 0 0 auto;
+      display: flex;
+      justify-content: center;
+      // Between rounds. Wider than the gap between flags, which is the only
+      // thing telling you where one round ends and the next begins.
+      gap: 14px;
+      padding: 8px 16px;
+      background-color: var(--ant-layout-footer-bg);
+
+      .playoff-round {
         display: flex;
-        flex-direction: row;
-        gap: 10px;
-        width: 100%;
+        gap: 5px;
+      }
+
+      .win,
+      .tbd {
+        width: $flag;
+        height: $flag;
+        // Flags are square. A radius here is what turned these into pips.
+        border-radius: 0;
+        // Keeps an unflown flag visible against the dark ground, and gives
+        // a flown one a defined edge rather than bleeding into it.
+        border: 1px solid rgba(255, 255, 255, 0.15);
+      }
+
+      .win {
+        display: flex;
+        align-items: center;
         justify-content: center;
-        background-color: black;
-        padding: 15px 0;
-        margin-bottom: 10px;
+        background-color: var(--ant-color-primary);
 
-        .win, .tbd {
-          position: relative;
-          color: transparent;
-          width: $flag-size;
-          height: $flag-size;
-          border: 1px solid rgba(255, 255, 255, .15);
+        // The centre. Placed by the flex above rather than the original's
+        // hand-tuned offsets, so it stays centred at any flag size.
+        &::after {
+          content: '';
+          width: $flag-centre;
+          height: $flag-centre;
+          background-color: #000;
+        }
+      }
+
+      .tbd {
+        background-color: rgba(255, 255, 255, 0.15);
+      }
+
+      @media only screen and (max-width: $bp-compact) {
+        gap: 11px;
+        padding: 7px 12px;
+
+        .playoff-round {
+          gap: 4px;
         }
 
-        .win {
-          background-color: var(--ant-color-primary);
-
-          &::after {
-            content: '';
-            display: block;
-            width: 10px;
-            height: 10px;
-            background-color: black;
-            position: absolute;
-            top: 6px;
-            left: 6px;
-          }
-        }
-
+        .win,
         .tbd {
-          background-color: rgba(255, 255, 255, .15);
+          width: $flag-mobile;
+          height: $flag-mobile;
         }
 
-        @media only screen and (max-width: $bp-compact) {
-          gap: 6px;
-
-          .win, .tbd {
-            width: $mobile-flag-size;
-            height: $mobile-flag-size;
-          }
-
-          .win::after {
-            width: 8px;
-            height: 8px;
-            top: 3px;
-            left: 3px;
-          }
+        .win::after {
+          width: $flag-centre-mobile;
+          height: $flag-centre-mobile;
         }
       }
     }
@@ -949,9 +954,7 @@ body {
     a {
       transition: text-decoration 250ms ease-in-out;
 
-      &:not(.license) {
-        text-decoration: underline;
-      }
+      text-decoration: underline;
 
       &:focus,
       &:hover {
@@ -1424,6 +1427,30 @@ body {
       padding: 26px 32px;
     }
 
+    /*
+      The page's own controls are plain buttons and anchors rather than antd
+      ones, so without this they fall back to the browser's focus ring — a
+      different shape and colour from every other focus state in the app. The
+      footer pair takes white instead, because an accent ring on the footer's
+      dark ground all but disappears.
+    */
+    .db-back,
+    .db-submit,
+    .db-chip {
+      &:focus-visible {
+        outline: 2px solid var(--ant-color-primary);
+        outline-offset: 2px;
+      }
+    }
+
+    .db-footer-link,
+    .db-footer-cta {
+      &:focus-visible {
+        outline: 2px solid #fff;
+        outline-offset: 2px;
+      }
+    }
+
     .db-footer {
       display: flex;
       flex-direction: column;
@@ -1589,10 +1616,6 @@ body {
         font-size: 18px;
       }
 
-      .db-submit-block {
-        width: 100%;
-        margin-top: 16px;
-      }
     }
   }
 
@@ -2013,42 +2036,6 @@ body {
     cursor: pointer;
   }
 
-  .select-option-icon.anticon {
-    position: relative;
-    font-size: 12px;
-    padding-left: 3px;
-    top: -1px;
-  }
-
-  .ant-select-outlined.ant-select-multiple {
-    .ant-select-selection-item {
-      background: none;
-      padding-inline-start: 3px;
-    }
-
-    .ant-select-selection-overflow-item {
-      &:first-of-type > span {
-        padding-left: 5px;
-      }
-
-      &:not(:last-of-type) > span {
-        padding-right: 3px;
-      }
-    }
-  }
-
-  .inline-switch-form {
-    .ant-row {
-      flex-flow: row-reverse;
-      justify-content: start;
-      align-items: center;
-      gap: 10px;
-
-      .ant-form-item-control {
-        flex: unset;
-      }
-    }
-  }
 }
 
 .drawer-footer {
@@ -2104,17 +2091,6 @@ body {
   }
   .ant-form-item-extra {
     margin-top: 4px;
-  }
-}
-
-.game-pattern-select-popup {
-  .game-pattern-select-option {
-    width: 100%;
-  }
-  .ant-select-item-option {
-    .ant-select-item-option-content {
-      display: inline-flex;
-    }
   }
 }
 
@@ -2179,26 +2155,6 @@ body {
   padding: 0;
   display: block;
   cursor: default;
-}
-
-.bingo-win-notice {
-  .ant-notification-notice-content {
-    .ant-notification-notice-title {
-      margin-bottom: 0;
-      text-align: center;
-    }
-    .ant-typography {
-      font-size: 40px;
-      font-weight: bolder;
-      color: var(--ant-color-primary);
-
-      &::before,
-      &::after {
-        content: '🎉';
-        padding: 0 20px;
-      }
-    }
-  }
 }
 
 @keyframes flash-1 {
