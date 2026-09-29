@@ -22,6 +22,9 @@ export const POLL_SCHEDULE = 15 * 60_000; // which game we should be watching
 
 const DATE_KEY = 'yyyy-MM-dd';
 
+/** The team whose schedule this app follows. Mirrors `TEAM` in nhl-proxy.ts. */
+export const TEAM_ABBREV = 'CAR';
+
 export const FALLBACK_GAME: NHLActiveGame = {
   id: -1,
   gameType: 0,
@@ -91,6 +94,38 @@ export function selectTodaysGame(
 
   // Fall back to next game
   return schedule.games.find((game) => new Date(game.startTimeUTC) > now) ?? null;
+}
+
+/**
+ * Which side of tonight's game we are on, as a `location` category name.
+ *
+ * The one game option the schedule answers outright, and the one that is
+ * wrong by default half the season: `location` defaults to `home` from the
+ * database, so every road game starts on the wrong setting until someone
+ * notices.
+ *
+ * Deliberately narrow about when it will answer:
+ *
+ *  - `null` for no game. The caller must fall back to the stored default
+ *    rather than guess, and must never ask this of the *active* game — that
+ *    one falls back to `FALLBACK_GAME`, which asserts CAR at home, so an
+ *    outage would produce a confident wrong answer instead of no answer.
+ *  - `null` at a neutral site. A Stadium Series game is not really either
+ *    one, and the player is better placed than we are to say which squares
+ *    they want.
+ */
+export function deriveLocation(game: NHLScheduleGame | null | undefined): 'home' | 'away' | null {
+  if (!game) return null;
+  if (game.neutralSite) return null;
+
+  const home = game.homeTeam?.abbrev;
+  const away = game.awayTeam?.abbrev;
+
+  // Both are checked rather than just `home === TEAM`, so a payload missing
+  // the abbrevs reads as "no answer" instead of "away".
+  if (home === TEAM_ABBREV) return 'home';
+  if (away === TEAM_ABBREV) return 'away';
+  return null;
 }
 
 export function getGameState(game: NHLActiveGame, now = new Date()): NHLGameState {

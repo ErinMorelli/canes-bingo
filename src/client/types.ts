@@ -90,6 +90,8 @@ export type NHLScheduleGame = {
   gameScheduleState: string;
   awayTeam: NHLScheduleTeam;
   homeTeam: NHLScheduleTeam;
+  /** Stadium Series and the like, where neither side is really at home. */
+  neutralSite?: boolean;
 };
 
 export type NHLScheduleResult = {
