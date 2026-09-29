@@ -41,6 +41,8 @@ export enum ConfigKey {
   Theme = 'theme',
   CustomClass = 'customClass',
   FestiveLights = 'festiveLights',
+  /** Tonight's scratches, published from the admin. See `parseScratchList`. */
+  Scratches = 'scratches',
 }
 
 export class Group {

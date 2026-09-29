@@ -12,6 +12,7 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "generate:client": "tsx bin/generate-api-client.ts",
+    "generate:icons": "python3 bin/generate-app-icons.py",
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",

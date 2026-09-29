@@ -15,6 +15,7 @@ import { PatternsPage } from './pages/PatternsPage';
 import { GamesPage } from './pages/GamesPage';
 import { UsersPage } from './pages/UsersPage';
 import { ConfigPage } from './pages/ConfigPage';
+import { ScratchesPage } from './pages/ScratchesPage';
 
 const AdminApp = () => (
   <QueryClientProvider client={queryClient}>
@@ -32,6 +33,7 @@ const AdminApp = () => (
           >
             <Route index element={<Navigate to="config" replace />} />
             <Route path="config"     element={<ConfigPage />} />
+            <Route path="scratches"  element={<ScratchesPage />} />
             <Route path="squares"    element={<SquaresPage />} />
             <Route path="categories" element={<CategoriesPage />} />
             <Route path="groups"     element={<GroupsPage />} />

@@ -11,6 +11,7 @@ import {
   validateBoardPattern,
   getWinningSquareKeys,
   createBoard,
+  parseScratchList,
 } from './utils';
 import type { Board, Pattern, Square, Squares } from './types';
 
@@ -229,5 +230,55 @@ describe('createBoard', () => {
   it('respects a custom size', () => {
     const board = createBoard(makeSquares(10), 9);
     expect(board.flat()).toHaveLength(9);
+  });
+});
+
+// --- parseScratchList ---
+
+describe('parseScratchList', () => {
+  it('parses a published list', () => {
+    expect(parseScratchList('{"gameId":2026020001,"ids":[9,8]}'))
+      .toEqual({ gameId: 2026020001, ids: [9, 8] });
+  });
+
+  it.each([
+    ['unset', undefined],
+    ['null', null],
+    ['empty', ''],
+    ['whitespace', '   '],
+    ['malformed JSON', '{"gameId":'],
+    ['not an object', '"nope"'],
+  ])('returns null when %s', (_label, raw) => {
+    expect(parseScratchList(raw)).toBeNull();
+  });
+
+  // Without a game id the list cannot be scoped, and an unscoped list is the
+  // exact failure the scoping exists to prevent — a stale night's scratches
+  // quietly applying forever.
+  it('refuses a list with no game id', () => {
+    expect(parseScratchList('{"ids":[9,8]}')).toBeNull();
+  });
+
+  it('refuses a non-numeric game id', () => {
+    expect(parseScratchList('{"gameId":"2026020001","ids":[9]}')).toBeNull();
+  });
+
+  // "Nobody is out" and "nothing published" have to collapse to one state, or
+  // an empty list would shadow the default and mean something different.
+  it('treats an empty list as nothing published', () => {
+    expect(parseScratchList('{"gameId":2026020001,"ids":[]}')).toBeNull();
+  });
+
+  it('drops non-numeric ids rather than failing the whole list', () => {
+    expect(parseScratchList('{"gameId":1,"ids":[9,"x",null,8]}'))
+      .toEqual({ gameId: 1, ids: [9, 8] });
+  });
+
+  it('returns null when every id was junk', () => {
+    expect(parseScratchList('{"gameId":1,"ids":["x",null]}')).toBeNull();
+  });
+
+  it('refuses ids that are not an array', () => {
+    expect(parseScratchList('{"gameId":1,"ids":9}')).toBeNull();
   });
 });

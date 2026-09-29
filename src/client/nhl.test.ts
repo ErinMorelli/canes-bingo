@@ -14,7 +14,7 @@ import {
   deriveLocation,
 } from './nhl';
 import { NHLGameState } from './types';
-import type { NHLActiveGame, NHLScheduleGame, NHLScheduleResult } from './types';
+import type { NHLActiveGame, NHLScheduleGame, NHLScheduleResult, NHLScheduleTeam } from './types';
 
 // --- helpers ---
 

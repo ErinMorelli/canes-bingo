@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { useQuery } from '@tanstack/react-query';
 
-import { Board, BoardArgs, Pattern, SingleGroup, UpdateBoardArg } from '@app/types';
+import { Board, BoardArgs, Group as Group_, Pattern, UpdateBoardArg } from '@app/types';
 import {
   BLACKOUT_GAME_NAME,
   Group,
@@ -23,10 +23,11 @@ import { useGroups } from '@hooks/useGroups';
 import { useGames } from '@hooks/useGames';
 import { useLocalStorage } from '@hooks/useLocalStorage';
 import { useNextGame } from '@hooks/useNextGame';
+import { useConfig } from '@hooks/useConfig';
+import { SCRATCH_GROUPS } from '@hooks/useScratches';
 
 import { GameBoardContext, GameBoardContextValue } from './contexts';
 
-const BOARD_ARGS_KEY = `${LOCAL_STORAGE_PREFIX}:boardArgs`;
 const BOARD_KEY = `${LOCAL_STORAGE_PREFIX}:board`;
 const OVERRIDES_KEY = `${LOCAL_STORAGE_PREFIX}:optionOverrides`;
 
@@ -58,46 +59,18 @@ type OptionOverrides = {
 
 const NO_OVERRIDES: OptionOverrides = { gameId: null, values: {} };
 
-/** Groups the schedule can answer; the rest are always the player's call. */
-const AUTO_GROUPS: readonly SingleGroup[] = [Group.LOCATION];
-
 /**
- * The player's scratches from the old storage shape, or null if there is
- * nothing to carry over.
+ * Groups something other than the player can answer, and which therefore
+ * reset when the game changes.
  *
- * `boardArgs` used to hold the effective values, so on upgrade its
- * multi-group entries — the scratches, which are only ever deliberate — are
- * exactly the overrides we want to keep. The single-group entries are
- * dropped on purpose: they are indistinguishable from untouched defaults,
- * and treating a stale "Home" as deliberate would suppress the detection
- * this whole change exists to enable.
- *
- * Read here and written through `setOverrides` rather than handed to
- * `useLocalStorage` as its initial value. That looked tidier and was wrong:
- * the hook caches by raw string, and an *absent* key caches as
- * `{ raw: null }`, which matches on the next read — so a computed initial
- * value is used once and quietly ignored afterwards. It has to be that way,
- * because `getSnapshot` must return a stable reference or React loops. A
- * dynamic initial value simply is not something that hook can honour.
+ * Scratches are in here now that the admin publishes a list per game. They
+ * were deliberately left out while nothing derived them: an override was the
+ * only source, so clearing it would have re-admitted squares the player had
+ * left off on purpose. With a published list the calculation inverts — a
+ * correction made for Tuesday must not suppress Wednesday's list, and the
+ * player can always scratch again for the night they are actually watching.
  */
-function readLegacyScratches(): Partial<BoardArgs> | null {
-  try {
-    const raw = globalThis.localStorage?.getItem(BOARD_ARGS_KEY);
-    if (!raw) return null;
-
-    const legacy = JSON.parse(raw) as Partial<BoardArgs>;
-    const values: Partial<BoardArgs> = {};
-    Object.entries(legacy).forEach(([group, value]) => {
-      if (Array.isArray(value) && value.length) {
-        Object.assign(values, { [group]: value });
-      }
-    });
-    return Object.keys(values).length ? values : null;
-  } catch {
-    // Unreadable storage is not worth failing a page load over.
-    return null;
-  }
-}
+const AUTO_GROUPS: readonly Group_[] = [Group.LOCATION, Group.PLAYERS, Group.BALLY];
 
 /** Shared so "no win" is a stable reference and cannot re-render the board. */
 const EMPTY_KEYS: ReadonlySet<string> = new Set<string>();
@@ -109,47 +82,59 @@ export function GameBoardProvider({ children }: Readonly<{ children: React.React
   const { games, selectedGame, isEnabled, setSelectedGame } = useGames();
 
   const { game: scheduledGame, settled: scheduleSettled } = useNextGame();
+  const { scratchList } = useConfig();
 
+  /*
+    No migration from the old `boardArgs` key.
+
+    It used to carry the scratches over, on the grounds that they were the
+    one thing in there that was always deliberate. That stopped being true
+    the moment scratches became per-game: a list in old storage belongs to
+    some night that has already happened, and applying it tonight is exactly
+    the stale-scratches failure the game scoping exists to prevent. A clean
+    slate is the correct upgrade. The old key is left in place rather than
+    deleted, so rolling back keeps the settings it holds.
+  */
   const [overrides, setOverrides] = useLocalStorage<OptionOverrides>(
     OVERRIDES_KEY,
     NO_OVERRIDES
   );
-
-  /*
-    One-time carry-over of the scratches from the previous storage shape.
-
-    Read once via a lazy initialiser, then written through `setOverrides` so
-    it lands in the same place every later write does. `migrated` starts true
-    when there is nothing to carry, so the common path costs no extra render.
-  */
-  const [legacyScratches] = useState(readLegacyScratches);
-  const [migrated, setMigrated] = useState(legacyScratches === null);
-
-  useEffect(() => {
-    if (migrated) return;
-    setOverrides((prev) =>
-      // Real overrides already exist, so this session is not an upgrade.
-      Object.keys(prev.values).length ? prev : { ...prev, values: legacyScratches! }
-    );
-    setMigrated(true);
-  }, [migrated, legacyScratches, setOverrides]);
   const [board, setBoard] = useLocalStorage<Board>(BOARD_KEY, []);
   const [seed, setSeed] = useState(0);
   // Start at -1 when no persisted board so the first data load triggers a build;
   // start at 0 when a board already exists so we don't clobber it on mount.
   const lastBuiltSeedRef = useRef(board.length > 0 ? 0 : -1);
 
-  /** What tonight's game says the options should be. */
+  /** What tonight's game and the published scratch list say the options are. */
   const autoArgs = useMemo(() => {
-    const location = deriveLocation(scheduledGame);
-    if (!location) return {} as Partial<BoardArgs>;
+    const derived: Partial<BoardArgs> = {};
 
-    const category = groups[Group.LOCATION]?.categories
-      .find((c) => c.name === location);
-    // The category has to exist in the database for the value to mean
-    // anything; if it does not, we have no way to express the answer.
-    return category ? ({ [Group.LOCATION]: category } as Partial<BoardArgs>) : {};
-  }, [scheduledGame, groups]);
+    const location = deriveLocation(scheduledGame);
+    if (location) {
+      const category = groups[Group.LOCATION]?.categories.find((c) => c.name === location);
+      // The category has to exist in the database for the value to mean
+      // anything; if it does not, we have no way to express the answer.
+      if (category) Object.assign(derived, { [Group.LOCATION]: category });
+    }
+
+    /*
+      The published list only applies to the game it was published for. A
+      list left over from the last game is ignored rather than carried
+      forward, which is what makes forgetting to clear one harmless.
+    */
+    if (scratchList && scheduledGame && scratchList.gameId === scheduledGame.id) {
+      const wanted = new Set(scratchList.ids);
+      SCRATCH_GROUPS.forEach((groupName) => {
+        const scratched = (groups[groupName]?.categories ?? [])
+          .filter((category) => wanted.has(category.id));
+        // An empty array here would still count as a value and shadow the
+        // default, so only groups with someone in them are written.
+        if (scratched.length) Object.assign(derived, { [groupName]: scratched });
+      });
+    }
+
+    return derived;
+  }, [scheduledGame, groups, scratchList]);
 
   /*
     A new game clears the previous game's single-group corrections.
@@ -188,11 +173,11 @@ export function GameBoardProvider({ children }: Readonly<{ children: React.React
    * hint is about where the value came from, not what it is.
    */
   const autoGroups = useMemo(() => {
-    const set = new Set<SingleGroup>();
+    const set = new Set<Group_>();
     AUTO_GROUPS.forEach((group) => {
       if (autoArgs[group] && !overrides.values[group]) set.add(group);
     });
-    return set as ReadonlySet<SingleGroup>;
+    return set as ReadonlySet<Group_>;
   }, [autoArgs, overrides.values]);
 
   /*
@@ -206,7 +191,7 @@ export function GameBoardProvider({ children }: Readonly<{ children: React.React
     outage delays this by a retry rather than blocking it.
   */
   const enabled =
-    !groupsLoading && scheduleSettled && migrated && Object.keys(boardArgs).length > 0;
+    !groupsLoading && scheduleSettled && Object.keys(boardArgs).length > 0;
 
   const { data: squares = [], isLoading: squaresLoading, isSuccess: squaresSuccess, isError: squaresFetchError } = useQuery({
     queryKey: ['squares', boardArgs, selectedGame?.id ?? null, seed],

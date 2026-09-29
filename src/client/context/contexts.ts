@@ -1,11 +1,13 @@
 import { createContext } from 'react';
 
+import { ScratchList } from '@app/utils';
+
 import {
   Board,
   BoardArgs,
   NHLActiveGame, NHLGameState,
+  Group,
   Pattern,
-  SingleGroup,
   Theme,
   UpdateBoardArg
 } from '@app/types';
@@ -19,6 +21,8 @@ export type ConfigContextValue = {
   /** Label for the centre square, already defaulted — never empty. */
   freeSpace: string;
   customClass: string | undefined;
+  /** Tonight's scratches from the admin, already scoped to a game id. */
+  scratchList: ScratchList | null;
   festiveLights: boolean;
   isLoading: boolean;
 };
@@ -33,7 +37,7 @@ export type GameBoardContextValue = {
    * than one the player picked. Drives the "Auto" hint, and empties as soon
    * as they choose for themselves.
    */
-  autoGroups: ReadonlySet<SingleGroup>;
+  autoGroups: ReadonlySet<Group>;
   boardReady: boolean;
   /** Options have changed since the card on screen was dealt. */
   cardDirty: boolean;

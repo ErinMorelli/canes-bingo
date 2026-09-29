@@ -2,6 +2,8 @@ import { ThemeConfig } from 'antd';
 
 import { Theme } from './types';
 
+import { MarkColours } from './bingoMark';
+
 /**
  * Drop-in replacement for src/client/themes.ts, carrying the redesign's tokens.
  *
@@ -297,6 +299,60 @@ export const footerMuted: Record<string, string> = {
  *
  *   .ant-drawer-section::before { background: var(--sheet-handle) }
  */
+/**
+ * The favicon mark, per theme.
+ *
+ * Only the ground moves. The flags stay Canes red in every theme on purpose:
+ * the mark is the nautical hurricane warning signal, which *is* a red square
+ * with a black centre — recolour it and it stops being that signal and
+ * becomes an abstract coloured square. The ground was doing the theming work
+ * anyway, so it is the one that changes.
+ *
+ * (If Whalers should go full green, `flag` here is the single token to
+ * change — the referent is the only thing it costs.)
+ */
+export const markColours: Record<string, MarkColours> = {
+  /*
+    Light and Whalers take 3b — a white card where the flags are the only
+    solid objects, which is how the board itself reads. Dark takes 3c, whose
+    slate ground is the one that survives a dark browser tab strip; a white
+    card dissolves into it.
+  */
+  default: {
+    variant: 'outline',
+    ground: '#FFFFFF',
+    flag: '#CE1126',
+    centre: '#000000',
+    empty: '#C6CACC',
+  },
+  /*
+    Whalers is the one place the flag is not Canes red. It costs the nautical
+    referent — a green square with a black centre is not the storm signal —
+    but under a deliberate alternate-brand skin that is the point, and green
+    on white is the stronger mark anyway (6.72:1 against white, versus red's
+    5.63:1).
+
+    The centre stays black rather than Whalers navy: black holds 3.12:1
+    against the green, navy only 2.30:1, and black keeps the same figure the
+    other two themes draw.
+  */
+  whalers: {
+    variant: 'outline',
+    ground: '#FFFFFF',
+    flag: '#046A38',
+    centre: '#000000',
+    empty: '#C8CDCB',
+  },
+  // 3c verbatim: slate ground, empties at 16% white pre-blended.
+  dark: {
+    variant: 'dark',
+    ground: '#333F48',
+    flag: '#CE1126',
+    centre: '#000000',
+    empty: '#545E65',
+  },
+};
+
 export const sheetHandle: Record<string, string> = {
   default: '#C6CACC',
   whalers: '#C4C9CA',

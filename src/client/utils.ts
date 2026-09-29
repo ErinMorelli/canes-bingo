@@ -94,6 +94,45 @@ export function parsePatternValue(value: string | PatternSquare[]): PatternSquar
   return value;
 }
 
+/**
+ * The scratch list published from the admin, or null when there is none to
+ * apply.
+ *
+ * Stored as one `config` row rather than a table of its own: the payload is a
+ * game id and a handful of category ids, which comes to roughly 110 characters
+ * against the column's 255 — the ceiling is about fifty ids and the roster is
+ * twenty-five including the broadcast crew.
+ *
+ * The game id is the whole safety mechanism. Scratches are only true for one
+ * night, and the failure everyone actually makes is forgetting to clear them,
+ * not forgetting to set them. Pinning the list to a game means a stale entry
+ * stops applying by itself the moment the next game comes around, instead of
+ * quietly hiding the wrong players.
+ */
+export type ScratchList = { gameId: number; ids: number[] };
+
+export function parseScratchList(raw: string | undefined | null): ScratchList | null {
+  if (!raw?.trim()) return null;
+
+  try {
+    const parsed = JSON.parse(raw) as Partial<ScratchList>;
+    const { gameId, ids } = parsed;
+
+    // A list with no game cannot be scoped, so it is not safe to apply — see
+    // the note above. Likewise an empty list, which means "nobody is out"
+    // and is indistinguishable from having published nothing.
+    if (typeof gameId !== 'number' || !Number.isFinite(gameId)) return null;
+    if (!Array.isArray(ids)) return null;
+
+    const clean = ids.filter((id): id is number => typeof id === 'number' && Number.isFinite(id));
+    return clean.length ? { gameId, ids: clean } : null;
+  } catch {
+    // Hand-edited into nonsense. Falling back to no scratches shows too many
+    // squares, which is recoverable; throwing here would take the board down.
+    return null;
+  }
+}
+
 export function getSquareClasses(row: number, col: number, selected: PatternSquare[]): string {
   const classes = ['square'];
   classes.push(`square-${row}-${col}`);

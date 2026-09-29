@@ -10,6 +10,10 @@ export const Api = {
   config: {
     list:   'get /api/v1/config',
     get:    'get /api/v1/config/:configId',
+    // The server has always exposed this; it was simply never mapped. The
+    // scratches key is created on its first publish rather than seeded by
+    // hand, because `update` runs an UPDATE and 404s on a missing row.
+    create: 'post /api/v1/config',
     update: 'put /api/v1/config/:configId',
   },
   categories: {

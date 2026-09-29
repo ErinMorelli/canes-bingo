@@ -36,6 +36,12 @@ vi.mock('@tanstack/react-query', () => ({
 vi.mock('@app/api', () => ({ apiClient: { provide: vi.fn() }, getData: vi.fn() }));
 vi.mock('@app/api-endpoints', () => ({ Api: {} }));
 
+// The provider reads the published scratch list; these tests are about the
+// win sequence, so there is never one.
+vi.mock('@hooks/useConfig', () => ({
+  useConfig: () => ({ scratchList: null }),
+}));
+
 vi.mock('@hooks/useGroups', () => ({
   useGroups: () => ({
     groups: {},

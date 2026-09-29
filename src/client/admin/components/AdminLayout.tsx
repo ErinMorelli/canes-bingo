@@ -8,6 +8,7 @@ import {
   TrophyOutlined,
   TeamOutlined,
   SettingOutlined,
+  UserDeleteOutlined,
   LogoutOutlined,
   LinkOutlined,
 } from '@ant-design/icons';
@@ -19,6 +20,7 @@ const { Text } = Typography;
 
 const NAV_ITEMS = [
   { key: 'config',     label: 'Config',     icon: <SettingOutlined /> },
+  { key: 'scratches',  label: 'Scratches',  icon: <UserDeleteOutlined /> },
   { key: 'squares',    label: 'Squares',    icon: <AppstoreOutlined /> },
   { key: 'categories', label: 'Categories', icon: <TagsOutlined /> },
   { key: 'groups',     label: 'Groups',     icon: <FolderOutlined /> },

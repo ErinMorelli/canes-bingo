@@ -36,10 +36,16 @@ vi.mock('@app/api-endpoints', () => ({ Api: {} }));
 const HOME: Category = { id: 15, name: 'home', label: 'Home' } as Category;
 const AWAY: Category = { id: 16, name: 'away', label: 'Away' } as Category;
 const AHO: Category = { id: 9, name: 'aho', label: 'Sebastian Aho #20' } as Category;
+const SVECH: Category = { id: 8, name: 'svech', label: 'Andrei Svechnikov #37' } as Category;
+const TRIPP: Category = { id: 6, name: 'tripp', label: 'Tripp Tracy' } as Category;
 
 vi.mock('@hooks/useGroups', () => ({
   useGroups: () => ({
-    groups: { location: { name: 'location', label: 'Game Location', categories: [HOME, AWAY] } },
+    groups: {
+      location: { name: 'location', label: 'Game Location', categories: [HOME, AWAY] },
+      players: { name: 'players', label: 'Players', categories: [AHO, SVECH] },
+      bally: { name: 'bally', label: 'Crew', categories: [TRIPP] },
+    },
     // `home` is the database default — the thing detection has to override.
     defaultArgs: { location: HOME },
     isLoading: false,
@@ -56,6 +62,13 @@ vi.mock('@hooks/useGames', () => ({
   }),
 }));
 
+/** The published scratch list under test, swapped per case. */
+let scratchList: { gameId: number; ids: number[] } | null = null;
+
+vi.mock('@hooks/useConfig', () => ({
+  useConfig: () => ({ scratchList }),
+}));
+
 /** The schedule answer under test, swapped per case. */
 let nextGame: { game: NHLScheduleGame | null; settled: boolean } = { game: null, settled: true };
 
@@ -66,10 +79,6 @@ vi.mock('@hooks/useNextGame', () => ({
 import { GameBoardProvider } from './GameBoardContext';
 import { useGameBoard } from '@hooks/useGameBoard';
 import { flushStorageWrites } from '@hooks/useLocalStorage';
-import { LOCAL_STORAGE_PREFIX } from '@app/constants';
-
-/** Derived, not hardcoded — a literal here silently tests nothing. */
-const LEGACY_KEY = `${LOCAL_STORAGE_PREFIX}:boardArgs`;
 
 function scheduleGame(id: number, home: string, away: string): NHLScheduleGame {
   return {
@@ -104,6 +113,7 @@ beforeEach(() => {
   flushStorageWrites();
   localStorage.clear();
   nextGame = { game: null, settled: true };
+  scratchList = null;
 });
 
 describe('auto-detected game options', () => {
@@ -181,60 +191,109 @@ describe('auto-detected game options', () => {
     expect(second.result.current.autoGroups.has('location')).toBe(true);
   });
 
-  it('keeps scratches across a game change, since they are never derived', () => {
+  it('clears scratches when the game changes, since they are published per game', () => {
     nextGame = { game: scheduleGame(2026020003, 'PHI', 'CAR'), settled: true };
     const first = mount();
 
     act(() => {
       first.result.current.updateBoardArg({ groupName: 'players', value: [AHO] });
     });
+    expect(first.result.current.boardArgs.players).toEqual([AHO]);
     act(() => { flushStorageWrites(); });
     first.unmount();
 
+    // A correction made for Tuesday must not suppress Wednesday's published
+    // list. The player can scratch again for the night they are watching.
     nextGame = { game: scheduleGame(2026020004, 'CAR', 'BOS'), settled: true };
     const second = mount();
 
-    // Dropping these would silently re-admit squares for a player the user
-    // had deliberately left off.
-    expect(second.result.current.boardArgs.players).toEqual([AHO]);
+    expect(second.result.current.boardArgs.players).toBeUndefined();
+  });
+
+  // --- the admin's published list ---
+
+  it('applies a list published for tonight', () => {
+    nextGame = { game: scheduleGame(2026020001, 'CAR', 'FLA'), settled: true };
+    scratchList = { gameId: 2026020001, ids: [AHO.id, TRIPP.id] };
+    const { result } = mount();
+
+    expect(result.current.boardArgs.players).toEqual([AHO]);
+    expect(result.current.boardArgs.bally).toEqual([TRIPP]);
+    expect(result.current.autoGroups.has('players')).toBe(true);
   });
 
   /*
-    The case where the migration's own filtering is load-bearing.
-
-    With a game in hand the game-scoping effect clears stale single-group
-    overrides anyway, so the filter looks redundant. With no game that effect
-    returns early — and a legacy `location` would survive as though the player
-    had chosen it, pinning the option to a value nobody picked and suppressing
-    detection once the API came back.
+    The failure people actually make is forgetting to clear a list, not
+    forgetting to set one — so a list from the last game has to stop applying
+    by itself.
   */
-  it('drops a legacy single-group value even when no game is scheduled', () => {
-    localStorage.setItem(
-      LEGACY_KEY,
-      JSON.stringify({ location: AWAY, players: [AHO] })
-    );
-
-    nextGame = { game: null, settled: true };
+  it('ignores a list published for a different game', () => {
+    nextGame = { game: scheduleGame(2026020004, 'CAR', 'BOS'), settled: true };
+    scratchList = { gameId: 2026020001, ids: [AHO.id] };
     const { result } = mount();
 
-    expect(result.current.boardArgs.location).toEqual(HOME);
+    expect(result.current.boardArgs.players).toBeUndefined();
+    expect(result.current.autoGroups.has('players')).toBe(false);
+  });
+
+  it('ignores a published list when no game is scheduled', () => {
+    nextGame = { game: null, settled: true };
+    scratchList = { gameId: 2026020001, ids: [AHO.id] };
+    const { result } = mount();
+
+    expect(result.current.boardArgs.players).toBeUndefined();
+  });
+
+  /*
+    A list naming only players resolves to nothing for the crew. Writing an
+    empty array there would still count as a derived value and light the
+    "Auto" badge on a roster with nobody scratched.
+  */
+  it('leaves a roster untouched when the list names nobody in it', () => {
+    nextGame = { game: scheduleGame(2026020001, 'CAR', 'FLA'), settled: true };
+    scratchList = { gameId: 2026020001, ids: [AHO.id] };
+    const { result } = mount();
+
+    expect(result.current.boardArgs.players).toEqual([AHO]);
+    expect(result.current.boardArgs.bally).toBeUndefined();
+    expect(result.current.autoGroups.has('bally')).toBe(false);
+  });
+
+  it('resolves only ids that exist as categories', () => {
+    nextGame = { game: scheduleGame(2026020001, 'CAR', 'FLA'), settled: true };
+    scratchList = { gameId: 2026020001, ids: [AHO.id, 9999] };
+    const { result } = mount();
+
     expect(result.current.boardArgs.players).toEqual([AHO]);
   });
 
-  it('carries scratches over from the legacy boardArgs key', () => {
-    localStorage.setItem(
-      LEGACY_KEY,
-      JSON.stringify({ location: AWAY, players: [AHO] })
-    );
-
+  it("lets the player's scratches beat the published list", () => {
     nextGame = { game: scheduleGame(2026020001, 'CAR', 'FLA'), settled: true };
+    scratchList = { gameId: 2026020001, ids: [AHO.id, SVECH.id] };
+    const { result } = mount();
+    expect(result.current.boardArgs.players).toEqual([AHO, SVECH]);
+
+    act(() => {
+      result.current.updateBoardArg({ groupName: 'players', value: [SVECH] });
+    });
+
+    expect(result.current.boardArgs.players).toEqual([SVECH]);
+    expect(result.current.autoGroups.has('players')).toBe(false);
+  });
+
+  it('returns to the published list on Reset', () => {
+    nextGame = { game: scheduleGame(2026020001, 'CAR', 'FLA'), settled: true };
+    scratchList = { gameId: 2026020001, ids: [AHO.id] };
     const { result } = mount();
 
+    act(() => {
+      result.current.updateBoardArg({ groupName: 'players', value: [] });
+    });
+    act(() => {
+      result.current.loadBoard(true);
+    });
+
     expect(result.current.boardArgs.players).toEqual([AHO]);
-    // The legacy single-group value is dropped on purpose: it is
-    // indistinguishable from an untouched default, and honouring it would
-    // suppress the detection this change exists to enable.
-    expect(result.current.boardArgs.location).toEqual(HOME);
-    expect(result.current.autoGroups.has('location')).toBe(true);
+    expect(result.current.autoGroups.has('players')).toBe(true);
   });
 });
