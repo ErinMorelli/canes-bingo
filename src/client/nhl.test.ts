@@ -11,6 +11,7 @@ import {
   isPeriodActive,
   pollInterval,
   selectTodaysGame,
+  deriveLocation,
 } from './nhl';
 import { NHLGameState } from './types';
 import type { NHLActiveGame, NHLScheduleGame, NHLScheduleResult } from './types';
@@ -198,5 +199,66 @@ describe('pollInterval', () => {
 
   it('polls at the pregame cadence when there is no game yet', () => {
     expect(pollInterval(undefined)).toBe(POLL_PREGAME);
+  });
+});
+
+// --- deriveLocation ---
+
+function game(home: string, away: string, extra: Partial<NHLScheduleGame> = {}): NHLScheduleGame {
+  return {
+    id: 2026020001,
+    gameType: 2,
+    gameDate: '2026-09-29',
+    startTimeUTC: '2026-09-29T21:00:00Z',
+    venueUTCOffset: '-04:00',
+    venueTimezone: 'US/Eastern',
+    gameState: 'FUT',
+    gameScheduleState: 'OK',
+    homeTeam: { abbrev: home } as NHLScheduleTeam,
+    awayTeam: { abbrev: away } as NHLScheduleTeam,
+    ...extra,
+  };
+}
+
+describe('deriveLocation', () => {
+  it('reads a home game from the home side', () => {
+    expect(deriveLocation(game('CAR', 'FLA'))).toBe('home');
+  });
+
+  it('reads a road game from the away side', () => {
+    expect(deriveLocation(game('PHI', 'CAR'))).toBe('away');
+  });
+
+  // The whole point of the feature: `location` defaults to `home` in the
+  // database, so without this a road game starts on the wrong pool.
+  it('does not return home for a game CAR is not hosting', () => {
+    expect(deriveLocation(game('PHI', 'CAR'))).not.toBe('home');
+  });
+
+  it('declines to answer with no game', () => {
+    expect(deriveLocation(null)).toBeNull();
+    expect(deriveLocation(undefined)).toBeNull();
+  });
+
+  // A Stadium Series game is not really either one; the player is better
+  // placed to say which squares they want.
+  it('declines to answer at a neutral site', () => {
+    expect(deriveLocation(game('CAR', 'FLA', { neutralSite: true }))).toBeNull();
+    expect(deriveLocation(game('FLA', 'CAR', { neutralSite: true }))).toBeNull();
+  });
+
+  // Both sides are checked, so a payload missing the abbrevs reads as "no
+  // answer" rather than silently falling through to away.
+  it('declines to answer when CAR is on neither side', () => {
+    expect(deriveLocation(game('BOS', 'FLA'))).toBeNull();
+  });
+
+  it('declines to answer when the abbrevs are missing', () => {
+    const broken = game('CAR', 'FLA');
+    // @ts-expect-error — deliberately modelling a malformed payload
+    broken.homeTeam = undefined;
+    // @ts-expect-error — deliberately modelling a malformed payload
+    broken.awayTeam = undefined;
+    expect(deriveLocation(broken)).toBeNull();
   });
 });

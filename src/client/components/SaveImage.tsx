@@ -1,5 +1,5 @@
 import { ShareAltOutlined } from '@ant-design/icons';
-import { Button, Tooltip } from 'antd';
+import { Button } from 'antd';
 
 import { useShare } from '@hooks';
 
@@ -12,13 +12,11 @@ export function SaveImage() {
   const { share, isSharing } = useShare();
 
   return (
-    <Tooltip title="Share your card">
-      <Button
-        onClick={share}
-        aria-label="Share your card"
-        loading={isSharing}
-        icon={<ShareAltOutlined />}
-      />
-    </Tooltip>
+    <Button
+      onClick={share}
+      title="Share your card"
+      loading={isSharing}
+      icon={<ShareAltOutlined />}
+    />
   );
 }

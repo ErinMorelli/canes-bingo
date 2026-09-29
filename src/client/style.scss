@@ -1980,6 +1980,28 @@ body {
   }
 
   /*
+    "Auto": this option was set from tonight's game rather than chosen.
+
+    Deliberately quiet — it is a provenance note, not a control, and it sits
+    directly above the segmented buttons it describes. Sized and weighted to
+    read as a footnote to the group title rather than competing with it.
+  */
+  .group-auto {
+    padding: 1px 7px;
+    border-radius: 9px;
+    background: var(--ant-color-fill-tertiary);
+    color: var(--ant-color-text-tertiary);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    // The row is the flex parent; without this the pill stretches to its
+    // height and the background reads as a bar rather than a tag.
+    align-self: center;
+    line-height: 1.5;
+  }
+
+  /*
     Scratches: who is left off tonight's card.
 
     A chip per name rather than a summary count, because the chips are also

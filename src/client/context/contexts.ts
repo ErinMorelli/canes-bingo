@@ -5,6 +5,7 @@ import {
   BoardArgs,
   NHLActiveGame, NHLGameState,
   Pattern,
+  SingleGroup,
   Theme,
   UpdateBoardArg
 } from '@app/types';
@@ -27,6 +28,12 @@ export const ConfigContext = createContext<ConfigContextValue | null>(null);
 export type GameBoardContextValue = {
   board: Board;
   boardArgs: BoardArgs;
+  /**
+   * Options currently showing a value derived from tonight's game rather
+   * than one the player picked. Drives the "Auto" hint, and empties as soon
+   * as they choose for themselves.
+   */
+  autoGroups: ReadonlySet<SingleGroup>;
   boardReady: boolean;
   /** Options have changed since the card on screen was dealt. */
   cardDirty: boolean;
