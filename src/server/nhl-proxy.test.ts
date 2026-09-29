@@ -140,12 +140,12 @@ describe('nhl proxy cache bounds', () => {
     // have been displaced and cost a fresh call...
     const beforeOldest = fetchMock.mock.calls.length;
     await fetchNhl(id(0));
-    expect(fetchMock.mock.calls.length).toBe(beforeOldest + 1);
+    expect(fetchMock.mock.calls).toHaveLength(beforeOldest + 1);
 
     // ...while a recent one is still served from cache.
     const beforeRecent = fetchMock.mock.calls.length;
     await fetchNhl(id(69));
-    expect(fetchMock.mock.calls.length).toBe(beforeRecent);
+    expect(fetchMock.mock.calls).toHaveLength(beforeRecent);
   });
 });
 
@@ -160,7 +160,7 @@ describe('nhl proxy upstream budget', () => {
     const spent = fetchMock.mock.calls.length;
 
     await expect(fetchNhl('/never-seen')).rejects.toThrow(/budget exhausted/);
-    expect(fetchMock.mock.calls.length).toBe(spent);
+    expect(fetchMock.mock.calls).toHaveLength(spent);
   });
 
   it('serves stale data rather than failing when the budget is gone', async () => {
