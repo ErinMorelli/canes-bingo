@@ -122,7 +122,11 @@ export function GameBoardProvider({ children }: Readonly<{ children: React.React
       list left over from the last game is ignored rather than carried
       forward, which is what makes forgetting to clear one harmless.
     */
-    if (scratchList && scheduledGame && scratchList.gameId === scheduledGame.id) {
+    // `scratchList &&` stays an explicit null check rather than becoming
+    // `scratchList?.gameId`: with both sides optional-chained, no list and no
+    // game compares undefined to undefined, which passes and then dereferences
+    // a null list.
+    if (scratchList && scratchList.gameId === scheduledGame?.id) {
       const wanted = new Set(scratchList.ids);
       SCRATCH_GROUPS.forEach((groupName) => {
         const scratched = (groups[groupName]?.categories ?? [])

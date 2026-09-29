@@ -52,7 +52,18 @@ def read_mark_colours() -> dict[str, str]:
     if not default:
         sys.exit('Could not find the default entry in markColours')
 
-    found = dict(re.findall(r"(\w+):\s*'([^']+)'", default.group(1)))
+    # Parsed line by line rather than with a `(\w+):\s*'([^']+)'` sweep. That
+    # pattern backtracks super-linearly, and while the input here is our own
+    # small themes.ts, a quantifier that can blow up is not worth keeping when
+    # the entries are one flat `key: 'value',` per line anyway. Splitting also
+    # avoids possessive quantifiers, which would pin this script to 3.11+.
+    found: dict[str, str] = {}
+    for entry in default.group(1).splitlines():
+        key, sep, rest = entry.partition(':')
+        key = key.strip()
+        value = rest.strip().rstrip(',').strip()
+        if sep and key.isidentifier() and len(value) >= 2 and value[0] == value[-1] == "'":
+            found[key] = value[1:-1]
     missing = {'variant', 'ground', 'flag', 'centre', 'empty'} - found.keys()
     if missing:
         sys.exit(f'markColours.default is missing {sorted(missing)}')
