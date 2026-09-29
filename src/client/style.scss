@@ -1101,7 +1101,14 @@ body {
       height: 30px;
       border: none;
       border-radius: 15px;
-      background: rgba(255, 255, 255, 0.18);
+      /*
+        A dark scrim rather than a light one, so the ✕ reads as recessed into
+        the bar instead of raised off it — and, more to the point, so it has
+        room to spare on contrast. Lightening the accent brought white down to
+        4.53:1 against a 4.5:1 requirement; darkening it gives 7.6:1 on the
+        red and 8.7:1 on the Whalers green.
+      */
+      background: rgba(0, 0, 0, 0.18);
       color: #fff;
       font-size: 13px;
       cursor: pointer;

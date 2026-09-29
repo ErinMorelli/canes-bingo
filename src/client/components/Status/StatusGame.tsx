@@ -9,6 +9,31 @@ import { useActiveGame } from '@hooks/useActiveGame';
 
 const { useToken } = theme;
 
+/** Regulation periods are named; a stopped one is an intermission. */
+const REGULATION_PERIODS: Record<number, string> = { 1: '1st', 2: '2nd', 3: '3rd' };
+
+/** Beyond regulation the number is the name, and neither takes "int". */
+const EXTRA_PERIODS: Record<number, string> = { 4: 'OT', 5: 'SO' };
+
+/**
+ * "2nd", "2nd int", "OT", "SO" — or empty when the period is unknown.
+ *
+ * Module scope rather than inline: five sequential `if`s inside the
+ * component pushed its cognitive complexity to 22 against a limit of 15, and
+ * none of this depends on anything but its arguments.
+ */
+function periodLabel(periodNumber: number | undefined, periodActive: boolean): string {
+  if (periodNumber === undefined) return '';
+
+  const extra = EXTRA_PERIODS[periodNumber];
+  if (extra) return extra;
+
+  const regulation = REGULATION_PERIODS[periodNumber];
+  if (!regulation) return '';
+
+  return periodActive ? regulation : `${regulation} int`;
+}
+
 export function StatusGame() {
   const { activeGame, gameState, isPeriodActive } = useActiveGame();
   const { token } = useToken();
@@ -39,14 +64,10 @@ export function StatusGame() {
 
     if (gameState === NHLGameState.LIVE) {
       const remaining = activeGame.clock?.timeRemaining || '00:00';
-      const periodNumber = activeGame.periodDescriptor?.number;
-      let period = '';
-      if (periodNumber === 1) period = isPeriodActive ? '1st' : '1st int';
-      if (periodNumber === 2) period = isPeriodActive ? '2nd' : '2nd int';
-      if (periodNumber === 3) period = isPeriodActive ? '3rd' : '3rd int';
-      if (periodNumber === 4) period = 'OT';
-      if (periodNumber === 5) period = 'SO';
-      return `${period} · ${remaining}`;
+      const period = periodLabel(activeGame.periodDescriptor?.number, isPeriodActive);
+      // Filtered rather than interpolated: an unknown period used to render a
+      // stray leading " · " in front of the clock.
+      return [period, remaining].filter(Boolean).join(' · ');
     }
 
     return 'Final';
