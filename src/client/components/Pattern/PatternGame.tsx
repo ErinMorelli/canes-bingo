@@ -1,5 +1,4 @@
 import { useCallback, useState } from 'react';
-import { Flex, Typography } from 'antd';
 
 import { Game } from '@app/types';
 
@@ -29,20 +28,15 @@ export function PatternGame({
   }, []);
 
   return (
-    <Flex
+    <div
       className="game-pattern-select-option"
-      orientation="horizontal"
-      align="center"
-      gap="10px"
       onMouseEnter={startAnimate}
-      onMouseLeave={stopAnimate}
-    >
+      onMouseLeave={stopAnimate}>
       <PatternAnimated
         size={size}
         animate={animate}
         patterns={game.patterns}
       />
-      <Typography.Text>{game.name}</Typography.Text>
-    </Flex>
+    </div>
   );
 }

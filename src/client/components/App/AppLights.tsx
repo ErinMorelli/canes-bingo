@@ -4,7 +4,7 @@ type AppLightsProps = {
   readonly count?: number;
 }
 
-export function AppLights({ count }: AppLightsProps) {
+export default function AppLights({ count }: AppLightsProps) {
   const lightCount = count ?? DEFAULT_LIGHT_COUNT;
   return (
     <div className="app-lights">

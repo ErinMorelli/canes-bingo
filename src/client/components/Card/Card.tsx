@@ -1,66 +1,71 @@
-import { forwardRef, useEffect, useState } from 'react';
-import { Typography } from 'antd';
-import type { NotificationInstance } from 'antd/es/notification/interface';
+import { forwardRef, useCallback, useEffect, useRef, useState } from 'react';
 
-import confetti from 'canvas-confetti';
-
-import { useConfig, useGameBoard, useGames } from '@hooks';
+import { useGameBoard } from '@hooks';
 
 import { BoardSquare } from '@app/types';
+import { squareKey } from '@app/utils';
 
 import { CardSquare } from './CardSquare';
 
-const { Text } = Typography;
-
 type CardProps = {
-  notify: NotificationInstance;
   customClass?: string;
 };
 
 export const Card = forwardRef<HTMLDivElement, CardProps>(
-  ({ customClass, notify }: CardProps, ref) => {
-    const { board, selectSquare, validateGameBoard } = useGameBoard();
-    const { isEnabled, selectedGame } = useGames();
-    const { theme } = useConfig();
+  ({ customClass }: CardProps, ref) => {
+    const { board, selectSquare, winningSquares } = useGameBoard();
 
-    const [hasWon, setHasWon] = useState<boolean>(false);
+    // The grid is 5 equal fluid columns, so one measurement sizes every
+    // square. Measuring the grid rather than a cell keeps this to a single
+    // observer instead of 25.
+    const gridRef = useRef<HTMLDivElement | null>(null);
+    const [metrics, setMetrics] = useState({ cellSize: 0, cellPadding: 0 });
+
+    const setRefs = useCallback(
+      (node: HTMLDivElement | null) => {
+        gridRef.current = node;
+        if (typeof ref === 'function') ref(node);
+        else if (ref) ref.current = node;
+      },
+      [ref]
+    );
 
     useEffect(() => {
-      setHasWon(false);
-    }, [isEnabled, selectedGame, board]);
+      const node = gridRef.current;
+      if (!node) return;
 
-    useEffect(() => {
-      if (!isEnabled || hasWon) return;
-      if (validateGameBoard()) {
-        const timeout = setTimeout(() => {
-          setHasWon(true);
-          notify.open({
-            className: 'bingo-win-notice',
-            title: <Text>BINGO!</Text>,
-            closeIcon: false,
-            pauseOnHover: false,
-            duration: 3,
-          });
-          confetti({
-            particleCount: 200,
-            spread: 200,
-            colors: [
-              theme.config.token?.colorPrimary || '',
-              theme.config.token?.colorLink || '',
-              theme.config.components?.Layout?.headerColor || '',
-              theme.config.components?.Layout?.footerBg || '',
-            ].filter(Boolean),
-            origin: { y: 0.4 },
-            shapes: ['star', 'circle', 'square'],
-          });
-        }, 500);
-        return () => clearTimeout(timeout);
-      }
-    }, [board, hasWon, isEnabled, theme, notify, validateGameBoard]);
+      const measure = () => {
+        const gap = Number.parseFloat(getComputedStyle(node).columnGap) || 0;
+        const width = node.getBoundingClientRect().width;
+        if (!width) return;
 
-    const handleClick = (rowId: number, coldId: number)=> {
-      selectSquare(rowId, coldId);
-    }
+        // Padding comes off a real square so the stylesheet stays the only
+        // place it is defined.
+        const square = node.querySelector('.square');
+        const padding = square
+          ? Number.parseFloat(getComputedStyle(square).paddingLeft) * 2
+          : 0;
+
+        setMetrics({ cellSize: (width - gap * 4) / 5, cellPadding: padding });
+      };
+
+      measure();
+      const observer = new ResizeObserver(measure);
+      observer.observe(node);
+
+      // Canvas text measurement before Inter loads reports the fallback
+      // metrics, which sizes every square off by a step.
+      void document.fonts?.ready.then(measure);
+
+      return () => observer.disconnect();
+    }, []);
+
+    // Stable, so the 24 squares that did not change can bail out of the
+    // re-render that marking the 25th triggers.
+    const handleClick = useCallback(
+      (rowId: number, coldId: number) => selectSquare(rowId, coldId),
+      [selectSquare]
+    );
 
     const generateRow = (row: BoardSquare[], rowId: number) => {
       if (!row) return [];
@@ -70,6 +75,9 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
           square={square}
           rowId={rowId}
           colId={colId}
+          cellSize={metrics.cellSize}
+          cellPadding={metrics.cellPadding}
+          isWinning={winningSquares.has(squareKey({ row: rowId, col: colId }))}
           customClass={customClass}
           onClick={handleClick}
         />
@@ -77,15 +85,9 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
     };
 
     return (
-      <div className="bingo" role="grid" ref={ref}>
-        {board.map((row, rowId) => row ? (
-          <div
-            className="row"
-            role="row"
-            id={`row-${rowId}`}
-            key={`${row.length}-${rowId}`}
-          >{generateRow(row, rowId)}</div>
-        ) : null)}
+      <div className="bingo" ref={setRefs}>
+        {board.map((row, rowId) =>
+          row ? generateRow(row, rowId) : null)}
       </div>
     );
   }

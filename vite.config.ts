@@ -7,12 +7,12 @@ import path from 'node:path';
 export default defineConfig({
   resolve: {
     alias: {
-      '@app': path.resolve(__dirname, './src/client'),
-      '@hooks': path.resolve(__dirname, './src/client/hooks'),
-      '@components': path.resolve(__dirname, './src/client/components'),
-      '@admin': path.resolve(__dirname, './src/client/admin'),
-      '@context': path.resolve(__dirname, './src/client/context'),
-      '@schema': path.resolve(__dirname, './src/schema'),
+      '@app': path.resolve(import.meta.dirname, './src/client'),
+      '@hooks': path.resolve(import.meta.dirname, './src/client/hooks'),
+      '@components': path.resolve(import.meta.dirname, './src/client/components'),
+      '@admin': path.resolve(import.meta.dirname, './src/client/admin'),
+      '@context': path.resolve(import.meta.dirname, './src/client/context'),
+      '@schema': path.resolve(import.meta.dirname, './src/schema'),
     },
   },
   plugins: [react()],
@@ -25,11 +25,31 @@ export default defineConfig({
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
-        manualChunks: {
-          'vendor-react': ['react', 'react-dom', 'react-router', 'react-router-dom'],
-          'vendor-antd': ['antd', '@ant-design/colors'],
-          'vendor-icons': ['@ant-design/icons'],
-          'vendor-query': ['@tanstack/react-query'],
+        // Rolldown (Vite 8) replaces the object form of `manualChunks` with
+        // `codeSplitting.groups`. Higher priority wins when patterns overlap.
+        codeSplitting: {
+          groups: [
+            {
+              name: 'vendor-react',
+              test: /node_modules[\\/](react|react-dom|react-router|react-router-dom|scheduler)[\\/]/,
+              priority: 40,
+            },
+            {
+              name: 'vendor-icons',
+              test: /node_modules[\\/]@ant-design[\\/]icons(-svg)?[\\/]/,
+              priority: 30,
+            },
+            {
+              name: 'vendor-antd',
+              test: /node_modules[\\/](antd|@ant-design[\\/]colors)[\\/]/,
+              priority: 20,
+            },
+            {
+              name: 'vendor-query',
+              test: /node_modules[\\/]@tanstack[\\/]react-query[\\/]/,
+              priority: 10,
+            },
+          ],
         },
       },
     },

@@ -1,7 +1,35 @@
 export const LOCAL_STORAGE_PREFIX = 'CanesBingo';
-export const IMGUR_CLIENT_ID = import.meta.env.VITE_IMGUR_CLIENT_ID;
 
 export const MIN_SQUARE_COUNT = 25;
+
+/**
+ * What the centre square reads when the operator has not set anything. The
+ * `freeSpace` config value overrides it; blank or absent falls back here, so
+ * clearing the field in admin restores the default rather than emptying the
+ * square.
+ */
+export const DEFAULT_FREE_SPACE = 'FREE';
+
+/**
+ * The coverall game, which "keep playing" moves a winner on to. Matched by name
+ * because the game list is data: ids differ between environments, but every one
+ * of them carries a Blackout.
+ */
+export const BLACKOUT_GAME_NAME = 'Blackout';
+
+/**
+ * The compact breakpoint, in px. Must stay in step with `$bp-compact` in
+ * style.scss — the stylesheet owns every responsive rule except the handful
+ * that decide a React prop rather than a style.
+ */
+export const BP_COMPACT = 720;
+
+/**
+ * The wide breakpoint, in px — where the squares database swaps its stacked
+ * cards for a table. Lives here rather than in style.scss because it decides
+ * a React prop (table vs cards) rather than a style.
+ */
+export const BP_WIDE = 1040;
 
 export const DEFAULT_PATTERN_SIZE = 50;
 export const PATTERN_COLUMNS = [...new Array(5).keys()];
@@ -14,13 +42,6 @@ export enum ConfigKey {
   CustomClass = 'customClass',
   FestiveLights = 'festiveLights',
 }
-
-export const StorageKey = {
-  ShowOptionsOnLoad: `${LOCAL_STORAGE_PREFIX}:ShowOptionsOnLoad`,
-  TourSeen: `${LOCAL_STORAGE_PREFIX}:TourSeen`,
-  App: `${LOCAL_STORAGE_PREFIX}:App`,
-} as const;
-export type StorageKey = typeof StorageKey[keyof typeof StorageKey];
 
 export class Group {
   public static readonly GENERAL = 'general' as const;

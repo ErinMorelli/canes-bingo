@@ -3,7 +3,9 @@ import { ThemeConfig } from 'antd';
 
 import { categoryOutputSchema } from '@schema/category.schema';
 import { gameOutputSchema } from '@schema/game.schema';
-import { groupOutputSchema } from '@schema/group.schema';
+import {
+  groupOutputSchema
+} from '@schema/group.schema';
 import { patternSquareSchema, patternOutputSchema } from '@schema/pattern.schema';
 import { squareOutputSchema } from '@schema/square.schema';
 
@@ -17,7 +19,14 @@ export type Patterns = Array<Pattern>;
 
 export type Category = Omit<z.infer<typeof categoryOutputSchema>, 'groupId'>;
 
-export type Square = Omit<z.infer<typeof squareOutputSchema>, 'categories'>;
+/**
+ * `categories` is optional rather than required: the API always sends it (a
+ * comma-separated list of category ids) but the board never looks at it, and
+ * plenty of fixtures build squares without it.
+ */
+export type Square = Omit<z.infer<typeof squareOutputSchema>, 'categories'> & {
+  categories?: string | null;
+};
 export type Squares = Array<Square>;
 
 export type Game = z.infer<typeof gameOutputSchema>;
@@ -53,24 +62,65 @@ export type GroupsStateGroups = {
   [value in Group]?: GroupResult;
 };
 
-export type ImgurUploadResult = {
-  status: number;
-  success: boolean;
-  data: {
-    id: string;
-    deletehash: string;
-    type: string;
-    width: number;
-    height: number;
-    size: number;
-    link: string;
-    datetime: number;
-  };
-};
-
 export type Theme = {
   config: ThemeConfig;
   label: string;
   customClass?: string;
 };
 
+export type NHLScheduleTeam = {
+  id: number;
+  abbrev: string;
+  commonName: { default: string };
+  placeName: { default: string };
+  logo: string;
+  darkLogo: string;
+  score?: number;
+  sog?: number;
+};
+
+export type NHLScheduleGame = {
+  id: number;
+  gameType: number;
+  gameDate: string;
+  startTimeUTC: string;
+  venueUTCOffset: string;
+  venueTimezone: string;
+  gameState: string;
+  gameScheduleState: string;
+  awayTeam: NHLScheduleTeam;
+  homeTeam: NHLScheduleTeam;
+};
+
+export type NHLScheduleResult = {
+  games: Array<NHLScheduleGame>;
+};
+
+export type NHLActiveGame = NHLScheduleGame & {
+  shootoutInUse: boolean;
+  otInUse: boolean;
+  tiesInUse: boolean;
+  regPeriods: number;
+  maxPeriods: number;
+  // Both are absent until the game starts — confirmed against /landing for a
+  // FUT game, which carries neither.
+  clock?: {
+    timeRemaining: string;
+    secondsRemaining: number;
+    running: boolean;
+    inIntermission: boolean;
+  };
+  periodDescriptor?: {
+    number: number;
+    periodType: string;
+    maxRegulationPeriods: number;
+  };
+};
+
+export enum NHLGameState {
+  LIVE = 'live',
+  PREGAME = 'pre',
+  POSTGAME = 'post',
+  FUTURE = 'future',
+  NONE = 'none',
+}

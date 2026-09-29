@@ -1,42 +1,34 @@
-import { Divider, Form, Space } from 'antd';
+import { Flex } from 'antd';
 
-import { Group } from '@app/constants.ts';
+import { Group } from '@app/constants';
 
 import GameOption from './GameOption';
 import OptionRadio from './OptionRadio';
-import OptionSelect from './OptionSelect';
 import OtherOptions from './OtherOptions';
+import { Scratches } from './Scratches';
 
 export function Options() {
-  const radioOptions = Group.SingleGroups.map((groupName, idx) => (
-    <OptionRadio
-      groupName={groupName}
-      key={groupName}
-      hideMargin={Group.SingleGroups.length - 1 === idx}
-    />
+  const radioOptions = Group.SingleGroups.map((groupName) => (
+    <OptionRadio groupName={groupName} key={groupName} />
   ));
 
-  const selectOptions = Group.MultiGroups.map((groupName, idx) => (
-    <OptionSelect
-      groupName={groupName}
-      key={groupName}
-      hideMargin={Group.MultiGroups.length - 1 === idx}
-    />
-  ));
-
+  // No `gap` prop: the spacing differs between the panel and the sheet, and an
+  // inline style cannot carry a breakpoint. It is set on `.options` instead.
   return (
-    <Form className="options" layout="vertical">
-      <Space
-        style={{ width: '100%' }}
-        orientation="vertical"
-        size="small"
-        separator={<Divider size="middle" />}
-      >
-        <div>{radioOptions}</div>
-        <div>{selectOptions}</div>
-        <OtherOptions />
-        <GameOption />
-      </Space>
-    </Form>
+    <Flex className="options" orientation="vertical">
+      <Flex className="options-header this-game" align="center">
+        <span>This Game</span>
+      </Flex>
+      {/* Location & Broadcast */}
+      {radioOptions}
+      <Scratches />
+      {/* Game Pattern */}
+      <GameOption />
+      <Flex className="options-header preferences" align="center">
+        <span>Preferences</span>
+      </Flex>
+      {/* Theme & Tooltips */}
+      <OtherOptions />
+    </Flex>
   );
 }

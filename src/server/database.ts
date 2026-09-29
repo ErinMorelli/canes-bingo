@@ -7,8 +7,21 @@ import { drizzle } from 'drizzle-orm/mysql2';
 import * as schema from './schema';
 
 if (process.env.NODE_ENV !== 'production') {
+  /*
+    Both files, `.env.local` first so it wins where they overlap — dotenv
+    keeps the first value it sees for a key. That is the usual split: `.env`
+    committed-ish defaults, `.env.local` the machine's own overrides.
+
+    Previously this read `.env.local` alone, which meant consolidating the
+    values into `.env` left the server with no DATABASE_URL and no SECRET_KEY
+    the next time it restarted. Reading both makes the layout a choice rather
+    than a requirement.
+  */
   dotenv.config({
-    path: path.resolve(process.cwd(), '.env.local'),
+    path: [
+      path.resolve(process.cwd(), '.env.local'),
+      path.resolve(process.cwd(), '.env'),
+    ],
   });
 }
 

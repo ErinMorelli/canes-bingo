@@ -1,25 +1,14 @@
-import { useCallback, useMemo, useState } from 'react';
-import { Button, Flex, Form, Modal, Select, Switch, Typography } from 'antd';
-import { EyeOutlined } from '@ant-design/icons'
+import { useCallback, useMemo } from 'react';
+import { Flex, Switch } from 'antd';
 
 import { Game } from '@app/types';
 
 import { useConfig, useGames } from '@hooks';
 
-import { PatternAnimated, PatternGame } from '@components/Pattern';
-
-const { Text, Title, Paragraph } = Typography;
-
-type GameOptionType = {
-  value: number;
-  label: string;
-  data: Game;
-}
-
-const tooltipText = 'Pick a bingo game pattern to play for and get notified when you win!';
+import { PatternGame } from '@components/Pattern';
 
 export default function GameOption() {
-  const { theme } = useConfig()
+  const { theme } = useConfig();
   const {
     games,
     gamesLoaded,
@@ -29,100 +18,70 @@ export default function GameOption() {
     setIsEnabled,
   } = useGames();
 
-  const [open, setOpen] = useState<boolean>(false);
-
-  const handleChange = useCallback((value?: GameOptionType | GameOptionType[]) => {
-    if (!value || Array.isArray(value)) return;
-    setSelectedGame(value.data);
+  const handleChange = useCallback((value: Game) => {
+    setSelectedGame(value);
   }, [setSelectedGame]);
 
-  const options = useMemo<GameOptionType[]>(() => {
-    return games.map(game => ({
-      value: game.id,
-      label: game.name,
-      data: game,
-    }))
-  }, [games]);
-
-  const gameRender = useCallback((game?: Game) => {
-    if (!game) return null;
-    return <PatternGame game={game} isEnabled={isEnabled} />
-  }, [isEnabled]);
+  const options = useMemo(() => {
+    return games.map(game => {
+      const classes = ['game-option', theme.name];
+      if (selectedGame?.id === game.id) classes.push('selected');
+      return (
+        <button
+          key={game.id}
+          type="button"
+          className={classes.join(' ')}
+          /*
+            The selected pattern was carried by a class alone, so assistive
+            tech had no way to tell which of the five was active. Matches the
+            database's own filter chips, which are the same single-select
+            shape and already do this.
+          */
+          aria-pressed={selectedGame?.id === game.id}
+          onClick={() => handleChange(game)}>
+          <PatternGame game={game} size={7} />
+          <div className="game-option-name">{game.name}</div>
+        </button>
+      );
+    });
+  }, [games, handleChange, selectedGame?.id, theme.name]);
 
   return gamesLoaded ? (
-    <>
-      <Flex orientation="vertical" gap="4px">
-        <Form.Item
-          className="game-pattern-select"
-          tooltip={tooltipText}
-          style={{ marginBottom: 0 }}
-          label={
-            <Flex orientation="horizontal" gap="10px">
-              <Switch
-                value={isEnabled}
-                checkedChildren="On"
-                unCheckedChildren="Off"
-                onChange={(e) => setIsEnabled(e)}
-              />
-              <Text strong>Game Pattern</Text>
-            </Flex>
-          }
-          extra={selectedGame && (
-            <Button
-              type="link"
-              size="small"
-              icon={<EyeOutlined aria-hidden />}
-              disabled={!isEnabled}
-              onClick={() => !open && setOpen(true)}
-            >
-              View Game Rules
-            </Button>
-          )}
-        >
-          <Select
-            disabled={!isEnabled}
-            value={selectedGame?.id}
-            onChange={(_, opt) => handleChange(opt)}
-            options={options}
-            optionRender={({ data }) => gameRender(data.data)}
-            labelRender={() => gameRender(selectedGame)}
-            classNames={{
-              popup: {
-                root: 'game-pattern-select-popup'
-              }
-            }}
-            showSearch={false}
-          />
-        </Form.Item>
+    <Flex orientation="vertical" gap={8}>
+      <Flex align="center" justify="space-between">
+        <Flex orientation="vertical">
+          <div className="group-title" id="game-pattern-label">Game Pattern</div>
+          {/*
+            Says there is no pattern while the switch is off, matching the
+            status strip word for word.
+            The design leaves the selected game's name here either way, but
+            that put the drawer and the status strip in contradiction — the
+            panel read "Any Five" while the strip read "No pattern" — and the
+            pattern it named was not being played.
+          */}
+          <div className="game-title">
+            {isEnabled ? selectedGame?.name : 'No pattern'}
+          </div>
+        </Flex>
+        {/*
+          antd renders a bare role="switch" button, so without this it is
+          announced with no name at all — "switch, on" and nothing else.
+          Pointed at the visible heading rather than duplicating it.
+        */}
+        <Switch
+          value={isEnabled}
+          onChange={(e) => setIsEnabled(e)}
+          aria-labelledby="game-pattern-label"
+        />
       </Flex>
-      {selectedGame && (
-        <Modal
-          open={open}
-          footer={null}
-          title={
-            <Title
-              level={4}
-              style={{ color: theme.config.token?.colorPrimary }}
-            >
-              Game Rules: {selectedGame.name}
-            </Title>
-          }
-          closable={{ onClose: () => setOpen(false) }}
-          onCancel={() => setOpen(false)}
-        >
-          <Flex gap="20px">
-            <div style={{ paddingTop: '5px', flex: '1 0 auto' }}>
-              <PatternAnimated
-                patterns={selectedGame.patterns}
-                animate={open}
-                speed={700}
-                size={20}
-              />
-            </div>
-            <Paragraph>{selectedGame.description}</Paragraph>
+      {isEnabled && selectedGame && (
+        <>
+          <Flex gap={4}>{options}</Flex>
+          <Flex className="game-option-description">
+            {selectedGame.description}
           </Flex>
-        </Modal>
+        </>
       )}
-    </>
+    </Flex>
   ) : null;
 }
