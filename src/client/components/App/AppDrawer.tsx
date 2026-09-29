@@ -60,9 +60,17 @@ export default function AppDrawer({ customClass = '' }: Readonly<AppDrawerProps>
         section: { '--sheet-handle': sheetHandle[theme.name] } as CSSProperties,
       }}
       open={isOpen || squaresError}
-      // No ✕ on the sheet — the design closes it by the scrim or the CTA, and
-      // a close button competes with Reset in a header that narrow.
-      closable={isSheet ? false : { placement: 'end' }}
+      /*
+        A ✕ on both, at the start on the sheet so it does not fight Reset for
+        the right-hand side.
+
+        The sheet used to have none: the design dismisses it by dragging the
+        handle, and antd's Drawer has no drag gesture, so the only ways out
+        were an 8%-tall strip of scrim or the CTA — and the CTA deals a new
+        card, which is not "close". Leaving on a destructive action is not a
+        dismissal.
+      */
+      closable={{ placement: isSheet ? 'start' : 'end' }}
       onClose={() => !squaresError && close()}
       footer={
         <Flex className="drawer-footer" orientation="vertical" gap={10}>
