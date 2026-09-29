@@ -56,19 +56,33 @@ export function ScratchesPage() {
   const stored = useMemo(() => parseScratchList(storedRow?.value), [storedRow]);
 
   const [checked, setChecked] = useState<number[]>([]);
-  const [loaded, setLoaded] = useState(false);
+  /** The game the current ticks were seeded for, so a new one reseeds. */
+  const [seededFor, setSeededFor] = useState<number | null>(null);
 
   /*
-    Seeded once, and only from a list published for *this* game. A list left
-    over from the previous game is ignored here for the same reason the app
+    Seeded per game, from a list published for *that* game. A list left over
+    from the previous game is ignored here for the same reason the app
     ignores it: it describes a night that has already happened.
+
+    Keyed on the game rather than seeded once. The schedule query refetches on
+    window focus, so a page left open overnight quietly swaps to tomorrow's
+    game — and a one-time seed would leave last night's ticks on screen under
+    the new game's header, then publish them pinned to the new game's id.
+
+    Re-running only when the id actually changes is what keeps an edit in
+    progress safe: publishing invalidates the config query, which changes
+    `stored`, and reseeding on that would throw away what was just typed.
   */
   useEffect(() => {
-    if (loaded || configLoading || scheduleLoading) return;
-    const applies = stored && game && stored.gameId === game.id;
+    if (configLoading || scheduleLoading) return;
+
+    const gameId = game?.id ?? null;
+    if (seededFor === gameId) return;
+
+    const applies = stored !== null && gameId !== null && stored.gameId === gameId;
     setChecked(applies ? stored.ids : []);
-    setLoaded(true);
-  }, [loaded, configLoading, scheduleLoading, stored, game]);
+    setSeededFor(gameId);
+  }, [configLoading, scheduleLoading, stored, game, seededFor]);
 
   const rosters = useMemo(
     () =>
@@ -192,8 +206,13 @@ export function ScratchesPage() {
           onClick={() => save.mutate(checked)}>
           Publish {checked.length > 0 && `(${checked.length})`}
         </Button>
+        {/*
+          `save.isPending` as well as the empty check. Clearing empties
+          `checked`, which disables this on its own — but only until a box is
+          ticked again, and the publish behind it may still be in flight.
+        */}
         <Button
-          disabled={!game || checked.length === 0}
+          disabled={!game || checked.length === 0 || save.isPending}
           onClick={() => { setChecked([]); save.mutate([]); }}>
           Clear
         </Button>

@@ -28,9 +28,10 @@
     <meta name="twitter:card" content="summary_large_image">
 
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <!-- Repainted per theme at runtime by ConfigContext. The PNG is the
-         pre-hydration fallback and the answer for anything that will not
-         take an SVG icon. -->
+    <!-- These stay PNG. ConfigContext appends a separate theme-coloured SVG
+         icon at runtime, which browsers that support one will prefer; these
+         remain the icon before hydration and for anything that cannot read
+         an SVG favicon. -->
     <meta name="theme-color" content="#F4F5F6">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">

@@ -58,18 +58,28 @@ export function ConfigProvider({ children }: Readonly<{ children: React.ReactNod
     const colours = markColours[theme.name] ?? markColours.default;
 
     /*
-      Every icon link, not just the first. The page declares a 32px and a
-      16px PNG, and the browser picks whichever suits the slot it is filling
-      — repaint only one and it will happily keep showing the other. They
-      all become the same SVG, which has no fixed size to choose between, so
-      `sizes` is dropped rather than left lying about a scalable icon.
+      A dedicated SVG link, added alongside the PNGs rather than written over
+      them.
+
+      Rewriting the declared PNG links was the tidier-looking option and it
+      stranded anyone whose browser cannot read an SVG icon — Safari before
+      16.4 — with two links it has to ignore. It would have limped along on
+      the undeclared /favicon.ico, which is to say by accident.
+
+      This is the ordinary SVG-with-PNG-fallback arrangement: browsers that
+      understand an SVG icon take it and follow the theme, the rest keep the
+      PNG they were always going to use. Created here rather than declared in
+      the HTML because its only content is the generated data URI.
     */
-    const href = markDataUri(colours);
-    document.querySelectorAll<HTMLLinkElement>('link[rel="icon"]').forEach((icon) => {
-      icon.type = 'image/svg+xml';
-      icon.removeAttribute('sizes');
-      icon.href = href;
-    });
+    const SVG_ICON = 'link[rel="icon"][type="image/svg+xml"]';
+    let svgIcon = document.querySelector<HTMLLinkElement>(SVG_ICON);
+    if (!svgIcon) {
+      svgIcon = document.createElement('link');
+      svgIcon.rel = 'icon';
+      svgIcon.type = 'image/svg+xml';
+      document.head.appendChild(svgIcon);
+    }
+    svgIcon.href = markDataUri(colours);
 
     /*
       Unlike the icon, this one reaches the browser chrome itself — the
