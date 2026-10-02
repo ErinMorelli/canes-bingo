@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, cleanup, act } from '@testing-library/react';
 
 import type { NHLScheduleGame, NHLScheduleTeam } from '@app/types';
@@ -75,9 +75,17 @@ function ticked(): string[] {
 
 beforeEach(() => {
   cleanup();
+  // The page picks today's (or the next) game, so pin the clock to the
+  // fixture's game day or the fixture ages out of the schedule.
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(new Date('2026-09-29T12:00:00Z'));
   configItems = [];
   scheduleGame = null;
   savePending = false;
+});
+
+afterEach(() => {
+  vi.useRealTimers();
 });
 
 describe('ScratchesPage seeding', () => {
