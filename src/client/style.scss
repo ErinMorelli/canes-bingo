@@ -33,6 +33,11 @@ $light-off-opacity: 0.4;
   }
 }
 
+// For when the Canes play the Washington Capitals - no caps are allowed.
+.no-caps * {
+  text-transform: lowercase !important;
+}
+
 // The shell fills the viewport: header pinned to the top, footer to the
 // bottom, and the board region absorbing whatever is left over. That needs an
 // unbroken height chain from the document down to `.app`, because a percentage
