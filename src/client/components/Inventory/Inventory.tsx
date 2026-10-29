@@ -56,13 +56,17 @@ export function Inventory() {
   }, []);
 
   useEffect(() => {
-    fetchConfigValue(ConfigKey.HeaderText).then(setHeaderText);
+    fetchConfigValue(ConfigKey.HeaderText)
+      .then(setHeaderText)
+      .catch((error: unknown) => console.error(error));
   }, []);
 
   useEffect(() => {
-    fetchConfigValue(ConfigKey.CustomClass).then((serverClass) => {
-      setCustomClass([serverClass, themeClass].filter(Boolean).join(' ') || undefined);
-    });
+    fetchConfigValue(ConfigKey.CustomClass)
+      .then((serverClass) => {
+        setCustomClass([serverClass, themeClass].filter(Boolean).join(' ') || undefined);
+      })
+      .catch((error: unknown) => console.error(error));
   }, [themeClass]);
 
   /** Only active squares are in the pool, so only those belong on the page. */
