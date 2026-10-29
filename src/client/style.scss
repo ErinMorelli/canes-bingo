@@ -634,12 +634,14 @@ body {
       .header-right {
         gap: 6px;
 
-        .generate,
-        .open-options {
+        // `button` keeps this level with the desktop rule that hides the
+        // icon, so source order alone lets the compact layout show it.
+        button.generate,
+        button.open-options {
           padding-inline: 12px;
 
           .ant-btn-icon {
-            display: inline-block !important;
+            display: inline-block;
           }
 
           .anticon + span,
@@ -759,11 +761,6 @@ body {
           color: var(--ant-color-text-secondary);
           white-space: nowrap;
         }
-
-        .pattern-animated .pattern-field .table .row .square {
-          width: 8px !important;
-          height: 8px !important;
-        }
       }
 
       /*
@@ -858,11 +855,6 @@ body {
               font-size: 18px;
             }
           }
-
-          .pattern-animated .pattern-field .table .row .square {
-            width: 6px !important;
-            height: 6px !important;
-          }
         }
       }
     }
@@ -889,6 +881,15 @@ body {
       flex-direction: column;
       align-items: center;
       justify-content: center;
+
+      // Spin's wrapper sits between this column and the board. As a centred
+      // flex item it would shrink to fit, and the board's `width: 100%` would
+      // then resolve against its own content — the same circular sizing the
+      // wrapper's explicit width avoids. Stretch it to the full content box.
+      > .ant-spin,
+      > .ant-spin > .ant-spin-container {
+        width: 100%;
+      }
 
       .board-hint {
         padding-top: 16px;

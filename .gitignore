@@ -26,3 +26,4 @@ src/test.js
 *.sqlite-*
 src/client/api-client.ts
 drizzle/
+*.mcp.json

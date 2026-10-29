@@ -1,11 +1,12 @@
 import { Flex } from 'antd';
 
+import { BP_COMPACT } from '@app/constants';
 import { headerRule } from '@app/themes';
 
 import { ActiveGameProvider } from '@context/ActiveGameContext';
 
 import { StatusGame } from './StatusGame';
-import { useGameBoard, useGames } from '@hooks';
+import { useGameBoard, useGames, useMediaQuery } from '@hooks';
 import { PatternAnimated } from '@components/Pattern';
 import { useMemo } from 'react';
 
@@ -16,6 +17,7 @@ type StatusProps = {
 export function Status({ themeName }: Readonly<StatusProps>) {
   const { selectedGame, isEnabled } = useGames();
   const { squaresRemaining, hasWon, winningPattern } = useGameBoard();
+  const isCompact = useMediaQuery(`(max-width: ${BP_COMPACT}px)`);
 
   const borderColor = headerRule[themeName];
 
@@ -65,7 +67,7 @@ export function Status({ themeName }: Readonly<StatusProps>) {
             align="flex-end"
             gap={2}>
               <Flex align="center" gap={7}>
-                <PatternAnimated patterns={shownPatterns} size={8} />
+                <PatternAnimated patterns={shownPatterns} size={isCompact ? 6 : 8} />
                 {/* "BINGO" replaces the count outright — there is nothing left
                     to go, so the label goes with it. */}
                 {hasWon ? (
