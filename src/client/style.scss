@@ -890,6 +890,15 @@ body {
       align-items: center;
       justify-content: center;
 
+      // Spin's wrapper sits between this column and the board. As a centred
+      // flex item it would shrink to fit, and the board's `width: 100%` would
+      // then resolve against its own content — the same circular sizing the
+      // wrapper's explicit width avoids. Stretch it to the full content box.
+      > .ant-spin,
+      > .ant-spin > .ant-spin-container {
+        width: 100%;
+      }
+
       .board-hint {
         padding-top: 16px;
         text-align: center;
